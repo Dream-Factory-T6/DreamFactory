@@ -1,4 +1,4 @@
-package com.DreamFactory.DF.user;
+package com.DreamFactory.DF.user.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
