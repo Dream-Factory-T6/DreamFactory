@@ -101,4 +101,12 @@ public class UserService implements UserDetailsService {
         User updatedUser = userRepository.save(user);
         return UserMapper.fromEntity(updatedUser);
     }
+
+    public void deleteUser(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new RuntimeException("User id not found");
+        }
+        userRepository.deleteById(id);
+    }
+
 }
