@@ -14,13 +14,12 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/users")
 @AllArgsConstructor
 public class UserController {
 
     private UserService userService;
 
-    @GetMapping
+    @GetMapping("/api/users")
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
@@ -35,12 +34,12 @@ public class UserController {
         }
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/api/users/{id}")
     public ResponseEntity<UserResponse> updateUser(@Parameter @PathVariable Long id, @Valid @RequestBody UserRequest request) {
         return ResponseEntity.ok(userService.updateUser(id, request));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/api/users/{id}")
     public ResponseEntity<String> deleteUserById(@Parameter(description = "User ID you want to delete") @PathVariable Long id) {
         userService.deleteUser(id);
         return new ResponseEntity<>("User with id " + id + " has been deleted", HttpStatus.NO_CONTENT);
