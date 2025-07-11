@@ -4,8 +4,10 @@ import com.DreamFactory.DF.destination.Destination;
 import com.DreamFactory.DF.user.model.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -28,7 +30,10 @@ public class Review {
     @NotNull
     private String body;
 
-    private Date createdAt;
+    @NotNull
+    @PastOrPresent
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
 
     @ManyToOne
     @JoinColumn(name = "destination_id", nullable = false)
@@ -37,4 +42,9 @@ public class Review {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
 }
