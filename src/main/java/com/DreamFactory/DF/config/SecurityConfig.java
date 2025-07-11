@@ -37,7 +37,7 @@ public class SecurityConfig {
                         authz
                                 .requestMatchers(HttpMethod.GET, "/api/destinations/**").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/register").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/reviews", "api/destinations/**")
                                 .hasRole("USER")
                                 .requestMatchers(HttpMethod.GET,"/api/users" )
