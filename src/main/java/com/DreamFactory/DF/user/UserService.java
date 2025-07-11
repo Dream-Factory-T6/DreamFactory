@@ -36,7 +36,7 @@ public class UserService implements UserDetailsService {
 
         Optional<User> optionalUser = userRepository.findByUsername(username);
         if(optionalUser.isEmpty()){
-            throw new UsernameNotFoundException(username + "does not exist.");
+            throw new UsernameNotFoundException(username + " does not exist.");
         }
 
         User user = optionalUser.orElseThrow();
@@ -60,7 +60,7 @@ public class UserService implements UserDetailsService {
         if (isExistingUsername.isPresent()){
             throw new RuntimeException("Username already exist");
         }
-        Optional<User> isExistingEmail = userRepository.findByEmail(request.username());
+        Optional<User> isExistingEmail = userRepository.findByEmail(request.email());
         if (isExistingEmail.isPresent()){
             throw new RuntimeException("Email already exist");
         }
@@ -72,9 +72,11 @@ public class UserService implements UserDetailsService {
     }
 
     public List<UserResponse> getAllUsers() {
-        return userRepository.findAll().stream()
+        return userRepository.findAll()
+                .stream()
                 .map(UserMapper::fromEntity)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList())
+                ;
     }
 
     public UserResponse updateUser(Long id, UserRequest request) {
@@ -89,7 +91,7 @@ public class UserService implements UserDetailsService {
         if (isExistingUsername.isPresent()){
             throw new RuntimeException("Username already exist");
         }
-        Optional<User> isExistingEmail = userRepository.findByEmail(request.username());
+        Optional<User> isExistingEmail = userRepository.findByEmail(request.email());
         if (isExistingEmail.isPresent()){
             throw new RuntimeException("Email already exist");
         }
