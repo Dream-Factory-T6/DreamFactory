@@ -1,8 +1,12 @@
 package com.DreamFactory.DF.destination.dto;
 
-import java.time.LocalDateTime;
 
-public record DestinationResponse(
+import com.DreamFactory.DF.review.dtos.ReviewResponse;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+public record DestinationWithReviewsResponse(
         Long id,
         String title,
         String location,
@@ -10,5 +14,7 @@ public record DestinationResponse(
         String imageUrl,
         String username,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt) {
+        LocalDateTime updatedAt,
+        List<ReviewResponse> reviews
+) {
 }
