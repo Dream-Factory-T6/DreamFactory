@@ -1,5 +1,4 @@
-package com.DreamFactory.DF.destination.dto;
-
+package com.DreamFactory.DF.review.dtos;
 import com.DreamFactory.DF.review.Review;
 import com.DreamFactory.DF.review.dtos.ReviewRequest;
 import com.DreamFactory.DF.review.dtos.ReviewResponse;
