@@ -46,79 +46,79 @@ INSERT INTO destinations (title, location, description, image_url, user_id, crea
 ('Petra Ancient City', 'Jordan', 'Explore the ancient Nabatean city carved into red sandstone cliffs. Archaeological wonder and desert beauty.', 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256', 7, NOW(), NOW());
 
 -- Insert reviews for each destination (3 reviews per destination)
-INSERT INTO reviews (rating, comment, user_id, destination_id, created_at, updated_at) VALUES
+INSERT INTO reviews (rating, body, user_id, destination_id, created_at) VALUES
 -- Reviews for Paradise Beach (destination_id = 1)
-(5, 'Absolutely stunning! The water is crystal clear and the beach is pristine. Perfect for swimming and snorkeling.', 4, 1, NOW(), NOW()),
-(4, 'Beautiful location but quite touristy. Still worth visiting for the amazing sunsets.', 5, 1, NOW(), NOW()),
-(5, 'Paradise found! The local food is amazing and the people are so friendly.', 6, 1, NOW(), NOW()),
+(5.0, 'Absolutely stunning! The water is crystal clear and the beach is pristine. Perfect for swimming and snorkeling.', 4, 1, NOW()),
+(4.0, 'Beautiful location but quite touristy. Still worth visiting for the amazing sunsets.', 5, 1, NOW()),
+(5.0, 'Paradise found! The local food is amazing and the people are so friendly.', 6, 1, NOW()),
 
 -- Reviews for Mountain Retreat (destination_id = 2)
-(5, 'Incredible skiing experience! The slopes are well-maintained and the views are breathtaking.', 4, 2, NOW(), NOW()),
-(4, 'Great for both beginners and advanced skiers. The chalet was cozy and comfortable.', 5, 2, NOW(), NOW()),
-(5, 'Winter wonderland! The après-ski scene is fantastic and the mountain restaurants are excellent.', 6, 2, NOW(), NOW()),
+(5.0, 'Incredible skiing experience! The slopes are well-maintained and the views are breathtaking.', 4, 2, NOW()),
+(4.0, 'Great for both beginners and advanced skiers. The chalet was cozy and comfortable.', 5, 2, NOW()),
+(5.0, 'Winter wonderland! The après-ski scene is fantastic and the mountain restaurants are excellent.', 6, 2, NOW()),
 
 -- Reviews for Desert Oasis (destination_id = 3)
-(4, 'Magical experience under the stars. The camel trek was unforgettable.', 4, 3, NOW(), NOW()),
-(5, 'The Berber camp was authentic and comfortable. The desert silence is incredible.', 5, 3, NOW(), NOW()),
-(4, 'Amazing cultural experience. The traditional music and food were highlights.', 6, 3, NOW(), NOW()),
+(4.0, 'Magical experience under the stars. The camel trek was unforgettable.', 4, 3, NOW()),
+(5.0, 'The Berber camp was authentic and comfortable. The desert silence is incredible.', 5, 3, NOW()),
+(4.0, 'Amazing cultural experience. The traditional music and food were highlights.', 6, 3, NOW()),
 
 -- Reviews for Cherry Blossom Festival (destination_id = 4)
-(5, 'Absolutely magical! The cherry blossoms are more beautiful than photos can capture.', 3, 4, NOW(), NOW()),
-(4, 'Great timing with the festival. The food stalls and traditional performances were amazing.', 5, 4, NOW(), NOW()),
-(5, 'Bucket list experience! The temples and gardens are stunning during sakura season.', 6, 4, NOW(), NOW()),
+(5.0, 'Absolutely magical! The cherry blossoms are more beautiful than photos can capture.', 3, 4, NOW()),
+(4.0, 'Great timing with the festival. The food stalls and traditional performances were amazing.', 5, 4, NOW()),
+(5.0, 'Bucket list experience! The temples and gardens are stunning during sakura season.', 6, 4, NOW()),
 
 -- Reviews for Northern Lights (destination_id = 5)
-(5, 'Aurora borealis was spectacular! The hot springs were perfect for warming up.', 3, 5, NOW(), NOW()),
-(4, 'Iceland is incredible. The glaciers and waterfalls are must-see attractions.', 5, 5, NOW(), NOW()),
-(5, 'Once in a lifetime experience! The northern lights danced across the sky for hours.', 6, 5, NOW(), NOW()),
+(5.0, 'Aurora borealis was spectacular! The hot springs were perfect for warming up.', 3, 5, NOW()),
+(4.0, 'Iceland is incredible. The glaciers and waterfalls are must-see attractions.', 5, 5, NOW()),
+(5.0, 'Once in a lifetime experience! The northern lights danced across the sky for hours.', 6, 5, NOW()),
 
 -- Reviews for Amazon Adventure (destination_id = 6)
-(4, 'Incredible wildlife sightings! The river cruise was educational and exciting.', 3, 6, NOW(), NOW()),
-(5, 'The indigenous village visit was eye-opening. The rainforest is truly amazing.', 5, 6, NOW(), NOW()),
-(4, 'Humid but worth it! Saw monkeys, birds, and even a jaguar from afar.', 6, 6, NOW(), NOW()),
+(4.0, 'Incredible wildlife sightings! The river cruise was educational and exciting.', 3, 6, NOW()),
+(5.0, 'The indigenous village visit was eye-opening. The rainforest is truly amazing.', 5, 6, NOW()),
+(4.0, 'Humid but worth it! Saw monkeys, birds, and even a jaguar from afar.', 6, 6, NOW()),
 
 -- Reviews for Great Wall Trek (destination_id = 7)
-(5, 'Historical and physically challenging. The views from the wall are incredible.', 3, 7, NOW(), NOW()),
-(4, 'Great workout with amazing history. The restored sections are easier to walk.', 4, 7, NOW(), NOW()),
-(5, 'Bucket list achievement! The less touristy sections offer the best experience.', 6, 7, NOW(), NOW()),
+(5.0, 'Historical and physically challenging. The views from the wall are incredible.', 3, 7, NOW()),
+(4.0, 'Great workout with amazing history. The restored sections are easier to walk.', 4, 7, NOW()),
+(5.0, 'Bucket list achievement! The less touristy sections offer the best experience.', 6, 7, NOW()),
 
 -- Reviews for Venice Canals (destination_id = 8)
-(5, 'Romantic and magical! The gondola ride was expensive but worth every penny.', 3, 8, NOW(), NOW()),
-(4, 'Beautiful architecture everywhere you look. The food is amazing too.', 4, 8, NOW(), NOW()),
-(5, 'Venice is like a fairy tale. Getting lost in the narrow streets is part of the charm.', 6, 8, NOW(), NOW()),
+(5.0, 'Romantic and magical! The gondola ride was expensive but worth every penny.', 3, 8, NOW()),
+(4.0, 'Beautiful architecture everywhere you look. The food is amazing too.', 4, 8, NOW()),
+(5.0, 'Venice is like a fairy tale. Getting lost in the narrow streets is part of the charm.', 6, 8, NOW()),
 
 -- Reviews for Machu Picchu (destination_id = 9)
-(5, 'Absolutely breathtaking! The early morning visit was worth the early wake-up call.', 3, 9, NOW(), NOW()),
-(4, 'The altitude takes some getting used to, but the site is incredible.', 4, 9, NOW(), NOW()),
-(5, 'Ancient wonder of the world! The engineering and architecture are mind-blowing.', 6, 9, NOW(), NOW()),
+(5.0, 'Absolutely breathtaking! The early morning visit was worth the early wake-up call.', 3, 9, NOW()),
+(4.0, 'The altitude takes some getting used to, but the site is incredible.', 4, 9, NOW()),
+(5.0, 'Ancient wonder of the world! The engineering and architecture are mind-blowing.', 6, 9, NOW()),
 
 -- Reviews for Santorini Sunset (destination_id = 10)
-(5, 'The most beautiful sunset I''ve ever seen! The white buildings are stunning.', 3, 10, NOW(), NOW()),
-(4, 'Romantic and picturesque. The wine tasting was a great addition to the trip.', 4, 10, NOW(), NOW()),
-(5, 'Oia is magical at sunset. The blue domes against the white buildings are iconic.', 5, 10, NOW(), NOW()),
+(5.0, 'The most beautiful sunset I''ve ever seen! The white buildings are stunning.', 3, 10, NOW()),
+(4.0, 'Romantic and picturesque. The wine tasting was a great addition to the trip.', 4, 10, NOW()),
+(5.0, 'Oia is magical at sunset. The blue domes against the white buildings are iconic.', 5, 10, NOW()),
 
 -- Reviews for Taj Mahal (destination_id = 11)
-(5, 'The marble work is incredible! The symmetry and detail are mind-blowing.', 3, 11, NOW(), NOW()),
-(4, 'Very crowded but still beautiful. Early morning visit is recommended.', 4, 11, NOW(), NOW()),
-(5, 'Symbol of eternal love. The story behind the monument makes it even more special.', 5, 11, NOW(), NOW()),
+(5.0, 'The marble work is incredible! The symmetry and detail are mind-blowing.', 3, 11, NOW()),
+(4.0, 'Very crowded but still beautiful. Early morning visit is recommended.', 4, 11, NOW()),
+(5.0, 'Symbol of eternal love. The story behind the monument makes it even more special.', 5, 11, NOW()),
 
 -- Reviews for Serengeti Safari (destination_id = 12)
-(5, 'Saw the Big Five! The migration was incredible to witness.', 3, 12, NOW(), NOW()),
-(4, 'Amazing wildlife photography opportunities. The guides were very knowledgeable.', 4, 12, NOW(), NOW()),
-(5, 'African adventure of a lifetime! The tented camp experience was authentic and comfortable.', 5, 12, NOW(), NOW()),
+(5.0, 'Saw the Big Five! The migration was incredible to witness.', 3, 12, NOW()),
+(4.0, 'Amazing wildlife photography opportunities. The guides were very knowledgeable.', 4, 12, NOW()),
+(5.0, 'African adventure of a lifetime! The tented camp experience was authentic and comfortable.', 5, 12, NOW()),
 
 -- Reviews for New York City (destination_id = 13)
-(4, 'The energy of the city is incredible! Broadway shows are a must.', 3, 13, NOW(), NOW()),
-(5, 'So much to see and do! Central Park is beautiful and the museums are world-class.', 4, 13, NOW(), NOW()),
-(4, 'The food scene is amazing. Times Square at night is like nothing else.', 5, 13, NOW(), NOW()),
+(4.0, 'The energy of the city is incredible! Broadway shows are a must.', 3, 13, NOW()),
+(5.0, 'So much to see and do! Central Park is beautiful and the museums are world-class.', 4, 13, NOW()),
+(4.0, 'The food scene is amazing. Times Square at night is like nothing else.', 5, 13, NOW()),
 
 -- Reviews for Sydney Opera House (destination_id = 14)
-(5, 'Iconic architecture! The guided tour was informative and the harbor views are stunning.', 3, 14, NOW(), NOW()),
-(4, 'Beautiful building and great performances. The Sydney Harbour Bridge walk is also recommended.', 4, 14, NOW(), NOW()),
-(5, 'Australian landmark that lives up to the hype. The acoustics inside are incredible.', 5, 14, NOW(), NOW()),
+(5.0, 'Iconic architecture! The guided tour was informative and the harbor views are stunning.', 3, 14, NOW()),
+(4.0, 'Beautiful building and great performances. The Sydney Harbour Bridge walk is also recommended.', 4, 14, NOW()),
+(5.0, 'Australian landmark that lives up to the hype. The acoustics inside are incredible.', 5, 14, NOW()),
 
 -- Reviews for Petra Ancient City (destination_id = 15)
-(5, 'The Treasury is magnificent! The hike through the Siq is dramatic and exciting.', 3, 15, NOW(), NOW()),
-(4, 'Ancient wonder that''s worth the journey. The rock colors are beautiful in the sunlight.', 4, 15, NOW(), NOW()),
-(5, 'Archaeological treasure! The Monastery hike was challenging but the views were incredible.', 5, 15, NOW(), NOW());
+(5.0, 'The Treasury is magnificent! The hike through the Siq is dramatic and exciting.', 3, 15, NOW()),
+(4.0, 'Ancient wonder that''s worth the journey. The rock colors are beautiful in the sunlight.', 4, 15, NOW()),
+(5.0, 'Archaeological treasure! The Monastery hike was challenging but the views were incredible.', 5, 15, NOW());
 
