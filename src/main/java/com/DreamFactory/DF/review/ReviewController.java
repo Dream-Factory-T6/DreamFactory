@@ -30,4 +30,10 @@ public class ReviewController {
         ReviewResponse newReview = reviewService.createReview(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(newReview);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ReviewResponse> updateReview(@PathVariable Long id, @Valid @RequestBody ReviewRequest request){
+        ReviewResponse updatedReview = reviewService.updateReview(id,request);
+        return ResponseEntity.ok(updatedReview);
+    }
 }
