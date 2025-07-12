@@ -72,6 +72,18 @@ public class ReviewService {
         return ReviewMapper.toReviewResponse(review);
     }
 
+    public void delete(Long id) {
+        User user = getAuthenticatedUser();
+
+        Review review = reviewRepository.findById(id)
+                .orElseThrow(() -> new ReviewNotFoundByIdException(id));
+
+        if (!review.getUser().equals(user)) {
+            throw new AccessDeniedException("You are not allowed to update this review.");
+        }
+        reviewRepository.deleteById(id);
+    }
+
     public User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 

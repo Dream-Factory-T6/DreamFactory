@@ -17,10 +17,10 @@ import java.util.List;
 @RequiredArgsConstructor
 @Tag(name = "Review", description = "Operations related to review")
 public class ReviewController {
-    private  final ReviewService reviewService;
+    private final ReviewService reviewService;
 
     @GetMapping("")
-    public ResponseEntity<List<ReviewResponse>> showReviewsByUsername(){
+    public ResponseEntity<List<ReviewResponse>> showReviewsByUsername() {
         List<ReviewResponse> reviews = reviewService.getAllReviewsByUsername();
         return ResponseEntity.ok(reviews);
     }
@@ -32,8 +32,13 @@ public class ReviewController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ReviewResponse> updateReview(@PathVariable Long id, @Valid @RequestBody ReviewRequest request){
-        ReviewResponse updatedReview = reviewService.updateReview(id,request);
+    public ResponseEntity<ReviewResponse> updateReview(@PathVariable Long id, @Valid @RequestBody ReviewRequest request) {
+        ReviewResponse updatedReview = reviewService.updateReview(id, request);
         return ResponseEntity.ok(updatedReview);
+    }
+    @DeleteMapping
+    public ResponseEntity<ReviewResponse> deleteReview(@PathVariable Long id){
+        reviewService.delete(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
