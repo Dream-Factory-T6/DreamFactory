@@ -1,13 +1,14 @@
 package com.DreamFactory.DF.review;
 
 
+import com.DreamFactory.DF.review.dtos.ReviewRequest;
 import com.DreamFactory.DF.review.dtos.ReviewResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -22,5 +23,11 @@ public class ReviewController {
     public ResponseEntity<List<ReviewResponse>> showReviewsByUsername(){
         List<ReviewResponse> reviews = reviewService.getAllReviewsByUsername();
         return ResponseEntity.ok(reviews);
+    }
+
+    @PostMapping("")
+    public ResponseEntity<ReviewResponse> storeReview(@Valid @RequestBody ReviewRequest request) {
+        ReviewResponse newReview = reviewService.createReview(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newReview);
     }
 }
