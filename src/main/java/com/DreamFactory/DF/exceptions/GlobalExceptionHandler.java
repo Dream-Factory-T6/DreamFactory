@@ -11,6 +11,12 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler(AppException.class)
+    public ResponseEntity<Map<String, String>> handleAppException(AppException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
 
     @ExceptionHandler(DestinationNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleDestinationNotFound(DestinationNotFoundException ex) {
@@ -18,4 +24,5 @@ public class GlobalExceptionHandler {
         error.put("error", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
+
 }

@@ -1,7 +1,9 @@
 package com.DreamFactory.DF.destination.exceptions;
 
-public class DestinationNotFoundException extends RuntimeException {
-    public DestinationNotFoundException(String message){
+import com.DreamFactory.DF.exceptions.AppException;
+
+public class DestinationNotFoundException extends AppException {
+    public DestinationNotFoundException(String message) {
         super(message);
     }
 
