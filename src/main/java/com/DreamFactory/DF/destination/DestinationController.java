@@ -1,9 +1,15 @@
 package com.DreamFactory.DF.destination;
 
+import com.DreamFactory.DF.destination.dto.DestinationFilterRequest;
 import com.DreamFactory.DF.destination.dto.DestinationResponse;
+import com.DreamFactory.DF.user.model.User;
+import com.DreamFactory.DF.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -11,13 +17,13 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class DestinationController {
     private final DestinationService destinationService;
+    private final UserRepository userRepository;
 
     @GetMapping
     public ResponseEntity<Page<DestinationResponse>> getAllDestinations(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "4") int size
-    ) {
-        Page<DestinationResponse> destinations = destinationService.getAllDestinations(page,size);
+            @RequestParam(defaultValue = "4") int size) {
+        Page<DestinationResponse> destinations = destinationService.getAllDestinations(page, size);
         return ResponseEntity.ok(destinations);
     }
 
@@ -25,5 +31,35 @@ public class DestinationController {
     public ResponseEntity<DestinationResponse> getDestinationById(@PathVariable Long id) {
         DestinationResponse destination = destinationService.getDestinationById(id);
         return ResponseEntity.ok(destination);
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<Page<DestinationResponse>> getDestinationsWithFilters(
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) String title,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "4") int size) {
+        DestinationFilterRequest filter = new DestinationFilterRequest(location, title);
+        Page<DestinationResponse> destinations = destinationService.getDestinationsWithFilters(filter, page, size);
+        return ResponseEntity.ok(destinations);
+    }
+
+    @GetMapping("/my-destinations")
+    public ResponseEntity<Page<DestinationResponse>> getMyDestinations(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "4") int size) {
+        User currentUser = getCurrentUser();
+        Page<DestinationResponse> destinations = destinationService.getUserDestinations(currentUser, page, size);
+        return ResponseEntity.ok(destinations);
+    }
+
+    private User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new AccessDeniedException("User not authenticated");
+        }
+        String username = authentication.getName();
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new AccessDeniedException("User not found"));
     }
 }
