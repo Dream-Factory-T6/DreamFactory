@@ -88,4 +88,14 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.email").value("updatetest@test.com"));
     }
 
+    @Test
+    @Transactional
+    @WithMockUser(roles = {"ADMIN"})
+    void should_deleteUser ()throws Exception{
+        Long userId = 1L;
+
+        mockMvc.perform(delete("/api/users/{id}", userId))
+                .andExpect(status().isNoContent());
+    }
+
 }
