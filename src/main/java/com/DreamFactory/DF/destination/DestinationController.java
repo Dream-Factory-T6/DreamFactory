@@ -21,9 +21,10 @@ public class DestinationController {
 
     @GetMapping
     public ResponseEntity<Page<DestinationResponse>> getAllDestinations(
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "4") int size) {
-        Page<DestinationResponse> destinations = destinationService.getAllDestinations(page, size);
+        Page<DestinationResponse> destinations = destinationService.getAllDestinations(convertToZeroBasedPage(page),
+                size);
         return ResponseEntity.ok(destinations);
     }
 
@@ -37,19 +38,20 @@ public class DestinationController {
     public ResponseEntity<Page<DestinationResponse>> getDestinationsWithFilters(
             @RequestParam(required = false) String location,
             @RequestParam(required = false) String title,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "4") int size) {
         DestinationFilterRequest filter = new DestinationFilterRequest(location, title);
-        Page<DestinationResponse> destinations = destinationService.getDestinationsWithFilters(filter, page, size);
+        Page<DestinationResponse> destinations = destinationService.getDestinationsWithFilters(filter,
+                convertToZeroBasedPage(page), size);
         return ResponseEntity.ok(destinations);
     }
 
     @GetMapping("/my-destinations")
     public ResponseEntity<Page<DestinationResponse>> getMyDestinations(
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "4") int size) {
         User currentUser = getCurrentUser();
-        Page<DestinationResponse> destinations = destinationService.getUserDestinations(currentUser, page, size);
+        Page<DestinationResponse> destinations = destinationService.getUserDestinations(currentUser, convertToZeroBasedPage(page), size);
         return ResponseEntity.ok(destinations);
     }
 
@@ -61,5 +63,9 @@ public class DestinationController {
         String username = authentication.getName();
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new AccessDeniedException("User not found"));
+    }
+
+    private int convertToZeroBasedPage(int page) {
+        return page - 1;
     }
 }
