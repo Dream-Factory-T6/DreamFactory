@@ -1,7 +1,5 @@
 package com.DreamFactory.DF.review.dtos;
 import com.DreamFactory.DF.review.Review;
-import com.DreamFactory.DF.review.dtos.ReviewRequest;
-import com.DreamFactory.DF.review.dtos.ReviewResponse;
 
 public class ReviewMapper {
     public static Review toEntity(ReviewRequest request){
