@@ -8,12 +8,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -29,6 +32,31 @@ public class UserControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Test
+    @Transactional
+    @WithMockUser(roles = {"ADMIN"})
+    void should_getAllUsers() throws Exception {
+        mockMvc.perform(get("/api/users")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(7)))
+                .andExpect(jsonPath("$.[0].username").value("admin"))
+                .andExpect(jsonPath("$.[0].email").value("admin@happytravel.com"))
+                .andExpect(jsonPath("$.[1].username").value("user"))
+                .andExpect(jsonPath("$.[1].email").value("user@happytravel.com"))
+                .andExpect(jsonPath("$.[2].username").value("john_doe"))
+                .andExpect(jsonPath("$.[2].email").value("john@example.com"))
+                .andExpect(jsonPath("$.[3].username").value("jane_smith"))
+                .andExpect(jsonPath("$.[3].email").value("jane@example.com"))
+                .andExpect(jsonPath("$.[4].username").value("mike_wilson"))
+                .andExpect(jsonPath("$.[4].email").value("mike@example.com"))
+                .andExpect(jsonPath("$.[5].username").value("sarah_jones"))
+                .andExpect(jsonPath("$.[5].email").value("sarah@example.com"))
+                .andExpect(jsonPath("$.[6].username").value("david_brown"))
+                .andExpect(jsonPath("$.[6].email").value("david@example.com"));
+
+    }
 
     @Test
     @Transactional
