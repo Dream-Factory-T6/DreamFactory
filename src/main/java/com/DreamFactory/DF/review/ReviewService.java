@@ -1,5 +1,6 @@
 package com.DreamFactory.DF.review;
 
+import com.DreamFactory.DF.review.dtos.ReviewMapper;
 import com.DreamFactory.DF.review.dtos.ReviewResponse;
 import com.DreamFactory.DF.user.UserRepository;
 import com.DreamFactory.DF.user.dto.UserMapper;
@@ -10,15 +11,22 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ReviewService {
     private  final  ReviewRepository reviewRepository;
     private final UserRepository userRepository;
 
-    public ReviewResponse getAllReviewsByUserId() {
+    public List<ReviewResponse> getAllReviewsByUsername() {
+        String username = getAuthenticatedUser().username();
 
-        return null;
+        List<Review> reviews = reviewRepository.findByUsername(username);
+
+        return reviews.stream()
+                .map(ReviewMapper::toReviewResponse)
+                .toList();
     }
 
     public UserResponse getAuthenticatedUser() {
