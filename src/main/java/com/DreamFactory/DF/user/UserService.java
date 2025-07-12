@@ -6,7 +6,6 @@ import com.DreamFactory.DF.user.dto.UserResponse;
 import com.DreamFactory.DF.user.model.Role;
 import com.DreamFactory.DF.user.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
