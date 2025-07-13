@@ -58,6 +58,19 @@ public class DestinationService {
         return destinations.map(DestinationMapper::toResponse);
     }
 
+    public Page<DestinationResponse> getUserDestinations(User user, int page, int size, String sort) {
+        Pageable pageable;
+        if ("asc".equalsIgnoreCase(sort)) {
+            pageable = PageRequest.of(page, size, org.springframework.data.domain.Sort.by("createdAt").ascending());
+        } else if ("desc".equalsIgnoreCase(sort)) {
+            pageable = PageRequest.of(page, size, org.springframework.data.domain.Sort.by("createdAt").descending());
+        } else {
+            pageable = PageRequest.of(page, size);
+        }
+        Page<Destination> destinations = destinationRepository.findByUser(user, pageable);
+        return destinations.map(DestinationMapper::toResponse);
+    }
+
     public DestinationResponse createDestination(User user, DestinationRequest request) {
         Destination destination = DestinationMapper.toEntity(request);
         destination.setUser(user);
@@ -84,7 +97,7 @@ public class DestinationService {
 
     public void deleteDestination(Long id, User user) {
         Destination destination = destinationRepository.findById(id)
-                .orElseThrow(()-> new DestinationNotFoundException(id));
+                .orElseThrow(() -> new DestinationNotFoundException(id));
         if (!isAuthorizedToModify(destination, user)) {
             throw new UnauthorizedAccessException(id);
         }
