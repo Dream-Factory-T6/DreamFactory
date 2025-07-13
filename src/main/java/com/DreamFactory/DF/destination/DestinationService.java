@@ -2,6 +2,7 @@ package com.DreamFactory.DF.destination;
 
 import com.DreamFactory.DF.destination.dto.DestinationFilterRequest;
 import com.DreamFactory.DF.destination.dto.DestinationMapper;
+import com.DreamFactory.DF.destination.dto.DestinationRequest;
 import com.DreamFactory.DF.destination.dto.DestinationResponse;
 import com.DreamFactory.DF.destination.exceptions.DestinationNotFoundException;
 import com.DreamFactory.DF.user.model.User;
@@ -55,5 +56,12 @@ public class DestinationService {
         Pageable pageable = PageRequest.of(page, size);
         Page<Destination> destinations = destinationRepository.findByUser(user, pageable);
         return destinations.map(DestinationMapper::toResponse);
+    }
+
+    public DestinationResponse createDestination(User user, DestinationRequest request) {
+        Destination destination = DestinationMapper.toEntity(request);
+        destination.setUser(user);
+        Destination savedDestination = destinationRepository.save(destination);
+        return DestinationMapper.toResponse(savedDestination);
     }
 }
