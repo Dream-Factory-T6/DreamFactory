@@ -68,6 +68,15 @@ public class DestinationController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdDestination);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<DestinationResponse> updateDestination(
+        @PathVariable Long id,
+        @Valid @RequestBody DestinationRequest request) {
+        User currentUser = getCurrentUser();
+        DestinationResponse updatedDestination = destinationService.updateDestination(id, currentUser, request);
+        return ResponseEntity.ok(updatedDestination);
+    }
+
     private User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
