@@ -77,6 +77,13 @@ public class DestinationController {
         return ResponseEntity.ok(updatedDestination);
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteDestination(@PathVariable Long id) {
+        User currentUser = getCurrentUser();
+        destinationService.deleteDestination(id, currentUser);
+        return ResponseEntity.noContent().build();
+    }
+
     private User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
