@@ -1,10 +1,14 @@
 package com.DreamFactory.DF.destination;
 
 import com.DreamFactory.DF.destination.dto.DestinationFilterRequest;
+import com.DreamFactory.DF.destination.dto.DestinationRequest;
 import com.DreamFactory.DF.destination.dto.DestinationResponse;
 import com.DreamFactory.DF.user.model.User;
 import com.DreamFactory.DF.user.UserRepository;
+import org.springframework.web.bind.annotation.RequestBody;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -51,8 +55,17 @@ public class DestinationController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "4") int size) {
         User currentUser = getCurrentUser();
-        Page<DestinationResponse> destinations = destinationService.getUserDestinations(currentUser, convertToZeroBasedPage(page), size);
+        Page<DestinationResponse> destinations = destinationService.getUserDestinations(currentUser,
+                convertToZeroBasedPage(page), size);
         return ResponseEntity.ok(destinations);
+    }
+
+    @PostMapping
+    public ResponseEntity<DestinationResponse> createDestination(
+            @Valid @RequestBody DestinationRequest request) {
+        User currentUser = getCurrentUser();
+        DestinationResponse createdDestination = destinationService.createDestination(currentUser, request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdDestination);
     }
 
     private User getCurrentUser() {
