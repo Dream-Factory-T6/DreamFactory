@@ -29,6 +29,7 @@ public class DestinationController {
             @RequestParam(defaultValue = "4") int size) {
         Page<DestinationResponse> destinations = destinationService.getAllDestinations(convertToZeroBasedPage(page),
                 size);
+                
         return ResponseEntity.ok(destinations);
     }
 
@@ -46,6 +47,7 @@ public class DestinationController {
             @RequestParam(defaultValue = "4") int size) {
         DestinationFilterRequest filter = new DestinationFilterRequest(location, title);
         Page<DestinationResponse> destinations = destinationService.getDestinationsWithFilters(filter,
+                
                 convertToZeroBasedPage(page), size);
         return ResponseEntity.ok(destinations);
     }
@@ -53,10 +55,12 @@ public class DestinationController {
     @GetMapping("/my-destinations")
     public ResponseEntity<Page<DestinationResponse>> getMyDestinations(
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "4") int size) {
+            @RequestParam(defaultValue = "4") int size,
+            @RequestParam(required = false) String sort) {
         User currentUser = getCurrentUser();
+                
         Page<DestinationResponse> destinations = destinationService.getUserDestinations(currentUser,
-                convertToZeroBasedPage(page), size);
+                convertToZeroBasedPage(page), size, sort);
         return ResponseEntity.ok(destinations);
     }
 
@@ -70,8 +74,11 @@ public class DestinationController {
 
     @PutMapping("/{id}")
     public ResponseEntity<DestinationResponse> updateDestination(
-        @PathVariable Long id,
-        @Valid @RequestBody DestinationRequest request) {
+    @PathVariable Long id,
+    @Valid
+    @RequestBody
+    DestinationRequest request)
+    {
         User currentUser = getCurrentUser();
         DestinationResponse updatedDestination = destinationService.updateDestination(id, currentUser, request);
         return ResponseEntity.ok(updatedDestination);
