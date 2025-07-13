@@ -6,7 +6,6 @@ import com.DreamFactory.DF.destination.dto.DestinationRequest;
 import com.DreamFactory.DF.destination.dto.DestinationResponse;
 import com.DreamFactory.DF.destination.exceptions.DestinationNotFoundException;
 import com.DreamFactory.DF.destination.exceptions.UnauthorizedAccessException;
-import com.DreamFactory.DF.user.model.Role;
 import com.DreamFactory.DF.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -81,6 +80,15 @@ public class DestinationService {
         Destination updatedDestination = destinationRepository.save(destination);
         return DestinationMapper.toResponse(updatedDestination);
 
+    }
+
+    public void deleteDestination(Long id, User user) {
+        Destination destination = destinationRepository.findById(id)
+                .orElseThrow(()-> new DestinationNotFoundException(id));
+        if (!isAuthorizedToModify(destination, user)) {
+            throw new UnauthorizedAccessException(id);
+        }
+        destinationRepository.delete(destination);
     }
 
     private boolean isAuthorizedToModify(Destination destination, User user) {
