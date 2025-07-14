@@ -71,20 +71,26 @@ public class UserService implements UserDetailsService {
     }
 
     public List<UserResponse> getAllUsers() {
-        return userRepository.findAll()
+        List<UserResponse> userResponseList = userRepository.findAll()
                 .stream()
                 .map(UserMapper::fromEntity)
-                .collect(Collectors.toList())
-                ;
+                .collect(Collectors.toList());
+
+        if (userResponseList.isEmpty()){
+            throw new RuntimeException("Empty list");
+        }
+        return userResponseList;
+    }
+
+    public UserResponse getUserById(Long id){
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User id not fpund"));
+        return UserMapper.fromEntity(user);
     }
 
     public UserResponse updateUser(Long id, UserRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Not user with this ID"));
-
-        if (request == null){
-            throw new RuntimeException("The request is not valid");
-        }
 
         Optional<User> isExistingUsername = userRepository.findByUsername(request.username());
         if (isExistingUsername.isPresent()){
@@ -102,6 +108,8 @@ public class UserService implements UserDetailsService {
         User updatedUser = userRepository.save(user);
         return UserMapper.fromEntity(updatedUser);
     }
+
+
 
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
