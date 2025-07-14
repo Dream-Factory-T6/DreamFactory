@@ -2,6 +2,7 @@ package com.DreamFactory.DF.review;
 
 import com.DreamFactory.DF.destination.Destination;
 import com.DreamFactory.DF.destination.DestinationRepository;
+import com.DreamFactory.DF.destination.exceptions.DestinationNotFoundException;
 import com.DreamFactory.DF.review.dtos.ReviewMapper;
 import com.DreamFactory.DF.review.dtos.ReviewRequest;
 import com.DreamFactory.DF.review.dtos.ReviewResponse;
@@ -35,12 +36,23 @@ public class ReviewService {
                 .toList();
     }
 
+    public List<ReviewResponse> getAllReviewsByDestinationId(Long id) {
+        Destination destination = destinationRepository.findById(id)
+                .orElseThrow(() -> new DestinationNotFoundException(id));
+
+        List<Review> reviews = reviewRepository.findByDestinationId(id);
+
+        return reviews.stream()
+                .map(ReviewMapper::toReviewResponse)
+                .toList();
+    }
+
     @Transactional
     public ReviewResponse createReview(ReviewRequest request) {
         User user = getAuthenticatedUser();
 
         Destination destination = destinationRepository.findById(request.destinationId())
-                .orElseThrow(() -> new RuntimeException("Destination not found by id: " + request.destinationId()));
+                .orElseThrow(() -> new DestinationNotFoundException(request.destinationId()));
 
         Review newReview = ReviewMapper.toEntity(request);
         newReview.setUser(user);
@@ -56,7 +68,7 @@ public class ReviewService {
         User user = getAuthenticatedUser();
 
         Destination destination = destinationRepository.findById(request.destinationId())
-                .orElseThrow(() -> new RuntimeException("Destination not found by id: " + request.destinationId()));
+                .orElseThrow(() -> new DestinationNotFoundException(request.destinationId()));
 
         Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> new ReviewNotFoundByIdException(id));

@@ -22,7 +22,7 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @GetMapping("")
-    @Operation(summary = "Get all reviews by user",
+    @Operation(summary = "Get all reviews by user.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Reviews returned successfully"),
                     @ApiResponse(responseCode = "400", ref = "#/components/responses/BadRequest"),
@@ -33,6 +33,21 @@ public class ReviewController {
             })
     public ResponseEntity<List<ReviewResponse>> showReviewsByUsername() {
         List<ReviewResponse> reviews = reviewService.getAllReviewsByUsername();
+        return ResponseEntity.ok(reviews);
+    }
+
+    @GetMapping("/destination/{id}")
+    @Operation(summary = "Get all reviews by destination ID.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Reviews returned successfully"),
+                    @ApiResponse(responseCode = "400", ref = "#/components/responses/BadRequest"),
+                    @ApiResponse(responseCode = "401", ref = "#/components/responses/Unauthorized"),
+                    @ApiResponse(responseCode = "403", ref = "#/components/responses/Forbidden"),
+                    @ApiResponse(responseCode = "404", ref = "#/components/responses/DestinationNotFound"),
+                    @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
+            })
+    public ResponseEntity<List<ReviewResponse>> showReviewsByDestinationId(@PathVariable Long id) {
+        List<ReviewResponse> reviews = reviewService.getAllReviewsByDestinationId(id);
         return ResponseEntity.ok(reviews);
     }
 
@@ -65,6 +80,7 @@ public class ReviewController {
         ReviewResponse updatedReview = reviewService.updateReview(id, request);
         return ResponseEntity.ok(updatedReview);
     }
+
     @DeleteMapping
     @Operation(summary = "Delete review for destination.",
             responses = {
