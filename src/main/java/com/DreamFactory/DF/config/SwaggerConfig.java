@@ -1,5 +1,6 @@
 package com.DreamFactory.DF.config;
 
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,67 +18,43 @@ import java.util.Map;
 public class SwaggerConfig {
     @Bean
     public OpenAPI customOpenAPI() {
-        final String securitySchemeName = "basicAuth";
+        final String securitySchemeName = "bearerAuth";
+
         return new OpenAPI()
                 .info(new Info()
                         .title("My API")
-                        .version("1.0.0")
-                )
+                        .version("1.0.0"))
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
-                .components(new io.swagger.v3.oas.models.Components()
+                .components(new Components()
                         .addSecuritySchemes(securitySchemeName,
                                 new SecurityScheme()
                                         .name(securitySchemeName)
                                         .type(SecurityScheme.Type.HTTP)
-                                        .scheme("basic")
-                        )
-                        .addResponses("BadRequest", new ApiResponse()
-                                .description("Invalid input or malformed request")
-                                .content(jsonError(400, "Invalid input or malformed request")))
+                                        .scheme("bearer")
+                                        .bearerFormat("JWT"))
 
-                        .addResponses("Unauthorized", new ApiResponse()
-                                .description("Authentication required")
-                                .content(jsonError(401, "Authentication required")))
-
-                        .addResponses("Forbidden", new ApiResponse()
-                                .description("You do not have permission to access this resource")
-                                .content(jsonError(403, "You do not have permission to access this resource")))
-
-                        .addResponses("NotFound", new ApiResponse()
-                                .description("Requested resource not found")
-                                .content(jsonError(404,"Requested resource not found")))
-
-                        .addResponses("CartNotFound", new ApiResponse()
-                                .description("Cart for user not found.")
-                                .content(jsonError(404,"Cart for user not found.")))
-
-                        .addResponses("ProductNotFound", new ApiResponse()
-                                .description("Product not found.")
-                                .content(jsonError(404, "Product not found.")))
-
-                        .addResponses("CategoryNotFound", new ApiResponse()
-                                .description("Category not found.")
-                                .content(jsonError(404, "Category not found.")))
-
-                        .addResponses("UserNotFound", new ApiResponse()
-                                .description("User not found.")
-                                .content(jsonError(404, "User not found.")))
-
-                        .addResponses("InternalServerError", new ApiResponse()
-                                .description("Internal server error")
-                                .content(jsonError(500, "Internal server error")))
-
+                        .addResponses("BadRequest", apiResponse(400, "Invalid input or malformed request"))
+                        .addResponses("Unauthorized", apiResponse(401, "Authentication required"))
+                        .addResponses("Forbidden", apiResponse(403, "You do not have permission to access this resource"))
+                        .addResponses("NotFound", apiResponse(404, "Requested resource not found"))
+                        .addResponses("DestinationNotFound", apiResponse(404, "Destination not found."))
+                        .addResponses("ReviewNotFound", apiResponse(404, "Review not found."))
+                        .addResponses("UserNotFound", apiResponse(404, "User not found."))
+                        .addResponses("InternalServerError", apiResponse(500, "Internal server error"))
                         .addResponses("NoContent", new ApiResponse()
-                                .description("Successfully processed request with no content"))
-                );
+                                .description("Successfully processed request with no content")));
+    }
+
+    private ApiResponse apiResponse(int status, String message) {
+        return new ApiResponse()
+                .description(message)
+                .content(jsonError(status, message));
     }
 
     private Content jsonError(int status, String message) {
         return new Content().addMediaType("application/json",
-                new MediaType().schema(new Schema<>().$ref("#/components/schemas/ErrorResponse"))
-                        .example(Map.of(
-                                "status", status,
-                                "message", message
-                        )));
+                new MediaType()
+                        .schema(new Schema<>().$ref("#/components/schemas/ErrorResponse"))
+                        .example(Map.of("status", status, "message", message)));
     }
 }
