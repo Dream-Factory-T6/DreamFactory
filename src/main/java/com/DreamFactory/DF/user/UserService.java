@@ -70,6 +70,22 @@ public class UserService implements UserDetailsService {
         return UserMapper.fromEntity(savedUser);
     }
 
+    public UserResponse registerUserByAdmin(UserRequest request, String role) {
+        Optional<User> isExistingUsername = userRepository.findByUsername(request.username());
+        if (isExistingUsername.isPresent()){
+            throw new RuntimeException("Username already exist");
+        }
+        Optional<User> isExistingEmail = userRepository.findByEmail(request.email());
+        if (isExistingEmail.isPresent()){
+            throw new RuntimeException("Email already exist");
+        }
+        User user = UserMapper.toEntity(request);
+        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setRoles(Set.of(Role.valueOf(role)));
+        User savedUser = userRepository.save(user);
+        return UserMapper.fromEntity(savedUser);
+    }
+
     public List<UserResponse> getAllUsers() {
         List<UserResponse> userResponseList = userRepository.findAll()
                 .stream()
@@ -87,8 +103,8 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new RuntimeException("User id not fpund"));
         return UserMapper.fromEntity(user);
     }
-
-    public UserResponse updateUser(Long id, UserRequest request) {
+    //      UPDATE USER AS STRING ROLE
+    public UserResponse updateUserString(Long id, UserRequest request, String role) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Not user with this ID"));
 
@@ -105,11 +121,55 @@ public class UserService implements UserDetailsService {
         if (request.password() != null && !request.password().isEmpty()) {
             user.setPassword(passwordEncoder.encode(request.password()));
         }
+        user.setRoles(Set.of(Role.valueOf(role)));
+
         User updatedUser = userRepository.save(user);
         return UserMapper.fromEntity(updatedUser);
     }
 
+    //      UPDATE USER AS ROLE ROLE
+    public UserResponse updateUserRole(Long id, UserRequest request, Role role) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Not user with this ID"));
 
+        Optional<User> isExistingUsername = userRepository.findByUsername(request.username());
+        if (isExistingUsername.isPresent()){
+            throw new RuntimeException("Username already exist");
+        }
+        Optional<User> isExistingEmail = userRepository.findByEmail(request.email());
+        if (isExistingEmail.isPresent()){
+            throw new RuntimeException("Email already exist");
+        }
+        user.setUsername(request.username());
+        user.setEmail(request.email());;
+        if (request.password() != null && !request.password().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(request.password()));
+        }
+        user.setRoles(Set.of(role));
+
+        User updatedUser = userRepository.save(user);
+        return UserMapper.fromEntity(updatedUser);
+    }
+
+    //      UPDATE WITH ROLE AS ROLE
+    public UserResponse updateUserRoleByRole( Long id, Role role){
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Not user with this ID"));
+        user.setRoles(Set.of(role));
+        userRepository.save(user);
+        User updatedUser = userRepository.save(user);
+        return UserMapper.fromEntity(updatedUser);
+    }
+
+    //      UPDATE WITH ROLE AS STRING
+    public UserResponse updateUserRoleByString( Long id, String role){
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Not user with this ID"));
+        user.setRoles(Set.of(Role.valueOf(role)));
+        userRepository.save(user);
+        User updatedUser = userRepository.save(user);
+        return UserMapper.fromEntity(updatedUser);
+    }
 
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {

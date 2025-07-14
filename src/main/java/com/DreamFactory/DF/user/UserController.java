@@ -2,6 +2,7 @@ package com.DreamFactory.DF.user;
 
 import com.DreamFactory.DF.user.dto.UserRequest;
 import com.DreamFactory.DF.user.dto.UserResponse;
+import com.DreamFactory.DF.user.model.Role;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
@@ -40,9 +41,24 @@ public class UserController {
         }
     }
 
-    @PutMapping("/api/users/{id}")
-    public ResponseEntity<UserResponse> updateUser(@Parameter @PathVariable Long id, @Valid @RequestBody UserRequest request) {
-        return ResponseEntity.ok(userService.updateUser(id, request));
+    @PutMapping("/api/users/role/string/{id}")
+    public ResponseEntity<UserResponse> updateUserStringRole(@Parameter @PathVariable Long id, @Valid @RequestBody UserRequest request, @RequestBody String role) {
+        return ResponseEntity.ok(userService.updateUserString(id, request, role));
+    }
+
+    @PutMapping("/api/users/role/role/{id}")
+    public ResponseEntity<UserResponse> updateUserRoleRole(@Parameter @PathVariable Long id, @Valid @RequestBody UserRequest request, @RequestBody Role role) {
+        return ResponseEntity.ok(userService.updateUserRole(id, request, role));
+    }
+
+    @PutMapping("/api/users/role/{id}")
+    public ResponseEntity<UserResponse> updateUserRoleByRole(@Parameter @PathVariable Long id, @Valid @RequestBody UserRequest request, @RequestBody Role role) {
+        return ResponseEntity.ok(userService.updateUserRoleByRole(id, role));
+    }
+
+    @PutMapping("/api/users/string/{id}")
+    public ResponseEntity<UserResponse> updateUserRoleByString(@Parameter @PathVariable Long id, @Valid @RequestBody UserRequest request, @RequestBody String role) {
+        return ResponseEntity.ok(userService.updateUserRoleByString(id, role));
     }
 
     @DeleteMapping("/api/users/{id}")
