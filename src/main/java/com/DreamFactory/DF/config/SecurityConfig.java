@@ -33,22 +33,26 @@ public class SecurityConfig {
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        return http.authorizeHttpRequests(authz ->
-                        authz
-                                .requestMatchers(HttpMethod.GET, "/api/destinations/**").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/register").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/api/reviews", "api/destinations/**")
-                                .hasRole("USER")
-                                .requestMatchers(HttpMethod.GET,"/api/users" )
-                                .hasRole("ADMIN")
-                                .requestMatchers(HttpMethod.PUT,"/api/users/**" )
-                                .hasRole("ADMIN")
-                                .requestMatchers(HttpMethod.DELETE,"/api/users/**" )
-                                .hasRole("ADMIN")
-                                .anyRequest().authenticated()
+        return http.authorizeHttpRequests(authz -> authz
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/destinations/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/register").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/reviews", "/api/destinations/**")
+                .hasRole("USER")
+                .requestMatchers(HttpMethod.PUT, "/api/destinations/**")
+                .hasRole("USER")
+                .requestMatchers(HttpMethod.DELETE, "/api/destinations/**")
+                .hasRole("USER")
+                .requestMatchers(HttpMethod.GET, "/api/users")
+                .hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/users/**")
+                .hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/users/**")
+                .hasRole("ADMIN")
+                .anyRequest().authenticated()
 
-                )
+        )
                 .addFilter(new JwtAuthenticationFilter(authenticationManager()))
                 .addFilter(new JwtValidationFilter(authenticationManager()))
                 .csrf(config -> config.disable())
