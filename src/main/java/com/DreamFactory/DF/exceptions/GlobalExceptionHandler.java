@@ -2,6 +2,7 @@ package com.DreamFactory.DF.exceptions;
 
 import com.DreamFactory.DF.destination.exceptions.DestinationNotFoundException;
 import com.DreamFactory.DF.destination.exceptions.UnauthorizedAccessException;
+import com.DreamFactory.DF.review.exceptions.ReviewNotFoundByIdException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -33,4 +34,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
 
+    @ExceptionHandler(ReviewNotFoundByIdException.class)
+    public ResponseEntity<Map<String, String>> handleReviewNotFoundByIdException(ReviewNotFoundByIdException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
 }
