@@ -1,9 +1,13 @@
 package com.DreamFactory.DF.user;
 
+import com.DreamFactory.DF.exceptions.EmptyListException;
 import com.DreamFactory.DF.user.dto.UserMapper;
 import com.DreamFactory.DF.user.dto.UserRequest;
 import com.DreamFactory.DF.user.dto.UserRequestAdmin;
 import com.DreamFactory.DF.user.dto.UserResponse;
+import com.DreamFactory.DF.user.exceptions.EmailAlreadyExistException;
+import com.DreamFactory.DF.user.exceptions.UserIdNotFoundException;
+import com.DreamFactory.DF.user.exceptions.UsernameAlreadyExistException;
 import com.DreamFactory.DF.user.model.Role;
 import com.DreamFactory.DF.user.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,11 +63,11 @@ public class UserService implements UserDetailsService {
     public UserResponse registerUser(UserRequest request) {
         Optional<User> isExistingUsername = userRepository.findByUsername(request.username());
         if (isExistingUsername.isPresent()){
-            throw new RuntimeException("Username already exist");
+            throw new UsernameAlreadyExistException(request.username());
         }
         Optional<User> isExistingEmail = userRepository.findByEmail(request.email());
         if (isExistingEmail.isPresent()){
-            throw new RuntimeException("Email already exist");
+            throw new EmailAlreadyExistException(request.email());
         }
         User user = UserMapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(request.password()));
@@ -75,11 +79,11 @@ public class UserService implements UserDetailsService {
     public UserResponse registerUserByAdmin(UserRequestAdmin request) {
         Optional<User> isExistingUsername = userRepository.findByUsername(request.username());
         if (isExistingUsername.isPresent()){
-            throw new RuntimeException("Username already exist");
+            throw new UsernameAlreadyExistException(request.username());
         }
         Optional<User> isExistingEmail = userRepository.findByEmail(request.email());
         if (isExistingEmail.isPresent()){
-            throw new RuntimeException("Email already exist");
+            throw new EmailAlreadyExistException(request.email());
         }
         User user = UserMapper.toEntityAdmin(request);
         user.setPassword(passwordEncoder.encode(request.password()));
@@ -95,21 +99,21 @@ public class UserService implements UserDetailsService {
                 .collect(Collectors.toList());
 
         if (userResponseList.isEmpty()){
-            throw new RuntimeException("Empty list");
+            throw new EmptyListException();
         }
         return userResponseList;
     }
 
     public UserResponse getUserById(Long id){
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User id not fpund"));
+                .orElseThrow(() -> new UserIdNotFoundException(id));
         return UserMapper.fromEntity(user);
     }
 
     @Transactional
     public UserResponse updateUser(Long id, UserRequestAdmin request) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Not user with this ID"));
+                .orElseThrow(() -> new UserIdNotFoundException(id));
 
         user.setUsername(request.username());
         user.setEmail(request.email());;
@@ -126,7 +130,7 @@ public class UserService implements UserDetailsService {
 
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
-            throw new RuntimeException("User id not found");
+            throw new UserIdNotFoundException(id);
         }
         userRepository.deleteById(id);
     }
