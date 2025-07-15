@@ -1,9 +1,14 @@
 package com.DreamFactory.DF.user;
 
+import com.DreamFactory.DF.exceptions.EmptyListException;
 import com.DreamFactory.DF.user.dto.UserMapper;
 import com.DreamFactory.DF.user.dto.UserRequest;
+import com.DreamFactory.DF.user.dto.UserRequestAdmin;
 import com.DreamFactory.DF.user.dto.UserResponse;
-import com.DreamFactory.DF.user.model.Role;
+import com.DreamFactory.DF.user.exceptions.EmailAlreadyExistException;
+import com.DreamFactory.DF.user.exceptions.UserIdNotFoundException;
+import com.DreamFactory.DF.user.exceptions.UsernameAlreadyExistException;
+import com.DreamFactory.DF.role.Role;
 import com.DreamFactory.DF.user.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -15,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -40,10 +46,75 @@ public class UserService implements UserDetailsService {
 
         User user = optionalUser.orElseThrow();
 
-        List<GrantedAuthority> authorities = user.getRoles()
+        List<GrantedAuthority> authorities = getAuthoritiesRole(user);
+        return createUserByUserDetails(user, authorities);
+    }
+
+    public UserResponse registerUser(UserRequest request) {
+        checkUsername(request.username());
+        checkEmail(request.email());
+
+        User user = UserMapper.toEntity(request);
+        user.setPassword(getEncodePassword(request.password()));
+        user.setRoles(Set.of(Role.USER));
+
+        User savedUser = userRepository.save(user);
+        return UserMapper.fromEntity(savedUser);
+    }
+
+    public UserResponse registerUserByAdmin(UserRequestAdmin request) {
+        checkUsername(request.username());
+        checkEmail(request.email());
+
+        User user = UserMapper.toEntityAdmin(request);
+        user.setPassword(getEncodePassword(request.password()));
+        user.setRoles(Set.of(request.role()));
+
+        User savedUser = userRepository.save(user);
+        return UserMapper.fromEntity(savedUser);
+    }
+
+    public List<UserResponse> getAllUsers() {
+        List<UserResponse> userResponseList = userRepository.findAll()
                 .stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
+                .map(UserMapper::fromEntity)
                 .collect(Collectors.toList());
+
+        if (userResponseList.isEmpty()){
+            throw new EmptyListException();
+        }
+        return userResponseList;
+    }
+
+    public UserResponse getUserById(Long id){
+        User user = checkUserId(id);
+        return UserMapper.fromEntity(user);
+    }
+
+    @Transactional
+    public UserResponse updateUser(Long id, UserRequestAdmin request) {
+        User user = checkUserId(id);
+
+        user.setUsername(request.username());
+        user.setEmail(request.email());;
+        if (request.password() != null && !request.password().isEmpty()) {
+            user.setPassword(getEncodePassword(request.password()));
+        }
+        Set<Role> roles = new HashSet<>();
+        roles.add(request.role());
+        user.setRoles(roles);
+
+        return UserMapper.fromEntity(user);
+    }
+
+    public void deleteUser(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new UserIdNotFoundException(id);
+        }
+        userRepository.deleteById(id);
+    }
+
+    private static org.springframework.security.core.userdetails.User createUserByUserDetails(User user, List<GrantedAuthority> authorities) {
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
@@ -54,60 +125,35 @@ public class UserService implements UserDetailsService {
                 authorities);
     }
 
-    public UserResponse registerUser(UserRequest request) {
-        Optional<User> isExistingUsername = userRepository.findByUsername(request.username());
-        if (isExistingUsername.isPresent()){
-            throw new RuntimeException("Username already exist");
-        }
-        Optional<User> isExistingEmail = userRepository.findByEmail(request.email());
-        if (isExistingEmail.isPresent()){
-            throw new RuntimeException("Email already exist");
-        }
-        User user = UserMapper.toEntity(request);
-        user.setPassword(passwordEncoder.encode(request.password()));
-        user.setRoles(Set.of(Role.USER));
-        User savedUser = userRepository.save(user);
-        return UserMapper.fromEntity(savedUser);
-    }
-
-    public List<UserResponse> getAllUsers() {
-        return userRepository.findAll()
+    private static List<GrantedAuthority> getAuthoritiesRole(User user) {
+        return user.getRoles()
                 .stream()
-                .map(UserMapper::fromEntity)
-                .collect(Collectors.toList())
-                ;
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
+                .collect(Collectors.toList());
     }
 
-    public UserResponse updateUser(Long id, UserRequest request) {
+    private void checkEmail(String request) {
+        Optional<User> isExistingEmail = userRepository.findByEmail(request);
+        if (isExistingEmail.isPresent()) {
+            throw new EmailAlreadyExistException(request);
+        }
+    }
+
+    private void checkUsername(String request) {
+        Optional<User> isExistingUsername = userRepository.findByUsername(request);
+        if (isExistingUsername.isPresent()) {
+            throw new UsernameAlreadyExistException(request);
+        }
+    }
+
+    private User checkUserId(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Not user with this ID"));
-
-        if (request == null){
-            throw new RuntimeException("The request is not valid");
-        }
-
-        Optional<User> isExistingUsername = userRepository.findByUsername(request.username());
-        if (isExistingUsername.isPresent()){
-            throw new RuntimeException("Username already exist");
-        }
-        Optional<User> isExistingEmail = userRepository.findByEmail(request.email());
-        if (isExistingEmail.isPresent()){
-            throw new RuntimeException("Email already exist");
-        }
-        user.setUsername(request.username());
-        user.setEmail(request.email());;
-        if (request.password() != null && !request.password().isEmpty()) {
-            user.setPassword(passwordEncoder.encode(request.password()));
-        }
-        User updatedUser = userRepository.save(user);
-        return UserMapper.fromEntity(updatedUser);
+                .orElseThrow(() -> new UserIdNotFoundException(id));
+        return user;
     }
 
-    public void deleteUser(Long id) {
-        if (!userRepository.existsById(id)) {
-            throw new RuntimeException("User id not found");
-        }
-        userRepository.deleteById(id);
+    private String getEncodePassword(String password) {
+        return passwordEncoder.encode(password);
     }
 
 }
