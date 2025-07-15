@@ -1,6 +1,7 @@
 package com.DreamFactory.DF.user;
 
 import com.DreamFactory.DF.user.dto.UserRequest;
+import com.DreamFactory.DF.user.dto.UserRequestAdmin;
 import com.DreamFactory.DF.user.dto.UserResponse;
 import com.DreamFactory.DF.user.model.Role;
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,25 +42,26 @@ public class UserController {
         }
     }
 
-    @PutMapping("/api/users/role/string/{id}")
-    public ResponseEntity<UserResponse> updateUserStringRole(@Parameter @PathVariable Long id, @Valid @RequestBody UserRequest request, @RequestBody String role) {
-        return ResponseEntity.ok(userService.updateUserString(id, request, role));
-    }
-
-    @PutMapping("/api/users/role/role/{id}")
-    public ResponseEntity<UserResponse> updateUserRoleRole(@Parameter @PathVariable Long id, @Valid @RequestBody UserRequest request, @RequestBody Role role) {
-        return ResponseEntity.ok(userService.updateUserRole(id, request, role));
+    @PostMapping("/register/admin")
+    public ResponseEntity<UserResponse> registerUserAdmin(@Valid @RequestBody UserRequestAdmin request) {
+        try {
+            UserResponse registeredUser = userService.registerUserByAdmin(request);
+            return new ResponseEntity<>(registeredUser, HttpStatus.CREATED);
+        } catch (DataIntegrityViolationException e) {
+            return new ResponseEntity<>(null, HttpStatus.CONFLICT);
+        }
     }
 
     @PutMapping("/api/users/role/{id}")
-    public ResponseEntity<UserResponse> updateUserRoleByRole(@Parameter @PathVariable Long id, @Valid @RequestBody UserRequest request, @RequestBody Role role) {
+    public ResponseEntity<UserResponse> updateUserRoleRole(@Parameter @PathVariable Long id, @Valid @RequestBody UserRequestAdmin request) {
+        return ResponseEntity.ok(userService.updateUserRole(id, request));
+    }
+
+    @PutMapping("/api/users/{id}")
+    public ResponseEntity<UserResponse> updateUserRoleByRole(@Parameter @PathVariable Long id, @RequestParam Role role) {
         return ResponseEntity.ok(userService.updateUserRoleByRole(id, role));
     }
 
-    @PutMapping("/api/users/string/{id}")
-    public ResponseEntity<UserResponse> updateUserRoleByString(@Parameter @PathVariable Long id, @Valid @RequestBody UserRequest request, @RequestBody String role) {
-        return ResponseEntity.ok(userService.updateUserRoleByString(id, role));
-    }
 
     @DeleteMapping("/api/users/{id}")
     public ResponseEntity<String> deleteUserById(@Parameter(description = "User ID you want to delete") @PathVariable Long id) {

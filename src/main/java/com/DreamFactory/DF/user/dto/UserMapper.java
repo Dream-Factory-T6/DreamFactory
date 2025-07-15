@@ -29,5 +29,18 @@ public class UserMapper {
 
         return user;
     }
+
+    public static User toEntityRole(UserRequestAdmin userRequest){
+        if (userRequest == null){
+            return null;
+        }
+
+        User user = User.builder()
+                .username(userRequest.username())
+                .email(userRequest.email())
+                .build();
+
+        return user;
+    }
 }
 
