@@ -6,7 +6,10 @@ import com.DreamFactory.DF.destination.dto.DestinationRequest;
 import com.DreamFactory.DF.destination.dto.DestinationResponse;
 import com.DreamFactory.DF.destination.exceptions.DestinationNotFoundException;
 import com.DreamFactory.DF.destination.exceptions.UnauthorizedAccessException;
+import com.DreamFactory.DF.email.EmailService;
+import com.DreamFactory.DF.email.EmailTemplates;
 import com.DreamFactory.DF.user.model.User;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class DestinationService {
     private final DestinationRepository destinationRepository;
+    private final EmailService emailService;
 
     public Page<DestinationResponse> getAllDestinations(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -75,7 +79,18 @@ public class DestinationService {
         Destination destination = DestinationMapper.toEntity(request);
         destination.setUser(user);
         Destination savedDestination = destinationRepository.save(destination);
-        return DestinationMapper.toResponse(savedDestination);
+        DestinationResponse response = DestinationMapper.toResponse(savedDestination);
+
+        try {
+            String subject = EmailTemplates.getDestinationCreatedSubject();
+            String plainText = EmailTemplates.getDestinationCreatedPlainText(user, response);
+            String htmlContent = EmailTemplates.getDestinationCreatedHtml(user, response);
+
+            emailService.sendDestinationCreatedEmail(user.getEmail(), subject, plainText, htmlContent);
+        } catch (MessagingException e) {
+            System.err.println("Failed to send confirmation email: " + e.getMessage());
+        }
+        return response;
     }
 
     public DestinationResponse updateDestination(Long id, User user, DestinationRequest request) {
