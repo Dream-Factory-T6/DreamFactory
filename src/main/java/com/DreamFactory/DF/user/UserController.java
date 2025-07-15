@@ -55,7 +55,7 @@ public class UserController {
 
     @PutMapping("/api/users/{id}")
     public ResponseEntity<UserResponse> updateUserRoleRole(@Parameter @PathVariable Long id, @Valid @RequestBody UserRequestAdmin request) {
-        return ResponseEntity.ok(userService.updateUserRole(id, request));
+        return ResponseEntity.ok(userService.updateUser(id, request));
     }
 
     @DeleteMapping("/api/users/{id}")
