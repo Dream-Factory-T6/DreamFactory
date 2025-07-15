@@ -46,48 +46,30 @@ public class UserService implements UserDetailsService {
 
         User user = optionalUser.orElseThrow();
 
-        List<GrantedAuthority> authorities = user.getRoles()
-                .stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
-                .collect(Collectors.toList());
-        return new org.springframework.security.core.userdetails.User(
-                user.getUsername(),
-                user.getPassword(),
-                true,
-                true,
-                true,
-                true,
-                authorities);
+        List<GrantedAuthority> authorities = getAuthoritiesRole(user);
+        return createUserByUserDetails(user, authorities);
     }
 
     public UserResponse registerUser(UserRequest request) {
-        Optional<User> isExistingUsername = userRepository.findByUsername(request.username());
-        if (isExistingUsername.isPresent()){
-            throw new UsernameAlreadyExistException(request.username());
-        }
-        Optional<User> isExistingEmail = userRepository.findByEmail(request.email());
-        if (isExistingEmail.isPresent()){
-            throw new EmailAlreadyExistException(request.email());
-        }
+        checkUsername(request.username());
+        checkEmail(request.email());
+
         User user = UserMapper.toEntity(request);
-        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setPassword(getEncodePassword(request.password()));
         user.setRoles(Set.of(Role.USER));
+
         User savedUser = userRepository.save(user);
         return UserMapper.fromEntity(savedUser);
     }
 
     public UserResponse registerUserByAdmin(UserRequestAdmin request) {
-        Optional<User> isExistingUsername = userRepository.findByUsername(request.username());
-        if (isExistingUsername.isPresent()){
-            throw new UsernameAlreadyExistException(request.username());
-        }
-        Optional<User> isExistingEmail = userRepository.findByEmail(request.email());
-        if (isExistingEmail.isPresent()){
-            throw new EmailAlreadyExistException(request.email());
-        }
+        checkUsername(request.username());
+        checkEmail(request.email());
+
         User user = UserMapper.toEntityAdmin(request);
-        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setPassword(getEncodePassword(request.password()));
         user.setRoles(Set.of(request.role()));
+
         User savedUser = userRepository.save(user);
         return UserMapper.fromEntity(savedUser);
     }
@@ -105,20 +87,18 @@ public class UserService implements UserDetailsService {
     }
 
     public UserResponse getUserById(Long id){
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new UserIdNotFoundException(id));
+        User user = checkUserId(id);
         return UserMapper.fromEntity(user);
     }
 
     @Transactional
     public UserResponse updateUser(Long id, UserRequestAdmin request) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new UserIdNotFoundException(id));
+        User user = checkUserId(id);
 
         user.setUsername(request.username());
         user.setEmail(request.email());;
         if (request.password() != null && !request.password().isEmpty()) {
-            user.setPassword(passwordEncoder.encode(request.password()));
+            user.setPassword(getEncodePassword(request.password()));
         }
         Set<Role> roles = new HashSet<>();
         roles.add(request.role());
@@ -127,12 +107,53 @@ public class UserService implements UserDetailsService {
         return UserMapper.fromEntity(user);
     }
 
-
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
             throw new UserIdNotFoundException(id);
         }
         userRepository.deleteById(id);
+    }
+
+    private static org.springframework.security.core.userdetails.User createUserByUserDetails(User user, List<GrantedAuthority> authorities) {
+        return new org.springframework.security.core.userdetails.User(
+                user.getUsername(),
+                user.getPassword(),
+                true,
+                true,
+                true,
+                true,
+                authorities);
+    }
+
+    private static List<GrantedAuthority> getAuthoritiesRole(User user) {
+        return user.getRoles()
+                .stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
+                .collect(Collectors.toList());
+    }
+
+    private void checkEmail(String request) {
+        Optional<User> isExistingEmail = userRepository.findByEmail(request);
+        if (isExistingEmail.isPresent()) {
+            throw new EmailAlreadyExistException(request);
+        }
+    }
+
+    private void checkUsername(String request) {
+        Optional<User> isExistingUsername = userRepository.findByUsername(request);
+        if (isExistingUsername.isPresent()) {
+            throw new UsernameAlreadyExistException(request);
+        }
+    }
+
+    private User checkUserId(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserIdNotFoundException(id));
+        return user;
+    }
+
+    private String getEncodePassword(String password) {
+        return passwordEncoder.encode(password);
     }
 
 }
