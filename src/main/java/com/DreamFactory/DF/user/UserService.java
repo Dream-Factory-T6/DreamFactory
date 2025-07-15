@@ -81,7 +81,7 @@ public class UserService implements UserDetailsService {
         if (isExistingEmail.isPresent()){
             throw new RuntimeException("Email already exist");
         }
-        User user = UserMapper.toEntityRole(request);
+        User user = UserMapper.toEntityAdmin(request);
         user.setPassword(passwordEncoder.encode(request.password()));
         user.setRoles(Set.of(request.role()));
         User savedUser = userRepository.save(user);
