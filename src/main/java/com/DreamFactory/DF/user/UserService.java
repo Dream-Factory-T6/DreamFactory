@@ -8,7 +8,7 @@ import com.DreamFactory.DF.user.dto.UserResponse;
 import com.DreamFactory.DF.user.exceptions.EmailAlreadyExistException;
 import com.DreamFactory.DF.user.exceptions.UserIdNotFoundException;
 import com.DreamFactory.DF.user.exceptions.UsernameAlreadyExistException;
-import com.DreamFactory.DF.user.model.Role;
+import com.DreamFactory.DF.role.Role;
 import com.DreamFactory.DF.user.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;

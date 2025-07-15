@@ -1,4 +1,4 @@
-package com.DreamFactory.DF.user.model;
+package com.DreamFactory.DF.role;
 
 public enum Role {
     USER,
