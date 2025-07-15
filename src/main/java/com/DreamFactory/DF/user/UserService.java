@@ -2,6 +2,7 @@ package com.DreamFactory.DF.user;
 
 import com.DreamFactory.DF.user.dto.UserMapper;
 import com.DreamFactory.DF.user.dto.UserRequest;
+import com.DreamFactory.DF.user.dto.UserRequestAdmin;
 import com.DreamFactory.DF.user.dto.UserResponse;
 import com.DreamFactory.DF.user.model.Role;
 import com.DreamFactory.DF.user.model.User;
@@ -15,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -70,6 +72,22 @@ public class UserService implements UserDetailsService {
         return UserMapper.fromEntity(savedUser);
     }
 
+    public UserResponse registerUserByAdmin(UserRequestAdmin request) {
+        Optional<User> isExistingUsername = userRepository.findByUsername(request.username());
+        if (isExistingUsername.isPresent()){
+            throw new RuntimeException("Username already exist");
+        }
+        Optional<User> isExistingEmail = userRepository.findByEmail(request.email());
+        if (isExistingEmail.isPresent()){
+            throw new RuntimeException("Email already exist");
+        }
+        User user = UserMapper.toEntityRole(request);
+        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setRoles(Set.of(request.role()));
+        User savedUser = userRepository.save(user);
+        return UserMapper.fromEntity(savedUser);
+    }
+
     public List<UserResponse> getAllUsers() {
         List<UserResponse> userResponseList = userRepository.findAll()
                 .stream()
@@ -88,27 +106,22 @@ public class UserService implements UserDetailsService {
         return UserMapper.fromEntity(user);
     }
 
-    public UserResponse updateUser(Long id, UserRequest request) {
+    @Transactional
+    public UserResponse updateUser(Long id, UserRequestAdmin request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Not user with this ID"));
 
-        Optional<User> isExistingUsername = userRepository.findByUsername(request.username());
-        if (isExistingUsername.isPresent()){
-            throw new RuntimeException("Username already exist");
-        }
-        Optional<User> isExistingEmail = userRepository.findByEmail(request.email());
-        if (isExistingEmail.isPresent()){
-            throw new RuntimeException("Email already exist");
-        }
         user.setUsername(request.username());
         user.setEmail(request.email());;
         if (request.password() != null && !request.password().isEmpty()) {
             user.setPassword(passwordEncoder.encode(request.password()));
         }
-        User updatedUser = userRepository.save(user);
-        return UserMapper.fromEntity(updatedUser);
-    }
+        Set<Role> roles = new HashSet<>();
+        roles.add(request.role());
+        user.setRoles(roles);
 
+        return UserMapper.fromEntity(user);
+    }
 
 
     public void deleteUser(Long id) {
