@@ -6,6 +6,7 @@ import com.DreamFactory.DF.review.exceptions.ReviewNotFoundByIdException;
 import com.DreamFactory.DF.user.exceptions.EmailAlreadyExistException;
 import com.DreamFactory.DF.user.exceptions.UserIdNotFoundException;
 import com.DreamFactory.DF.user.exceptions.UsernameAlreadyExistException;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -76,4 +77,12 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>("Validation failed: \n" + errorMessage, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(InvalidFormatException.class)
+    public ResponseEntity<String> handleInvalidFormatException(InvalidFormatException e){
+        String message = e.getOriginalMessage();
+        return new ResponseEntity<>("Error in role: \n" + message, HttpStatus.BAD_REQUEST);
+    }
+
+
 }

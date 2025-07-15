@@ -5,7 +5,7 @@ import com.DreamFactory.DF.user.UserService;
 import com.DreamFactory.DF.user.dto.UserMapper;
 import com.DreamFactory.DF.user.dto.UserRequest;
 import com.DreamFactory.DF.user.dto.UserResponse;
-import com.DreamFactory.DF.user.model.Role;
+import com.DreamFactory.DF.role.Role;
 import com.DreamFactory.DF.user.model.User;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
