@@ -7,7 +7,7 @@ import com.DreamFactory.DF.destination.dto.DestinationResponse;
 import com.DreamFactory.DF.destination.exceptions.DestinationNotFoundException;
 import com.DreamFactory.DF.destination.exceptions.UnauthorizedAccessException;
 import com.DreamFactory.DF.email.EmailService;
-import com.DreamFactory.DF.email.EmailTemplates;
+import com.DreamFactory.DF.email.DestinationEmailTemplates;
 import com.DreamFactory.DF.user.model.User;
 import com.DreamFactory.DF.exceptions.EmailSendException;
 import jakarta.mail.MessagingException;
@@ -88,9 +88,9 @@ public class DestinationService {
         DestinationResponse response = DestinationMapper.toResponse(savedDestination);
 
         try {
-            String subject = EmailTemplates.getDestinationCreatedSubject();
-            String plainText = EmailTemplates.getDestinationCreatedPlainText(user, response);
-            String htmlContent = EmailTemplates.getDestinationCreatedHtml(user, response);
+            String subject = DestinationEmailTemplates.getDestinationCreatedSubject();
+            String plainText = DestinationEmailTemplates.getDestinationCreatedPlainText(user, response);
+            String htmlContent = DestinationEmailTemplates.getDestinationCreatedHtml(user, response);
 
             emailService.sendDestinationCreatedEmail(user.getEmail(), subject, plainText, htmlContent);
         } catch (MessagingException e) {
