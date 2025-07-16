@@ -7,8 +7,9 @@ import com.DreamFactory.DF.destination.dto.DestinationResponse;
 import com.DreamFactory.DF.destination.exceptions.DestinationNotFoundException;
 import com.DreamFactory.DF.destination.exceptions.UnauthorizedAccessException;
 import com.DreamFactory.DF.email.EmailService;
-import com.DreamFactory.DF.email.EmailTemplates;
+import com.DreamFactory.DF.email.DestinationEmailTemplates;
 import com.DreamFactory.DF.user.model.User;
+import com.DreamFactory.DF.exceptions.EmailSendException;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,18 +25,21 @@ public class DestinationService {
     private final DestinationRepository destinationRepository;
     private final EmailService emailService;
 
+    @Transactional(readOnly = true)
     public Page<DestinationResponse> getAllDestinations(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Destination> destinations = destinationRepository.findAll(pageable);
         return destinations.map(DestinationMapper::toResponse);
     }
 
+    @Transactional(readOnly = true)
     public DestinationResponse getDestinationById(Long id) {
         Destination destination = destinationRepository.findById(id)
                 .orElseThrow(() -> new DestinationNotFoundException(id));
         return DestinationMapper.toResponse(destination);
     }
 
+    @Transactional(readOnly = true)
     public Page<DestinationResponse> getDestinationsWithFilters(DestinationFilterRequest filter, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Destination> destinations;
@@ -56,12 +60,14 @@ public class DestinationService {
         return destinations.map(DestinationMapper::toResponse);
     }
 
+    @Transactional(readOnly = true)
     public Page<DestinationResponse> getUserDestinations(User user, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Destination> destinations = destinationRepository.findByUser(user, pageable);
         return destinations.map(DestinationMapper::toResponse);
     }
 
+    @Transactional(readOnly = true)
     public Page<DestinationResponse> getUserDestinations(User user, int page, int size, String sort) {
         Pageable pageable;
         if ("asc".equalsIgnoreCase(sort)) {
@@ -82,13 +88,13 @@ public class DestinationService {
         DestinationResponse response = DestinationMapper.toResponse(savedDestination);
 
         try {
-            String subject = EmailTemplates.getDestinationCreatedSubject();
-            String plainText = EmailTemplates.getDestinationCreatedPlainText(user, response);
-            String htmlContent = EmailTemplates.getDestinationCreatedHtml(user, response);
+            String subject = DestinationEmailTemplates.getDestinationCreatedSubject();
+            String plainText = DestinationEmailTemplates.getDestinationCreatedPlainText(user, response);
+            String htmlContent = DestinationEmailTemplates.getDestinationCreatedHtml(user, response);
 
             emailService.sendDestinationCreatedEmail(user.getEmail(), subject, plainText, htmlContent);
         } catch (MessagingException e) {
-            System.err.println("Failed to send confirmation email: " + e.getMessage());
+            throw new EmailSendException("Failed to send confirmation email: " + e.getMessage(), e);
         }
         return response;
     }
@@ -105,8 +111,7 @@ public class DestinationService {
         destination.setDescription(request.description());
         destination.setImageUrl(request.imageUrl());
 
-        Destination updatedDestination = destinationRepository.save(destination);
-        return DestinationMapper.toResponse(updatedDestination);
+        return DestinationMapper.toResponse(destination);
 
     }
 
