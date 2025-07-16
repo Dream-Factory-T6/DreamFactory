@@ -1,7 +1,9 @@
 package com.DreamFactory.DF.User;
 
 
+import com.DreamFactory.DF.role.Role;
 import com.DreamFactory.DF.user.dto.UserRequest;
+import com.DreamFactory.DF.user.dto.UserRequestAdmin;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +61,20 @@ public class UserControllerTest {
 
     @Test
     @Transactional
+    @WithMockUser(roles = {"ADMIN"})
+    void should_getUserById() throws Exception {
+        Long userId = 5L;
+
+        mockMvc.perform(get("/api/users/{id}", userId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username").value("mike_wilson"))
+                .andExpect(jsonPath("$.email").value("mike@example.com"));
+
+    }
+
+    @Test
+    @Transactional
     void should_registerUser_fromRequest() throws Exception{
         UserRequest userRequest = new UserRequest("userTest", "usertest@test.com", "password123");
 
@@ -74,10 +90,25 @@ public class UserControllerTest {
     @Test
     @Transactional
     @WithMockUser(roles = {"ADMIN"})
+    void should_registerUserByAdmin_fromRequest() throws Exception{
+        UserRequestAdmin userRequest = new UserRequestAdmin("userTest", "usertest@test.com", "password123", Role.ADMIN);
+
+        mockMvc.perform(post("/register/admin")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userRequest)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.username").value("userTest"))
+                .andExpect(jsonPath("$.email").value("usertest@test.com"))
+                .andExpect(jsonPath("$.id").exists());
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(roles = {"ADMIN"})
     void should_updateUser_fromRequest() throws Exception{
 
         Long userId = 1L;
-        UserRequest userRequest = new UserRequest("updateTest", "updatetest@test.com", "password123");
+        UserRequestAdmin userRequest = new UserRequestAdmin("updateTest", "updatetest@test.com", "password123", Role.USER);
 
         mockMvc.perform(put("/api/users/{id}", userId)
                 .contentType(MediaType.APPLICATION_JSON)

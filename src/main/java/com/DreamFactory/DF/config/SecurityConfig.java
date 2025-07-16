@@ -34,6 +34,7 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests(authz -> authz
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/destinations/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/register").permitAll()
@@ -43,7 +44,9 @@ public class SecurityConfig {
                 .hasRole("USER")
                 .requestMatchers(HttpMethod.DELETE, "/api/destinations/**")
                 .hasRole("USER")
-                .requestMatchers(HttpMethod.GET, "/api/users")
+                .requestMatchers(HttpMethod.GET, "/api/users", "/api/users/**")
+                .hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST,  "/register/admin")
                 .hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/users/**")
                 .hasRole("ADMIN")
