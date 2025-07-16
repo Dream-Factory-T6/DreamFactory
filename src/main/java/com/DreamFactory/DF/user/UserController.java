@@ -29,10 +29,8 @@ public class UserController {
     @Operation(summary = "Get all users.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Users returned successfully"),
-                    @ApiResponse(responseCode = "400", ref = "#/components/responses/BadRequest"),
                     @ApiResponse(responseCode = "401", ref = "#/components/responses/Unauthorized"),
                     @ApiResponse(responseCode = "403", ref = "#/components/responses/Forbidden"),
-                    @ApiResponse(responseCode = "404", ref = "#/components/responses/UserNotFound"),
                     @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
             })
     public ResponseEntity<List<UserResponse>> getAllUsers() {
@@ -40,12 +38,28 @@ public class UserController {
     }
 
 
+
     @GetMapping("/api/users/{id}")
+    @Operation(summary = "Get user by Id.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "User returned successfully"),
+                    @ApiResponse(responseCode = "401", ref = "#/components/responses/Unauthorized"),
+                    @ApiResponse(responseCode = "403", ref = "#/components/responses/Forbidden"),
+                    @ApiResponse(responseCode = "404", ref = "#/components/responses/UserNotFound"),
+                    @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
+            })
     public ResponseEntity<UserResponse> getUserById(@Parameter @PathVariable Long id){
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
     @PostMapping("/register")
+    @Operation(summary = "Create a new user.",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "User created successfully"),
+                    @ApiResponse(responseCode = "400", ref = "#/components/responses/BadRequest"),
+                    @ApiResponse(responseCode = "409", description = "Conflict with username or email"),
+                    @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
+            })
     public ResponseEntity<UserResponse> registerUser(@Valid @RequestBody UserRequest request) {
         try {
             UserResponse registeredUser = userService.registerUser(request);
@@ -56,6 +70,15 @@ public class UserController {
     }
 
     @PostMapping("/register/admin")
+    @Operation(summary = "Create new user by user with role ADMIN.",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "User created successfully"),
+                    @ApiResponse(responseCode = "400", ref = "#/components/responses/BadRequest"),
+                    @ApiResponse(responseCode = "401", ref = "#/components/responses/Unauthorized"),
+                    @ApiResponse(responseCode = "403", ref = "#/components/responses/Forbidden"),
+                    @ApiResponse(responseCode = "409", description = "Conflict with username or email"),
+                    @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
+            })
     public ResponseEntity<UserResponse> registerUserAdmin(@Valid @RequestBody UserRequestAdmin request) {
         try {
             UserResponse registeredUser = userService.registerUserByAdmin(request);
@@ -66,11 +89,27 @@ public class UserController {
     }
 
     @PutMapping("/api/users/{id}")
+    @Operation(summary = "Update user by user with role ADMIN.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "User updated successfully"),
+                    @ApiResponse(responseCode = "400", ref = "#/components/responses/BadRequest"),
+                    @ApiResponse(responseCode = "401", ref = "#/components/responses/Unauthorized"),
+                    @ApiResponse(responseCode = "403", ref = "#/components/responses/Forbidden"),
+                    @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
+            })
     public ResponseEntity<UserResponse> updateUserRoleRole(@Parameter @PathVariable Long id, @Valid @RequestBody UserRequestAdmin request) {
         return ResponseEntity.ok(userService.updateUser(id, request));
     }
 
     @DeleteMapping("/api/users/{id}")
+    @Operation(summary = "Get all reviews by user.",
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "User deleted and reviews and destinations published by the user successfully deleted"),
+                    @ApiResponse(responseCode = "401", ref = "#/components/responses/Unauthorized"),
+                    @ApiResponse(responseCode = "403", ref = "#/components/responses/Forbidden"),
+                    @ApiResponse(responseCode = "404", ref = "#/components/responses/UserNotFound"),
+                    @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
+            })
     public ResponseEntity<String> deleteUserById(@Parameter(description = "User ID you want to delete") @PathVariable Long id) {
         userService.deleteUser(id);
         return new ResponseEntity<>("User with id " + id + " has been deleted", HttpStatus.NO_CONTENT);
