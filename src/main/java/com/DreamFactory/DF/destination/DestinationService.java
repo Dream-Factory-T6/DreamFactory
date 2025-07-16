@@ -9,6 +9,7 @@ import com.DreamFactory.DF.destination.exceptions.UnauthorizedAccessException;
 import com.DreamFactory.DF.email.EmailService;
 import com.DreamFactory.DF.email.EmailTemplates;
 import com.DreamFactory.DF.user.model.User;
+import com.DreamFactory.DF.exceptions.EmailSendException;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -93,7 +94,7 @@ public class DestinationService {
 
             emailService.sendDestinationCreatedEmail(user.getEmail(), subject, plainText, htmlContent);
         } catch (MessagingException e) {
-            System.err.println("Failed to send confirmation email: " + e.getMessage());
+            throw new EmailSendException("Failed to send confirmation email: " + e.getMessage(), e);
         }
         return response;
     }
