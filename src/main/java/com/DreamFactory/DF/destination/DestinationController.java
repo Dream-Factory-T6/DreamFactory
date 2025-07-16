@@ -5,6 +5,10 @@ import com.DreamFactory.DF.destination.dto.DestinationRequest;
 import com.DreamFactory.DF.destination.dto.DestinationResponse;
 import com.DreamFactory.DF.user.model.User;
 import com.DreamFactory.DF.user.UserRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestBody;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,18 +20,29 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
+import io.swagger.v3.oas.annotations.Parameter;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/destinations")
 @RequiredArgsConstructor
+@Tag(name = "Destination", description = "Operations related to destination")
 public class DestinationController {
     private final DestinationService destinationService;
     private final UserRepository userRepository;
 
     @GetMapping
+    @Operation(summary = "Get all destinations.", responses = {
+            @ApiResponse(responseCode = "200", description = "Destinations returned successfully"),
+            @ApiResponse(responseCode = "204", description = "No destinations found"),
+            @ApiResponse(responseCode = "400", ref = "#/components/responses/BadRequest"),
+            @ApiResponse(responseCode = "404", ref = "#/components/responses/DestinationNotFound"),
+            @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
+    })
     public ResponseEntity<Page<DestinationResponse>> getAllDestinations(
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "4") int size) {
+            @Parameter(description = "Page number (starts from 1)", example = "1") @RequestParam(defaultValue = "1") int page,
+            @Parameter(description = "Page size", example = "4") @RequestParam(defaultValue = "4") int size) {
         Page<DestinationResponse> destinations = destinationService.getAllDestinations(convertToZeroBasedPage(page),
                 size);
 
@@ -35,17 +50,30 @@ public class DestinationController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get destination by ID.", responses = {
+            @ApiResponse(responseCode = "200", description = "Destination returned successfully"),
+            @ApiResponse(responseCode = "400", ref = "#/components/responses/BadRequest"),
+            @ApiResponse(responseCode = "404", ref = "#/components/responses/DestinationNotFound"),
+            @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
+    })
     public ResponseEntity<DestinationResponse> getDestinationById(@PathVariable Long id) {
         DestinationResponse destination = destinationService.getDestinationById(id);
         return ResponseEntity.ok(destination);
     }
 
     @GetMapping("/filter")
+    @Operation(summary = "Get destination with filter by title or by location.", responses = {
+            @ApiResponse(responseCode = "200", description = "Destination returned successfully"),
+            @ApiResponse(responseCode = "204", description = "No destinations found"),
+            @ApiResponse(responseCode = "400", ref = "#/components/responses/BadRequest"),
+            @ApiResponse(responseCode = "404", ref = "#/components/responses/DestinationNotFound"),
+            @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
+    })
     public ResponseEntity<Page<DestinationResponse>> getDestinationsWithFilters(
-            @RequestParam(required = false) String location,
-            @RequestParam(required = false) String title,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "4") int size) {
+            @Parameter(description = "Filter by location", required = false) @RequestParam(required = false) String location,
+            @Parameter(description = "Filter by title", required = false) @RequestParam(required = false) String title,
+            @Parameter(description = "Page number (starts from 1)", example = "1") @RequestParam(defaultValue = "1") int page,
+            @Parameter(description = "Page size", example = "4") @RequestParam(defaultValue = "4") int size) {
         DestinationFilterRequest filter = new DestinationFilterRequest(location, title);
         Page<DestinationResponse> destinations = destinationService.getDestinationsWithFilters(filter,
 
@@ -55,10 +83,20 @@ public class DestinationController {
 
     @GetMapping("/my-destinations")
     @PreAuthorize("hasRole('USER')")
+    @Operation(summary = "Get destinations of User.", responses = {
+            @ApiResponse(responseCode = "200", description = "Destinations returned successfully"),
+            @ApiResponse(responseCode = "204", description = "No destinations found"),
+            @ApiResponse(responseCode = "400", ref = "#/components/responses/BadRequest"),
+            @ApiResponse(responseCode = "401", ref = "#/components/responses/Unauthorized"),
+            @ApiResponse(responseCode = "403", ref = "#/components/responses/Forbidden"),
+            @ApiResponse(responseCode = "404", ref = "#/components/responses/DestinationNotFound"),
+            @ApiResponse(responseCode = "404", ref = "#/components/responses/UserNotFound"),
+            @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
+    })
     public ResponseEntity<Page<DestinationResponse>> getMyDestinations(
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "4") int size,
-            @RequestParam(required = false) String sort) {
+            @Parameter(description = "Page number (starts from 1)", example = "1") @RequestParam(defaultValue = "1") int page,
+            @Parameter(description = "Page size", example = "4") @RequestParam(defaultValue = "4") int size,
+            @Parameter(description = "Sort by creation date: 'asc' or 'desc'", required = false, example = "asc") @RequestParam(required = false) String sort) {
         User currentUser = getCurrentUser();
 
         Page<DestinationResponse> destinations = destinationService.getUserDestinations(currentUser,
@@ -66,20 +104,36 @@ public class DestinationController {
         return ResponseEntity.ok(destinations);
     }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('USER')")
+    @Operation(summary = "Post new destination.", responses = {
+            @ApiResponse(responseCode = "201", description = "Destination created successfully"),
+            @ApiResponse(responseCode = "400", ref = "#/components/responses/BadRequest"),
+            @ApiResponse(responseCode = "401", ref = "#/components/responses/Unauthorized"),
+            @ApiResponse(responseCode = "403", ref = "#/components/responses/Forbidden"),
+            @ApiResponse(responseCode = "404", ref = "#/components/responses/UserNotFound"),
+            @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
+    })
     public ResponseEntity<DestinationResponse> createDestination(
-            @Valid @RequestBody DestinationRequest request) {
+            @Valid @ModelAttribute DestinationRequest request) throws IOException {
         User currentUser = getCurrentUser();
         DestinationResponse createdDestination = destinationService.createDestination(currentUser, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdDestination);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('USER')")
+    @Operation(summary = "Update destination.", responses = {
+            @ApiResponse(responseCode = "200", description = "Destination updated successfully"),
+            @ApiResponse(responseCode = "400", ref = "#/components/responses/BadRequest"),
+            @ApiResponse(responseCode = "401", ref = "#/components/responses/Unauthorized"),
+            @ApiResponse(responseCode = "403", ref = "#/components/responses/Forbidden"),
+            @ApiResponse(responseCode = "404", ref = "#/components/responses/DestinationNotFound"),
+            @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
+    })
     public ResponseEntity<DestinationResponse> updateDestination(
             @PathVariable Long id,
-            @Valid @RequestBody DestinationRequest request) {
+            @Valid @ModelAttribute DestinationRequest request) {
         User currentUser = getCurrentUser();
         DestinationResponse updatedDestination = destinationService.updateDestination(id, currentUser, request);
         return ResponseEntity.ok(updatedDestination);
@@ -87,6 +141,14 @@ public class DestinationController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('USER')")
+    @Operation(summary = "Delete destination.", responses = {
+            @ApiResponse(responseCode = "204", description = "Destination deleted successfully"),
+            @ApiResponse(responseCode = "400", ref = "#/components/responses/BadRequest"),
+            @ApiResponse(responseCode = "401", ref = "#/components/responses/Unauthorized"),
+            @ApiResponse(responseCode = "403", ref = "#/components/responses/Forbidden"),
+            @ApiResponse(responseCode = "404", ref = "#/components/responses/DestinationNotFound"),
+            @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
+    })
     public ResponseEntity<Void> deleteDestination(@PathVariable Long id) {
         User currentUser = getCurrentUser();
         destinationService.deleteDestination(id, currentUser);
