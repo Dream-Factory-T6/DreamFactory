@@ -8,6 +8,7 @@ import com.DreamFactory.DF.user.UserRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestBody;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import io.swagger.v3.oas.annotations.Parameter;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/destinations")
@@ -101,7 +104,7 @@ public class DestinationController {
         return ResponseEntity.ok(destinations);
     }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('USER')")
     @Operation(summary = "Post new destination.", responses = {
             @ApiResponse(responseCode = "201", description = "Destination created successfully"),
@@ -112,13 +115,13 @@ public class DestinationController {
             @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
     })
     public ResponseEntity<DestinationResponse> createDestination(
-            @Valid @RequestBody DestinationRequest request) {
+            @Valid @ModelAttribute DestinationRequest request) throws IOException {
         User currentUser = getCurrentUser();
         DestinationResponse createdDestination = destinationService.createDestination(currentUser, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdDestination);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('USER')")
     @Operation(summary = "Update destination.", responses = {
             @ApiResponse(responseCode = "200", description = "Destination updated successfully"),
@@ -130,7 +133,7 @@ public class DestinationController {
     })
     public ResponseEntity<DestinationResponse> updateDestination(
             @PathVariable Long id,
-            @Valid @RequestBody DestinationRequest request) {
+            @Valid @ModelAttribute DestinationRequest request) {
         User currentUser = getCurrentUser();
         DestinationResponse updatedDestination = destinationService.updateDestination(id, currentUser, request);
         return ResponseEntity.ok(updatedDestination);

@@ -1,5 +1,6 @@
 package com.DreamFactory.DF.destination;
 
+import com.DreamFactory.DF.cloudinary.CloudinaryService;
 import com.DreamFactory.DF.destination.dto.DestinationFilterRequest;
 import com.DreamFactory.DF.destination.dto.DestinationMapper;
 import com.DreamFactory.DF.destination.dto.DestinationRequest;
@@ -18,12 +19,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class DestinationService {
     private final DestinationRepository destinationRepository;
     private final EmailService emailService;
+    private final CloudinaryService cloudinaryService;
 
     @Transactional(readOnly = true)
     public Page<DestinationResponse> getAllDestinations(int page, int size) {
@@ -81,8 +86,10 @@ public class DestinationService {
         return destinations.map(DestinationMapper::toResponse);
     }
 
-    public DestinationResponse createDestination(User user, DestinationRequest request) {
-        Destination destination = DestinationMapper.toEntity(request);
+    public DestinationResponse createDestination(User user, DestinationRequest request) throws IOException {
+        Map uploadResult = cloudinaryService.uploadFile(request.image());
+        String imageUrl = (String) uploadResult.get("secure_url");
+        Destination destination = DestinationMapper.toEntity(request, imageUrl);
         destination.setUser(user);
         Destination savedDestination = destinationRepository.save(destination);
         DestinationResponse response = DestinationMapper.toResponse(savedDestination);
@@ -109,7 +116,7 @@ public class DestinationService {
         destination.setTitle(request.title());
         destination.setLocation(request.location());
         destination.setDescription(request.description());
-        destination.setImageUrl(request.imageUrl());
+        postImageCloudinary(request, destination);
 
         return DestinationMapper.toResponse(destination);
 
@@ -121,10 +128,39 @@ public class DestinationService {
         if (!isAuthorizedToModify(destination, user)) {
             throw new UnauthorizedAccessException(id);
         }
+
+        String imageUrl = destination.getImageUrl();
+
+        String withoutPrefix = imageUrl.substring(imageUrl.indexOf("/upload/") + 8);
+        if (withoutPrefix.matches("v\\d+/.+")) {
+            withoutPrefix = withoutPrefix.substring(withoutPrefix.indexOf('/') + 1);
+        }
+        int dotIndex = withoutPrefix.lastIndexOf('.');
+        String publicId = (dotIndex != -1) ? withoutPrefix.substring(0, dotIndex) : withoutPrefix;
+
+        deleteImageCloudinary(publicId);
         destinationRepository.delete(destination);
     }
 
     private boolean isAuthorizedToModify(Destination destination, User user) {
         return destination.getUser().getId().equals(user.getId());
+    }
+
+    private void postImageCloudinary(DestinationRequest request, Destination destination) {
+        try {
+            Map uploadResult = cloudinaryService.uploadFile(request.image());
+            String imageUrl = (String) uploadResult.get("secure_url");
+            destination.setImageUrl(imageUrl);
+        } catch (Exception e) {
+            throw new RuntimeException("Error uploading image to Cloudinary", e);
+        }
+    }
+
+    private void deleteImageCloudinary(String publicId) {
+        try {
+            cloudinaryService.deleteFile(publicId);
+        } catch (IOException e) {
+            throw new RuntimeException("Error deleting image from Cloudinary: " + e.getMessage());
+        }
     }
 }
