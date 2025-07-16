@@ -21,4 +21,15 @@ public class EmailService {
         helper.setText(plainText, htmlContent);
         mailSender.send(message);
     }
+
+    public void sendUserWelcomeEmail(String to, String subject, String plainText, String htmlContent)
+        throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        helper.setFrom("dream.factory.t6@gmail.com");
+        helper.setTo(to);
+        helper.setSubject(subject);
+        helper.setText(plainText, htmlContent);
+        mailSender.send(message);
+    }
 }
