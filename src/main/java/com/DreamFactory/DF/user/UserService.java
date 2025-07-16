@@ -1,5 +1,8 @@
 package com.DreamFactory.DF.user;
 
+import com.DreamFactory.DF.email.EmailService;
+import com.DreamFactory.DF.email.UserEmailTemplates;
+import com.DreamFactory.DF.exceptions.EmailSendException;
 import com.DreamFactory.DF.exceptions.EmptyListException;
 import com.DreamFactory.DF.user.dto.UserMapper;
 import com.DreamFactory.DF.user.dto.UserRequest;
@@ -10,6 +13,8 @@ import com.DreamFactory.DF.user.exceptions.UserIdNotFoundException;
 import com.DreamFactory.DF.user.exceptions.UsernameAlreadyExistException;
 import com.DreamFactory.DF.role.Role;
 import com.DreamFactory.DF.user.model.User;
+import jakarta.mail.MessagingException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -27,13 +32,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class UserService implements UserDetailsService {
 
-    @Autowired
-    private UserRepository userRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
+
 
     @Transactional
     @Override
@@ -59,6 +65,17 @@ public class UserService implements UserDetailsService {
         user.setRoles(Set.of(Role.USER));
 
         User savedUser = userRepository.save(user);
+
+        try {
+            String subject = UserEmailTemplates.getUserCreatedSubject();
+            String plainText = UserEmailTemplates.getUserWelcomeEmailPlainText(user);
+            String html = UserEmailTemplates.getUserWelcomeEmailHtml(user);
+
+            emailService.sendUserWelcomeEmail(user.getEmail(), subject, plainText, html);
+        } catch (MessagingException e){
+            throw new EmailSendException("Failed to send welcome email: " + e.getMessage(), e);
+        }
+
         return UserMapper.fromEntity(savedUser);
     }
 
@@ -71,6 +88,16 @@ public class UserService implements UserDetailsService {
         user.setRoles(Set.of(request.role()));
 
         User savedUser = userRepository.save(user);
+
+        try {
+            String subject = UserEmailTemplates.getUserCreatedSubject();
+            String plainText = UserEmailTemplates.getUserWelcomeEmailPlainText(user);
+            String html = UserEmailTemplates.getUserWelcomeEmailHtml(user);
+
+            emailService.sendUserWelcomeEmail(user.getEmail(), subject, plainText, html);
+        } catch (MessagingException e){
+            throw new EmailSendException("Failed to send welcome email: " + e.getMessage(), e);
+        }
         return UserMapper.fromEntity(savedUser);
     }
 
