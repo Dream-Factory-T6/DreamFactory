@@ -23,7 +23,7 @@ public class SwaggerConfig {
 
         return new OpenAPI()
                 .info(new Info()
-                        .title("My API")
+                        .title("Dream Factory API")
                         .version("1.0.0"))
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(new Components()
@@ -34,8 +34,7 @@ public class SwaggerConfig {
                                         .scheme("bearer")
                                         .bearerFormat("JWT"))
 
-                        .addSchemas("ErrorResponse", new Schema<ErrorResponse>()
-                                .$ref("ErrorResponse"))
+                        .addSchemas("ErrorResponse", new Schema<>())
 
                         .addResponses("BadRequest", apiResponse(400, "Invalid input or malformed request"))
                         .addResponses("Unauthorized", apiResponse(401, "Authentication required"))
