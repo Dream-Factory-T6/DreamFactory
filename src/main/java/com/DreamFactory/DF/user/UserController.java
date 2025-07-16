@@ -4,7 +4,10 @@ package com.DreamFactory.DF.user;
 import com.DreamFactory.DF.user.dto.UserRequest;
 import com.DreamFactory.DF.user.dto.UserRequestAdmin;
 import com.DreamFactory.DF.user.dto.UserResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -16,11 +19,22 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
+@Tag(name = "User", description = "Operations related to user")
 public class UserController {
 
     private UserService userService;
 
+
     @GetMapping("/api/users")
+    @Operation(summary = "Get all users.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Users returned successfully"),
+                    @ApiResponse(responseCode = "400", ref = "#/components/responses/BadRequest"),
+                    @ApiResponse(responseCode = "401", ref = "#/components/responses/Unauthorized"),
+                    @ApiResponse(responseCode = "403", ref = "#/components/responses/Forbidden"),
+                    @ApiResponse(responseCode = "404", ref = "#/components/responses/UserNotFound"),
+                    @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
+            })
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
