@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
 class ReviewServiceTest {
@@ -83,5 +84,18 @@ class ReviewServiceTest {
         List<ReviewResponse> responses = reviewService.getAllReviewsByDestinationId(100L);
 
         assertTrue(responses.isEmpty());
+    }
+
+    @Test
+    void createReviewTest() {
+        Mockito.doReturn(testUser).when(reviewService).getAuthenticatedUser();
+        Mockito.when(destinationRepository.findById(100L)).thenReturn(Optional.of(testDestination));
+        Mockito.when(reviewRepository.save(any(Review.class))).thenReturn(testReview);
+
+        ReviewResponse response = reviewService.createReview(reviewRequest);
+
+        assertNotNull(response);
+        assertEquals(4.5, response.rating());
+        assertEquals("Good Location!", response.body());
     }
 }
