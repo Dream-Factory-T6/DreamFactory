@@ -27,7 +27,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(EmptyListException.class)
-    public ResponseEntity<String> handleEmptyList(EmptyListException e){
+    public ResponseEntity<String> handleEmptyList(EmptyListException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
     }
 
@@ -53,22 +53,22 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UsernameAlreadyExistException.class)
-    public ResponseEntity<String> handleUsernameAlreadyExist(UsernameAlreadyExistException e){
+    public ResponseEntity<String> handleUsernameAlreadyExist(UsernameAlreadyExistException e) {
         return new ResponseEntity<>("Error: " + e.getMessage(), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(EmailAlreadyExistException.class)
-    public ResponseEntity<String> handleEmailAlreadyExist(EmailAlreadyExistException e){
+    public ResponseEntity<String> handleEmailAlreadyExist(EmailAlreadyExistException e) {
         return new ResponseEntity<>("Error: " + e.getMessage(), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(UserIdNotFoundException.class)
-    public ResponseEntity<String> handleUserIdNotFound(UserIdNotFoundException e){
+    public ResponseEntity<String> handleUserIdNotFound(UserIdNotFoundException e) {
         return new ResponseEntity<>("Error: " + e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<String> handleValidationErrors(MethodArgumentNotValidException e){
+    public ResponseEntity<String> handleValidationErrors(MethodArgumentNotValidException e) {
         String errorMessage = e.getBindingResult()
                 .getFieldErrors()
                 .stream()
@@ -79,10 +79,16 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(InvalidFormatException.class)
-    public ResponseEntity<String> handleInvalidFormatException(InvalidFormatException e){
+    public ResponseEntity<String> handleInvalidFormatException(InvalidFormatException e) {
         String message = e.getOriginalMessage();
         return new ResponseEntity<>("Error in role: \n" + message, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(EmailSendException.class)
+    public ResponseEntity<Map<String, String>> handleEmailSendException(EmailSendException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
 
 }
