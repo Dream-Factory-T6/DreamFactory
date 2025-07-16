@@ -24,18 +24,21 @@ public class DestinationService {
     private final DestinationRepository destinationRepository;
     private final EmailService emailService;
 
+    @Transactional(readOnly = true)
     public Page<DestinationResponse> getAllDestinations(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Destination> destinations = destinationRepository.findAll(pageable);
         return destinations.map(DestinationMapper::toResponse);
     }
 
+    @Transactional(readOnly = true)
     public DestinationResponse getDestinationById(Long id) {
         Destination destination = destinationRepository.findById(id)
                 .orElseThrow(() -> new DestinationNotFoundException(id));
         return DestinationMapper.toResponse(destination);
     }
 
+    @Transactional(readOnly = true)
     public Page<DestinationResponse> getDestinationsWithFilters(DestinationFilterRequest filter, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Destination> destinations;
@@ -56,12 +59,14 @@ public class DestinationService {
         return destinations.map(DestinationMapper::toResponse);
     }
 
+    @Transactional(readOnly = true)
     public Page<DestinationResponse> getUserDestinations(User user, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Destination> destinations = destinationRepository.findByUser(user, pageable);
         return destinations.map(DestinationMapper::toResponse);
     }
 
+    @Transactional(readOnly = true)
     public Page<DestinationResponse> getUserDestinations(User user, int page, int size, String sort) {
         Pageable pageable;
         if ("asc".equalsIgnoreCase(sort)) {
@@ -105,8 +110,7 @@ public class DestinationService {
         destination.setDescription(request.description());
         destination.setImageUrl(request.imageUrl());
 
-        Destination updatedDestination = destinationRepository.save(destination);
-        return DestinationMapper.toResponse(updatedDestination);
+        return DestinationMapper.toResponse(destination);
 
     }
 
