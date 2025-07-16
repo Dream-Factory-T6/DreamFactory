@@ -1,5 +1,6 @@
 package com.DreamFactory.DF.user.model;
 
+import com.DreamFactory.DF.role.Role;
 import jakarta.persistence.*;
 import lombok.*;
 

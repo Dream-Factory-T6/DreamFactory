@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("/api/destinations")
@@ -29,7 +30,7 @@ public class DestinationController {
             @RequestParam(defaultValue = "4") int size) {
         Page<DestinationResponse> destinations = destinationService.getAllDestinations(convertToZeroBasedPage(page),
                 size);
-                
+
         return ResponseEntity.ok(destinations);
     }
 
@@ -47,24 +48,26 @@ public class DestinationController {
             @RequestParam(defaultValue = "4") int size) {
         DestinationFilterRequest filter = new DestinationFilterRequest(location, title);
         Page<DestinationResponse> destinations = destinationService.getDestinationsWithFilters(filter,
-                
+
                 convertToZeroBasedPage(page), size);
         return ResponseEntity.ok(destinations);
     }
 
     @GetMapping("/my-destinations")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Page<DestinationResponse>> getMyDestinations(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "4") int size,
             @RequestParam(required = false) String sort) {
         User currentUser = getCurrentUser();
-                
+
         Page<DestinationResponse> destinations = destinationService.getUserDestinations(currentUser,
                 convertToZeroBasedPage(page), size, sort);
         return ResponseEntity.ok(destinations);
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<DestinationResponse> createDestination(
             @Valid @RequestBody DestinationRequest request) {
         User currentUser = getCurrentUser();
@@ -73,18 +76,17 @@ public class DestinationController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<DestinationResponse> updateDestination(
-    @PathVariable Long id,
-    @Valid
-    @RequestBody
-    DestinationRequest request)
-    {
+            @PathVariable Long id,
+            @Valid @RequestBody DestinationRequest request) {
         User currentUser = getCurrentUser();
         DestinationResponse updatedDestination = destinationService.updateDestination(id, currentUser, request);
         return ResponseEntity.ok(updatedDestination);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Void> deleteDestination(@PathVariable Long id) {
         User currentUser = getCurrentUser();
         destinationService.deleteDestination(id, currentUser);
