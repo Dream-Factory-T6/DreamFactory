@@ -1,5 +1,6 @@
 package com.DreamFactory.DF.User;
 
+import com.DreamFactory.DF.email.EmailService;
 import com.DreamFactory.DF.exceptions.EmptyListException;
 import com.DreamFactory.DF.user.UserRepository;
 import com.DreamFactory.DF.user.UserService;
@@ -12,6 +13,7 @@ import com.DreamFactory.DF.user.exceptions.EmailAlreadyExistException;
 import com.DreamFactory.DF.user.exceptions.UserIdNotFoundException;
 import com.DreamFactory.DF.user.exceptions.UsernameAlreadyExistException;
 import com.DreamFactory.DF.user.model.User;
+import jakarta.mail.MessagingException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -27,14 +29,17 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
 
     @InjectMocks
     private UserService userService;
+
+    @Mock
+    private EmailService emailService;
 
     @Mock
     private UserRepository userRepository;
@@ -82,7 +87,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void should_registerNewUser_fromRequest(){
+    void should_registerNewUser_fromRequest() throws MessagingException {
         UserRequest userRequest = new UserRequest("userTest", "usertest@test.com", "password123");
 
         when(userRepository.findByUsername("userTest")).thenReturn(Optional.empty());
@@ -97,6 +102,8 @@ public class UserServiceTest {
         userSaved.setRoles(Set.of(Role.USER));
 
         when(userRepository.save(any(User.class))).thenReturn(userSaved);
+        doNothing().when(emailService).sendUserWelcomeEmail(
+                anyString(), anyString(), anyString(), anyString());
 
         UserResponse userResponse = userService.registerUser(userRequest);
 
@@ -145,7 +152,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void should_registerNewUserByAdmin_fromRequest(){
+    void should_registerNewUserByAdmin_fromRequest() throws MessagingException {
         UserRequestAdmin userRequest = new UserRequestAdmin("userTest", "usertest@test.com", "password123", Role.ADMIN);
 
         when(userRepository.findByUsername("userTest")).thenReturn(Optional.empty());
@@ -160,6 +167,8 @@ public class UserServiceTest {
         userSaved.setRoles(Set.of(Role.ADMIN));
 
         when(userRepository.save(any(User.class))).thenReturn(userSaved);
+        doNothing().when(emailService).sendUserWelcomeEmail(
+                anyString(), anyString(), anyString(), anyString());
 
         UserResponse userResponse = userService.registerUserByAdmin(userRequest);
 
