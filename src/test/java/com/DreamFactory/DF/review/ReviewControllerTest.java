@@ -44,7 +44,7 @@ class ReviewControllerTest {
     }
 
     @Test
-    void showReviewsByUsername_Success() throws Exception {
+    void showReviewsByUsernameTest_Success() throws Exception {
         Mockito.when(reviewService.getAllReviewsByUsername()).thenReturn(List.of(reviewResponse));
 
         mockMvc.perform(get("/api/reviews"))
@@ -52,5 +52,15 @@ class ReviewControllerTest {
                 .andExpect(jsonPath("$.size()").value(1))
                 .andExpect(jsonPath("$[0].body").value("Nice place!"))
                 .andExpect(jsonPath("$[0].username").value("testUser"));
+    }
+
+    @Test
+    void showReviewsByDestinationIdTest_Success() throws Exception {
+        Mockito.when(reviewService.getAllReviewsByDestinationId(100L)).thenReturn(List.of(reviewResponse));
+
+        mockMvc.perform(get("/api/reviews/destination/100"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()").value(1))
+                .andExpect(jsonPath("$[0].body").value("Nice place!"));
     }
 }
