@@ -103,6 +103,16 @@ class ReviewServiceTest {
     }
 
     @Test
+    void createReviewTest_DestinationNotFound() {
+        ReviewRequest request = new ReviewRequest(4.5, "Nice!", 999L);
+
+        Mockito.doReturn(testUser).when(reviewService).getAuthenticatedUser();
+        Mockito.when(destinationRepository.findById(999L)).thenReturn(Optional.empty());
+
+        assertThrows(DestinationNotFoundException.class, () -> reviewService.createReview(request));
+    }
+
+    @Test
     void updateReviewTest_Success() {
         ReviewRequest updateRequest = new ReviewRequest(5.0, "Updated review", 100L);
 
