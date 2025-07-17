@@ -16,6 +16,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Collections;
 import java.util.List;
@@ -81,6 +84,17 @@ class ReviewServiceTest {
         assertEquals(testUser.getUsername(), response.username());
         assertEquals(testReview.getBody(), response.body());
         assertEquals(testReview.getRating(), response.rating());
+    }
+
+    @Test
+    void getAllReviewsByUsernameTest_Empty() {
+        Mockito.doReturn(testUser).when(reviewService).getAuthenticatedUser();
+        Mockito.when(reviewRepository.findByUserUsername("testUser"))
+                .thenReturn(Collections.emptyList());
+
+        List<ReviewResponse> responses = reviewService.getAllReviewsByUsername();
+
+        assertTrue(responses.isEmpty());
     }
 
     @Test
@@ -183,5 +197,23 @@ class ReviewServiceTest {
         Mockito.when(reviewRepository.findById(reviewId)).thenReturn(Optional.empty());
 
         assertThrows(ReviewNotFoundByIdException.class, () -> reviewService.delete(reviewId));
+    }
+
+    @Test
+    void getAuthenticatedUser_Success() {
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        Authentication authentication = Mockito.mock(Authentication.class);
+        Mockito.when(authentication.isAuthenticated()).thenReturn(true);
+        Mockito.when(authentication.getName()).thenReturn("testUser");
+
+        context.setAuthentication(authentication);
+        SecurityContextHolder.setContext(context);
+
+        Mockito.when(userRepository.findByUsername("testUser")).thenReturn(Optional.of(testUser));
+
+        User user = reviewService.getAuthenticatedUser();
+
+        assertNotNull(user);
+        assertEquals("testUser", user.getUsername());
     }
 }
