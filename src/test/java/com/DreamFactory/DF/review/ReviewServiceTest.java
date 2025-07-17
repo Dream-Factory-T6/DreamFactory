@@ -4,6 +4,7 @@ import com.DreamFactory.DF.destination.Destination;
 import com.DreamFactory.DF.destination.DestinationRepository;
 import com.DreamFactory.DF.review.dtos.ReviewRequest;
 import com.DreamFactory.DF.review.dtos.ReviewResponse;
+import com.DreamFactory.DF.review.exceptions.ReviewNotFoundByIdException;
 import com.DreamFactory.DF.user.UserRepository;
 import com.DreamFactory.DF.user.model.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -98,4 +99,15 @@ class ReviewServiceTest {
         assertEquals(4.5, response.rating());
         assertEquals("Good Location!", response.body());
     }
+
+    @Test
+    void deleteReview(){
+        Mockito.doReturn(testUser).when(reviewService).getAuthenticatedUser();
+        Mockito.when(destinationRepository.findById(100L)).thenReturn(Optional.of(testDestination));
+        Mockito.when(reviewRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(ReviewNotFoundByIdException.class,
+                () -> reviewService.updateReview(1L, reviewRequest));
+    }
+
 }
