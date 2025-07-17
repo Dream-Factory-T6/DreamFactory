@@ -77,4 +77,20 @@ class ReviewControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.body").value("Nice place!"));
     }
+
+    @Test
+    void updateReviewTest_Success() throws Exception {
+        ReviewRequest request = new ReviewRequest(4.8, "Updated text.", 100L);
+        ReviewResponse updatedResponse = new ReviewResponse(1L, 4.8, "Updated text.", LocalDateTime.now(), "testUser");
+
+        Mockito.when(reviewService.updateReview(Mockito.eq(1L), Mockito.any()))
+                .thenReturn(updatedResponse);
+
+        mockMvc.perform(put("/api/reviews/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.body").value("Updated text."))
+                .andExpect(jsonPath("$.rating").value(4.8));
+    }
 }
