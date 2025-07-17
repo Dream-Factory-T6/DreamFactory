@@ -14,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.util.Collections;
 import java.util.List;
@@ -101,7 +102,30 @@ class ReviewServiceTest {
     }
 
     @Test
-    void deleteReview(){
+    void updateReview_AccessDenied() {
+        User anotherUser = new User();
+        anotherUser.setId(99L);
+        anotherUser.setUsername("other");
+        Review someoneElsesReview = Review.builder()
+                .id(1L)
+                .user(anotherUser)
+                .destination(testDestination)
+                .rating(3.0)
+                .body("Someone else's review")
+                .build();
+
+        ReviewRequest request = new ReviewRequest(5.0, "Hack attempt", 100L);
+
+        Mockito.doReturn(testUser).when(reviewService).getAuthenticatedUser();
+        Mockito.when(destinationRepository.findById(100L)).thenReturn(Optional.of(testDestination));
+        Mockito.when(reviewRepository.findById(1L)).thenReturn(Optional.of(someoneElsesReview));
+
+        assertThrows(AccessDeniedException.class,
+                () -> reviewService.updateReview(1L, request));
+    }
+
+    @Test
+    void deleteReviewTest(){
         Mockito.doReturn(testUser).when(reviewService).getAuthenticatedUser();
         Mockito.when(destinationRepository.findById(100L)).thenReturn(Optional.of(testDestination));
         Mockito.when(reviewRepository.findById(1L)).thenReturn(Optional.empty());
@@ -109,5 +133,4 @@ class ReviewServiceTest {
         assertThrows(ReviewNotFoundByIdException.class,
                 () -> reviewService.updateReview(1L, reviewRequest));
     }
-
 }
