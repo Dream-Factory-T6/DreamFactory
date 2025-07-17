@@ -103,7 +103,7 @@ class ReviewServiceTest {
     }
 
     @Test
-    void updateReview_Success() {
+    void updateReviewTest_Success() {
         ReviewRequest updateRequest = new ReviewRequest(5.0, "Updated review", 100L);
 
         Mockito.doReturn(testUser).when(reviewService).getAuthenticatedUser();
@@ -118,7 +118,7 @@ class ReviewServiceTest {
     }
 
     @Test
-    void updateReview_AccessDenied() {
+    void updateReviewTest_AccessDenied() {
         User anotherUser = new User();
         anotherUser.setId(99L);
         anotherUser.setUsername("other");
@@ -141,12 +141,22 @@ class ReviewServiceTest {
     }
 
     @Test
-    void deleteReviewTest(){
+    void deleteReviewTest() {
         Mockito.doReturn(testUser).when(reviewService).getAuthenticatedUser();
         Mockito.when(destinationRepository.findById(100L)).thenReturn(Optional.of(testDestination));
         Mockito.when(reviewRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(ReviewNotFoundByIdException.class,
                 () -> reviewService.updateReview(1L, reviewRequest));
+    }
+
+    @Test
+    void deleteReviewTest_ReviewNotFound() {
+        Long reviewId = 99L;
+
+        Mockito.doReturn(testUser).when(reviewService).getAuthenticatedUser();
+        Mockito.when(reviewRepository.findById(reviewId)).thenReturn(Optional.empty());
+
+        assertThrows(ReviewNotFoundByIdException.class, () -> reviewService.delete(reviewId));
     }
 }
