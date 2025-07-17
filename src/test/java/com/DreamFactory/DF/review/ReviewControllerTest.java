@@ -13,7 +13,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -92,5 +91,13 @@ class ReviewControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.body").value("Updated text."))
                 .andExpect(jsonPath("$.rating").value(4.8));
+    }
+
+    @Test
+    void deleteReviewTest_Success() throws Exception {
+        mockMvc.perform(delete("/api/reviews/1"))
+                .andExpect(status().isNoContent());
+
+        Mockito.verify(reviewService).delete(1L);
     }
 }
