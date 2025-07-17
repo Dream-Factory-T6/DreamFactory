@@ -8,7 +8,7 @@ import java.util.List;
 @Component
 public class DestinationMapper {
 
-    public static Destination toEntity(DestinationRequest request) {
+    public static Destination toEntity(DestinationRequest request, String imageUrl) {
         if (request == null) {
             return null;
         }
@@ -17,7 +17,7 @@ public class DestinationMapper {
         destination.setTitle(request.title());
         destination.setLocation(request.location());
         destination.setDescription(request.description());
-        destination.setImageUrl(request.imageUrl());
+        destination.setImageUrl(imageUrl);
 
         return destination;
     }
