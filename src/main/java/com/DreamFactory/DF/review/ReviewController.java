@@ -79,7 +79,7 @@ public class ReviewController {
         return ResponseEntity.ok(updatedReview);
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     @Operation(summary = "Delete review for destination.",
             responses = {
                     @ApiResponse(responseCode = "204", description = "Review deleted successfully"),
