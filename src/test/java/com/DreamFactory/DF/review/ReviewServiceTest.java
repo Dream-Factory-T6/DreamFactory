@@ -69,6 +69,21 @@ class ReviewServiceTest {
     }
 
     @Test
+    void getAllReviewsByUsernameTest_Success() {
+        Mockito.doReturn(testUser).when(reviewService).getAuthenticatedUser();
+        Mockito.when(reviewRepository.findByUserUsername("testUser"))
+                .thenReturn(List.of(testReview));
+
+        List<ReviewResponse> responses = reviewService.getAllReviewsByUsername();
+
+        assertEquals(1, responses.size());
+        ReviewResponse response = responses.get(0);
+        assertEquals(testUser.getUsername(), response.username());
+        assertEquals(testReview.getBody(), response.body());
+        assertEquals(testReview.getRating(), response.rating());
+    }
+
+    @Test
     void getReviewsByDestinationIdTest_Success() {
         Mockito.when(destinationRepository.findById(100L)).thenReturn(Optional.of(testDestination));
         Mockito.when(reviewRepository.findByDestinationId(100L)).thenReturn(List.of(testReview));
