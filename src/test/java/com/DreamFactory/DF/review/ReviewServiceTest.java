@@ -2,6 +2,7 @@ package com.DreamFactory.DF.review;
 
 import com.DreamFactory.DF.destination.Destination;
 import com.DreamFactory.DF.destination.DestinationRepository;
+import com.DreamFactory.DF.destination.exceptions.DestinationNotFoundException;
 import com.DreamFactory.DF.review.dtos.ReviewRequest;
 import com.DreamFactory.DF.review.dtos.ReviewResponse;
 import com.DreamFactory.DF.review.exceptions.ReviewNotFoundByIdException;
@@ -99,6 +100,21 @@ class ReviewServiceTest {
         assertNotNull(response);
         assertEquals(4.5, response.rating());
         assertEquals("Good Location!", response.body());
+    }
+
+    @Test
+    void updateReview_Success() {
+        ReviewRequest updateRequest = new ReviewRequest(5.0, "Updated review", 100L);
+
+        Mockito.doReturn(testUser).when(reviewService).getAuthenticatedUser();
+        Mockito.when(destinationRepository.findById(100L)).thenReturn(Optional.of(testDestination));
+        Mockito.when(reviewRepository.findById(1L)).thenReturn(Optional.of(testReview));
+
+        ReviewResponse response = reviewService.updateReview(1L, updateRequest);
+
+        assertEquals(5.0, response.rating());
+        assertEquals("Updated review", response.body());
+        assertEquals(testUser.getUsername(), response.username());
     }
 
     @Test
