@@ -1,5 +1,6 @@
 package com.DreamFactory.DF.review;
 
+import com.DreamFactory.DF.review.dtos.ReviewRequest;
 import com.DreamFactory.DF.review.dtos.ReviewResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,6 +9,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -62,5 +64,17 @@ class ReviewControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()").value(1))
                 .andExpect(jsonPath("$[0].body").value("Nice place!"));
+    }
+
+    @Test
+    void storeReviewTest_Success() throws Exception {
+        ReviewRequest request = new ReviewRequest(4.5, "Nice place!", 100L);
+
+        Mockito.when(reviewService.createReview(Mockito.any())).thenReturn(reviewResponse);
+
+        mockMvc.perform(post("/api/reviews").contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.body").value("Nice place!"));
     }
 }
