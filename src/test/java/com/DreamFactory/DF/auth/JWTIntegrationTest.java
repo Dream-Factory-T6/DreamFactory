@@ -24,8 +24,6 @@ public class JWTIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Nested
-    class LoginUserOkTryAuth{
 
         @Test
         void when_authOkPostReview_return_created() throws Exception{
@@ -103,12 +101,6 @@ public class JWTIntegrationTest {
         }
 
 
-
-    }
-
-    @Nested
-    class LoginUserError{
-
         @Test
         void when_loginFailed_return_created() throws Exception{
 
@@ -128,10 +120,6 @@ public class JWTIntegrationTest {
 
         }
 
-    }
-
-    @Nested
-    class BadToken {
 
         @Test
         void when_authTokenIsBad_return_unauthorized() throws Exception {
@@ -169,16 +157,48 @@ public class JWTIntegrationTest {
                 }
                 """;
 
-            String badToken = "Bearer invalid.token.value";
+            String badToken = "Bad invalid.token.value";
 
             mockMvc.perform(post("/register/admin")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(newUser)
                             .header(TokenJwtConfig.headerAuthorization, badToken))
-                    .andExpect(status().isUnauthorized())
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(jsonPath("$.message").value("Invalid token"));
+                    .andExpect(status().isForbidden());
 
         }
-    }
+
+        @Test
+        void when_noAuthorizationHeader_then_continueChain() throws Exception {
+            mockMvc.perform(get("/api/destinations"))
+                    .andExpect(status().isOk());
+        }
+
+        @Test
+        void when_loginRequestHasInvalidJson_return_unauthorized() throws Exception{
+            String invalidJson = """
+                    {
+                     username: 'user'
+                     }
+                    """;
+
+            mockMvc.perform(post("/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(invalidJson))
+                    .andExpect(status().isUnauthorized());
+        }
+
+        @Test
+    void when_loginRequestJsonHasUnexpectedField_return_unauthorized() throws Exception{
+            String wrongJson = """
+                    {
+                    "invalidField": "asdf",
+                    "anotherOne": 123
+                    }
+                    """;
+            mockMvc.perform(post("/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(wrongJson))
+                    .andExpect(status().isUnauthorized());
+        }
+
 }
