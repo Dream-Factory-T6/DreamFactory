@@ -20,9 +20,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -418,4 +422,24 @@ public class UserServiceTest {
         }
     }
 
+    @Test
+    void getAuthenticatedUser_Success() {
+        User testUser = new User();
+        testUser.setId(10L);
+        testUser.setUsername("testUser");
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        Authentication authentication = Mockito.mock(Authentication.class);
+        Mockito.when(authentication.isAuthenticated()).thenReturn(true);
+        Mockito.when(authentication.getName()).thenReturn("testUser");
+
+        context.setAuthentication(authentication);
+        SecurityContextHolder.setContext(context);
+
+        Mockito.when(userRepository.findByUsername("testUser")).thenReturn(Optional.of(testUser));
+
+        User user = userService.getAuthenticatedUser();
+
+        assertNotNull(user);
+        assertEquals("testUser", user.getUsername());
+    }
 }
