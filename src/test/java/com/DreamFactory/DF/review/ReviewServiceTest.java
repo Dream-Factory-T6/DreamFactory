@@ -6,7 +6,6 @@ import com.DreamFactory.DF.destination.exceptions.DestinationNotFoundException;
 import com.DreamFactory.DF.review.dtos.ReviewRequest;
 import com.DreamFactory.DF.review.dtos.ReviewResponse;
 import com.DreamFactory.DF.review.exceptions.ReviewNotFoundByIdException;
-import com.DreamFactory.DF.user.UserRepository;
 import com.DreamFactory.DF.user.UserService;
 import com.DreamFactory.DF.user.model.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,9 +16,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Collections;
 import java.util.List;
