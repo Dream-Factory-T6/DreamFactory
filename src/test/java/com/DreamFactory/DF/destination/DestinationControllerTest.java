@@ -71,6 +71,7 @@ class DestinationControllerTest {
                                 "Test Description",
                                 "https://example.com/image.jpg",
                                 "testuser",
+                                4.7,
                                 LocalDateTime.now(),
                                 LocalDateTime.now());
         }
@@ -93,6 +94,7 @@ class DestinationControllerTest {
                                         .andExpect(jsonPath("$.content[0].id").value(1))
                                         .andExpect(jsonPath("$.content[0].title").value("Test Destination"))
                                         .andExpect(jsonPath("$.content[0].location").value("Test Location"))
+                                        .andExpect(jsonPath("$.content[0].rating").value(4.7))
                                         .andExpect(jsonPath("$.totalElements").value(1))
                                         .andExpect(jsonPath("$.totalPages").value(1));
 
@@ -110,7 +112,8 @@ class DestinationControllerTest {
                                         .andExpect(status().isOk())
                                         .andExpect(jsonPath("$.id").value(1))
                                         .andExpect(jsonPath("$.title").value("Test Destination"))
-                                        .andExpect(jsonPath("$.location").value("Test Location"));
+                                        .andExpect(jsonPath("$.location").value("Test Location"))
+                                        .andExpect(jsonPath("$.rating").value(4.7));
 
                         verify(destinationService).getDestinationById(1L);
                 }
