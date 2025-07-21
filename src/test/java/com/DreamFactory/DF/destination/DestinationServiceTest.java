@@ -109,12 +109,13 @@ class DestinationServiceTest {
         void shouldReturnDestinationWhenFound() {
             when(destinationRepository.findById(1L)).thenReturn(Optional.of(testDestination));
 
-            DestinationResponse result = destinationService.getDestinationById(1L);
+            DestinationWithReviewsResponse result = destinationService.getDestinationById(1L);
 
             assertThat(result).isNotNull();
             assertThat(result.title()).isEqualTo("Test Destination");
             assertThat(result.location()).isEqualTo("Test Location");
             assertThat(result.rating()).isEqualTo(4.7);
+            assertThat(result.reviews()).hasSize(1);
 
             verify(destinationRepository).findById(1L);
         }

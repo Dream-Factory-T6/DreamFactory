@@ -3,6 +3,7 @@ package com.DreamFactory.DF.destination;
 import com.DreamFactory.DF.destination.dto.DestinationFilterRequest;
 import com.DreamFactory.DF.destination.dto.DestinationRequest;
 import com.DreamFactory.DF.destination.dto.DestinationResponse;
+import com.DreamFactory.DF.destination.dto.DestinationWithReviewsResponse;
 import com.DreamFactory.DF.destination.exceptions.DestinationNotFoundException;
 import com.DreamFactory.DF.user.UserRepository;
 import com.DreamFactory.DF.user.model.User;
@@ -52,6 +53,7 @@ class DestinationControllerTest {
         private ObjectMapper objectMapper;
 
         private User testUser;
+        private DestinationWithReviewsResponse testDestinationWithReviewsResponse;
         private DestinationResponse testDestinationResponse;
 
         @BeforeEach
@@ -63,6 +65,18 @@ class DestinationControllerTest {
                                 .password("password")
                                 .roles(Set.of(Role.USER))
                                 .build();
+
+                testDestinationWithReviewsResponse = new DestinationWithReviewsResponse(
+                                1L,
+                                "Test Destination",
+                                "Test Location",
+                                "Test Description",
+                                "https://example.com/image.jpg",
+                                "testuser",
+                                List.of(),
+                                4.7,
+                                LocalDateTime.now(),
+                                LocalDateTime.now());
 
                 testDestinationResponse = new DestinationResponse(
                                 1L,
@@ -106,7 +120,7 @@ class DestinationControllerTest {
         class GetDestinationById {
                 @Test
                 void shouldReturnDestinationWhenFound() throws Exception {
-                        when(destinationService.getDestinationById(1L)).thenReturn(testDestinationResponse);
+                        when(destinationService.getDestinationById(1L)).thenReturn(testDestinationWithReviewsResponse);
 
                         mockMvc.perform(get("/api/destinations/1"))
                                         .andExpect(status().isOk())
