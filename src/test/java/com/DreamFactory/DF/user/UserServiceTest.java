@@ -1,10 +1,8 @@
-package com.DreamFactory.DF.User;
+package com.DreamFactory.DF.user;
 
 import com.DreamFactory.DF.email.EmailService;
 import com.DreamFactory.DF.exceptions.EmailSendException;
 import com.DreamFactory.DF.exceptions.EmptyListException;
-import com.DreamFactory.DF.user.UserRepository;
-import com.DreamFactory.DF.user.UserService;
 import com.DreamFactory.DF.user.dto.UserMapper;
 import com.DreamFactory.DF.user.dto.UserRequest;
 import com.DreamFactory.DF.user.dto.UserRequestAdmin;

@@ -1,4 +1,4 @@
-package com.DreamFactory.DF.User;
+package com.DreamFactory.DF.user;
 
 
 import com.DreamFactory.DF.role.Role;
