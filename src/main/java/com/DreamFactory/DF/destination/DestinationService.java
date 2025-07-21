@@ -45,6 +45,12 @@ public class DestinationService {
     }
 
     @Transactional(readOnly = true)
+    public Destination getDestObjById(Long id) {
+        return destinationRepository.findById(id)
+                .orElseThrow(() -> new DestinationNotFoundException(id));
+    }
+
+    @Transactional(readOnly = true)
     public Page<DestinationResponse> getDestinationsWithFilters(DestinationFilterRequest filter, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Destination> destinations;
