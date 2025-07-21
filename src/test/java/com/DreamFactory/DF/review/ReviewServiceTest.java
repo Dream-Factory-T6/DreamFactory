@@ -1,8 +1,7 @@
 package com.DreamFactory.DF.review;
 
 import com.DreamFactory.DF.destination.Destination;
-import com.DreamFactory.DF.destination.DestinationRepository;
-import com.DreamFactory.DF.destination.exceptions.DestinationNotFoundException;
+import com.DreamFactory.DF.destination.DestinationService;
 import com.DreamFactory.DF.review.dtos.ReviewRequest;
 import com.DreamFactory.DF.review.dtos.ReviewResponse;
 import com.DreamFactory.DF.review.exceptions.ReviewNotFoundByIdException;
@@ -31,7 +30,7 @@ class ReviewServiceTest {
     @Mock
     private UserService userService;
     @Mock
-    private DestinationRepository destinationRepository;
+    private DestinationService destinationService;
 
     @InjectMocks
     private ReviewService reviewService;
@@ -45,7 +44,7 @@ class ReviewServiceTest {
     public void setUp() {
         reviewService = Mockito.spy(new ReviewService(reviewRepository,
                 userService,
-                destinationRepository));
+                destinationService));
 
         testUser = new User();
         testUser.setId(10L);
@@ -96,7 +95,7 @@ class ReviewServiceTest {
 
     @Test
     void getReviewsByDestinationIdTest_Success() {
-        Mockito.when(destinationRepository.findById(100L)).thenReturn(Optional.of(testDestination));
+        Mockito.when(destinationService.getDestObjById(100L)).thenReturn(testDestination);
         Mockito.when(reviewRepository.findByDestinationId(100L)).thenReturn(List.of(testReview));
 
         List<ReviewResponse> responses = reviewService.getAllReviewsByDestinationId(100L);
@@ -107,7 +106,7 @@ class ReviewServiceTest {
 
     @Test
     void getReviewsByDestinationIdTest_Empty() {
-        Mockito.when(destinationRepository.findById(100L)).thenReturn(Optional.of(testDestination));
+        Mockito.when(destinationService.getDestObjById(100L)).thenReturn(testDestination);
         Mockito.when(reviewRepository.findByDestinationId(100L)).thenReturn(Collections.emptyList());
 
         List<ReviewResponse> responses = reviewService.getAllReviewsByDestinationId(100L);
@@ -118,7 +117,7 @@ class ReviewServiceTest {
     @Test
     void createReviewTest() {
         Mockito.doReturn(testUser).when(userService).getAuthenticatedUser();
-        Mockito.when(destinationRepository.findById(100L)).thenReturn(Optional.of(testDestination));
+        Mockito.when(destinationService.getDestObjById(100L)).thenReturn(testDestination);
         Mockito.when(reviewRepository.save(any(Review.class))).thenReturn(testReview);
 
         ReviewResponse response = reviewService.createReview(reviewRequest);
@@ -129,21 +128,11 @@ class ReviewServiceTest {
     }
 
     @Test
-    void createReviewTest_DestinationNotFound() {
-        ReviewRequest request = new ReviewRequest(4.5, "Nice!", 999L);
-
-        Mockito.doReturn(testUser).when(userService).getAuthenticatedUser();
-        Mockito.when(destinationRepository.findById(999L)).thenReturn(Optional.empty());
-
-        assertThrows(DestinationNotFoundException.class, () -> reviewService.createReview(request));
-    }
-
-    @Test
     void updateReviewTest_Success() {
         ReviewRequest updateRequest = new ReviewRequest(5.0, "Updated review", 100L);
 
         Mockito.doReturn(testUser).when(userService).getAuthenticatedUser();
-        Mockito.when(destinationRepository.findById(100L)).thenReturn(Optional.of(testDestination));
+        Mockito.when(destinationService.getDestObjById(100L)).thenReturn(testDestination);
         Mockito.when(reviewRepository.findById(1L)).thenReturn(Optional.of(testReview));
 
         ReviewResponse response = reviewService.updateReview(1L, updateRequest);
@@ -169,7 +158,7 @@ class ReviewServiceTest {
         ReviewRequest request = new ReviewRequest(5.0, "Hack attempt", 100L);
 
         Mockito.doReturn(testUser).when(userService).getAuthenticatedUser();
-        Mockito.when(destinationRepository.findById(100L)).thenReturn(Optional.of(testDestination));
+        Mockito.when(destinationService.getDestObjById(100L)).thenReturn(testDestination);
         Mockito.when(reviewRepository.findById(1L)).thenReturn(Optional.of(someoneElsesReview));
 
         assertThrows(AccessDeniedException.class,
@@ -179,7 +168,7 @@ class ReviewServiceTest {
     @Test
     void deleteReviewTest() {
         Mockito.doReturn(testUser).when(userService).getAuthenticatedUser();
-        Mockito.when(destinationRepository.findById(100L)).thenReturn(Optional.of(testDestination));
+        Mockito.when(destinationService.getDestObjById(100L)).thenReturn(testDestination);
         Mockito.when(reviewRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(ReviewNotFoundByIdException.class,

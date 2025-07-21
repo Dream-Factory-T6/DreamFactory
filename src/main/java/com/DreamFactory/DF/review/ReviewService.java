@@ -1,8 +1,7 @@
 package com.DreamFactory.DF.review;
 
 import com.DreamFactory.DF.destination.Destination;
-import com.DreamFactory.DF.destination.DestinationRepository;
-import com.DreamFactory.DF.destination.exceptions.DestinationNotFoundException;
+import com.DreamFactory.DF.destination.DestinationService;
 import com.DreamFactory.DF.review.dtos.ReviewMapper;
 import com.DreamFactory.DF.review.dtos.ReviewRequest;
 import com.DreamFactory.DF.review.dtos.ReviewResponse;
@@ -21,7 +20,7 @@ import java.util.List;
 public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final UserService userService;
-    private final DestinationRepository destinationRepository;
+    private final DestinationService destinationService;
 
     public List<ReviewResponse> getAllReviewsByUsername() {
         String username = userService.getAuthenticatedUser().getUsername();
@@ -33,8 +32,7 @@ public class ReviewService {
     }
 
     public List<ReviewResponse> getAllReviewsByDestinationId(Long id) {
-        Destination destination = destinationRepository.findById(id)
-                .orElseThrow(() -> new DestinationNotFoundException(id));
+        Destination destination = destinationService.getDestObjById(id);
 
         List<Review> reviews = reviewRepository.findByDestinationId(id);
 
@@ -46,8 +44,7 @@ public class ReviewService {
     @Transactional
     public ReviewResponse createReview(ReviewRequest request) {
         User user = userService.getAuthenticatedUser();
-        Destination destination = destinationRepository.findById(request.destinationId())
-                .orElseThrow(() -> new DestinationNotFoundException(request.destinationId()));
+        Destination destination = destinationService.getDestObjById(request.destinationId());
 
         Review newReview = ReviewMapper.toEntity(request);
         newReview.setUser(user);
@@ -60,8 +57,7 @@ public class ReviewService {
     @Transactional
     public ReviewResponse updateReview(Long id, ReviewRequest request) {
         User user = userService.getAuthenticatedUser();
-        Destination destination = destinationRepository.findById(request.destinationId())
-                .orElseThrow(() -> new DestinationNotFoundException(request.destinationId()));
+        Destination destination = destinationService.getDestObjById(request.destinationId());
 
         Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> new ReviewNotFoundByIdException(id));
