@@ -5,6 +5,7 @@ import com.DreamFactory.DF.destination.dto.DestinationFilterRequest;
 import com.DreamFactory.DF.destination.dto.DestinationMapper;
 import com.DreamFactory.DF.destination.dto.DestinationRequest;
 import com.DreamFactory.DF.destination.dto.DestinationResponse;
+import com.DreamFactory.DF.destination.dto.DestinationWithReviewsResponse;
 import com.DreamFactory.DF.destination.exceptions.DestinationNotFoundException;
 import com.DreamFactory.DF.destination.exceptions.UnauthorizedAccessException;
 import com.DreamFactory.DF.email.EmailService;
@@ -38,10 +39,10 @@ public class DestinationService {
     }
 
     @Transactional(readOnly = true)
-    public DestinationResponse getDestinationById(Long id) {
+    public DestinationWithReviewsResponse getDestinationById(Long id) {
         Destination destination = destinationRepository.findById(id)
                 .orElseThrow(() -> new DestinationNotFoundException(id));
-        return DestinationMapper.toResponse(destination);
+        return DestinationMapper.toWithReviewsResponse(destination);
     }
 
     @Transactional(readOnly = true)
