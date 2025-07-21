@@ -25,6 +25,7 @@ public class DestinationMapper {
     public static DestinationResponse toResponse(Destination destination) {
         if (destination == null)
             return null;
+        Double rating = calculateAverageRating(destination);
         return new DestinationResponse(
                 destination.getId(),
                 destination.getTitle(),
@@ -32,14 +33,16 @@ public class DestinationMapper {
                 destination.getDescription(),
                 destination.getImageUrl(),
                 destination.getUser() != null ? destination.getUser().getUsername() : null,
+                rating,
                 destination.getCreatedAt(),
-                destination.getUpdatedAt());
+                destination.getUpdatedAt()
+                );
     }
 
     public static DestinationWithReviewsResponse toWithReviewsResponse(Destination destination) {
         if (destination == null)
             return null;
-
+        Double rating = calculateAverageRating(destination);
         return new DestinationWithReviewsResponse(
                 destination.getId(),
                 destination.getTitle(),
@@ -47,11 +50,25 @@ public class DestinationMapper {
                 destination.getDescription(),
                 destination.getImageUrl(),
                 destination.getUser() != null ? destination.getUser().getUsername() : null,
-                destination.getCreatedAt(),
-                destination.getUpdatedAt(),
                 destination.getReviews() != null ? destination.getReviews().stream()
                         .map(ReviewMapper::toReviewResponse)
-                        .toList() : List.of());
+                        .toList() : List.of(),
+                rating,
+                destination.getCreatedAt(),
+                destination.getUpdatedAt());
     }
 
+    private static Double calculateAverageRating(Destination destination) {
+        if (destination.getReviews() == null || destination.getReviews().isEmpty()) {
+            return null;
+        }
+        double avg = destination.getReviews().stream()
+                .mapToDouble(r -> r.getRating())
+                .average()
+                .orElse(Double.NaN);
+        if (Double.isNaN(avg)) {
+            return null;
+        }
+        return Math.round(avg * 10.0) / 10.0;
+    }
 }

@@ -15,7 +15,7 @@ class DestinationWithReviewsResponseTest {
         LocalDateTime now = LocalDateTime.now();
         ReviewResponse review = new ReviewResponse(1L, 5.0, "text", now, "user");
         DestinationWithReviewsResponse resp = new DestinationWithReviewsResponse(
-                1L, "title", "loc", "desc", "img", "user", now, now, List.of(review));
+                1L, "title", "loc", "desc", "img", "user", List.of(review), 5.0, now, now);
         assertEquals(1L, resp.id());
         assertEquals("title", resp.title());
         assertEquals("loc", resp.location());
@@ -26,5 +26,6 @@ class DestinationWithReviewsResponseTest {
         assertEquals(now, resp.updatedAt());
         assertEquals(1, resp.reviews().size());
         assertEquals(review, resp.reviews().get(0));
+        assertEquals(5.0, resp.rating());
     }
 }

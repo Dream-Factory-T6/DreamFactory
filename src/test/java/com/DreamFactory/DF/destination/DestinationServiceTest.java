@@ -60,6 +60,8 @@ class DestinationServiceTest {
                 .description("Test Description")
                 .imageUrl("http://test.com/image.jpg")
                 .user(testUser)
+                .reviews(List.of(new com.DreamFactory.DF.review.Review(1L, 4.7, "body", java.time.LocalDateTime.now(),
+                        null, testUser)))
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
@@ -112,6 +114,7 @@ class DestinationServiceTest {
             assertThat(result).isNotNull();
             assertThat(result.title()).isEqualTo("Test Destination");
             assertThat(result.location()).isEqualTo("Test Location");
+            assertThat(result.rating()).isEqualTo(4.7);
 
             verify(destinationRepository).findById(1L);
         }
