@@ -94,12 +94,23 @@ public class DestinationService {
     }
 
     public DestinationResponse createDestination(User user, DestinationRequest request) throws IOException {
-        Map uploadResult = cloudinaryService.uploadFile(request.image());
-        String imageUrl = (String) uploadResult.get("secure_url");
-        Destination destination = DestinationMapper.toEntity(request, imageUrl);
-        destination.setUser(user);
-        Destination savedDestination = destinationRepository.save(destination);
-        DestinationResponse response = DestinationMapper.toResponse(savedDestination);
+        DestinationResponse response;
+        try {
+            Map uploadResult = cloudinaryService.uploadFile(request.image());
+            String imageUrl = (String) uploadResult.get("secure_url");
+            Destination destination = DestinationMapper.toEntity(request, imageUrl);
+            destination.setUser(user);
+            Destination savedDestination = destinationRepository.save(destination);
+             response = DestinationMapper.toResponse(savedDestination);
+        } catch (Exception e) {
+            String imageUrl = "http://localhost:8080/images/dream-logo.png";
+            System.out.println("Cloudinary failure, using default image");
+            Destination destination = DestinationMapper.toEntity(request, imageUrl);
+            destination.setUser(user);
+            Destination savedDestination = destinationRepository.save(destination);
+             response = DestinationMapper.toResponse(savedDestination);
+        }
+
 
         try {
             String subject = DestinationEmailTemplates.getDestinationCreatedSubject();
@@ -123,6 +134,7 @@ public class DestinationService {
         destination.setTitle(request.title());
         destination.setLocation(request.location());
         destination.setDescription(request.description());
+        deleteImageCloudinary(destination.getImageUrl());
         postImageCloudinary(request, destination);
 
         return DestinationMapper.toResponse(destination);
@@ -159,7 +171,8 @@ public class DestinationService {
             String imageUrl = (String) uploadResult.get("secure_url");
             destination.setImageUrl(imageUrl);
         } catch (Exception e) {
-            throw new RuntimeException("Error uploading image to Cloudinary", e);
+            destination.setImageUrl("http://localhost:8080/images/dream-logo.png");
+            System.out.println("Fallo Cloudinary, usando imagen por defecto: " + destination.getImageUrl());
         }
     }
 
