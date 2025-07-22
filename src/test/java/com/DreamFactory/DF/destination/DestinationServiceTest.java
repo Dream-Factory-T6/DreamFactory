@@ -23,6 +23,7 @@ import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -265,6 +266,31 @@ class DestinationServiceTest {
             assertThat(result).isNotNull();
             assertThat(result.title()).isEqualTo("New Destination");
             assertThat(result.location()).isEqualTo("New Location");
+
+            verify(cloudinaryService).uploadFile(any());
+            verify(destinationRepository).save(any(Destination.class));
+            verify(emailService).sendDestinationCreatedEmail(
+                    eq(testUser.getEmail()), anyString(), anyString(), anyString());
+        }
+
+        @Test
+        void shouldCreateDestinationSuccessfullyCloudinaryFiled() throws IOException, MessagingException {
+            when(cloudinaryService.uploadFile(any())).thenThrow(new RuntimeException("Cloudinary error"));
+            when(destinationRepository.save(any(Destination.class))).thenAnswer(invocation -> {
+                Destination saved = invocation.getArgument(0);
+                saved.setId(1L);
+                return saved;
+            });
+            doNothing().when(emailService).sendDestinationCreatedEmail(
+                    anyString(), anyString(), anyString(), anyString());
+
+            DestinationResponse result = destinationService.createDestination(testUser, testDestinationRequest);
+
+            assertThat(result).isNotNull();
+            assertThat(result.title()).isEqualTo("New Destination");
+            assertThat(result.location()).isEqualTo("New Location");
+            assertEquals("http://localhost:8080/images/dream-logo.png", result.imageUrl());
+
 
             verify(cloudinaryService).uploadFile(any());
             verify(destinationRepository).save(any(Destination.class));
