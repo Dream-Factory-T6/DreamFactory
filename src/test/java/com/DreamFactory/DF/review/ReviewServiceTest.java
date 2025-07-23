@@ -182,6 +182,6 @@ class ReviewServiceTest {
         Mockito.doReturn(testUser).when(userService).getAuthenticatedUser();
         Mockito.when(reviewRepository.findById(reviewId)).thenReturn(Optional.empty());
 
-        assertThrows(ReviewNotFoundByIdException.class, () -> reviewService.delete(reviewId));
+        assertThrows(ReviewNotFoundByIdException.class, () -> reviewService.deleteReview(reviewId));
     }
 }
