@@ -96,9 +96,12 @@ public class UserServiceHelper {
         user.setUsername(request.username());
         user.setEmail(request.email());
 
-        if (request.password() != null && !request.password().isEmpty()) {
+        if (request.password() != null || !request.password().isEmpty()) {
             user.setPassword(this.getEncodePassword(request.password()));
+        } else{
+            user.setPassword(user.getPassword());
         }
+
         Set<Role> roles = new HashSet<>();
         roles.add(request.role());
         user.setRoles(roles);
