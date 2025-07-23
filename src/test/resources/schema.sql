@@ -1,6 +1,7 @@
 DROP TABLE IF EXISTS reviews;
-DROP TABLE IF EXISTS destinations;
+DROP TABLE IF EXISTS destination_likes;
 DROP TABLE IF EXISTS user_roles;
+DROP TABLE IF EXISTS destinations;
 DROP TABLE IF EXISTS users;
 
 CREATE TABLE IF NOT EXISTS users (
@@ -36,6 +37,14 @@ CREATE TABLE IF NOT EXISTS reviews (
 	user_id INT NOT NULL,
 	destination_id INT NOT NULL,
 	created_at TIMESTAMP NOT NULL,
+	FOREIGN KEY (user_id) REFERENCES users(id),
+	FOREIGN KEY (destination_id) REFERENCES destinations(id)
+);
+
+CREATE TABLE IF NOT EXISTS destination_likes (
+	user_id INT NOT NULL,
+	destination_id INT NOT NULL,
+	PRIMARY KEY (user_id, destination_id),
 	FOREIGN KEY (user_id) REFERENCES users(id),
 	FOREIGN KEY (destination_id) REFERENCES destinations(id)
 );
