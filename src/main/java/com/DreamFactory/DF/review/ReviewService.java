@@ -73,7 +73,7 @@ public class ReviewService {
         return ReviewMapper.toReviewResponse(review);
     }
 
-    public void delete(Long id) {
+    public void deleteReview(Long id) {
         User user = userService.getAuthenticatedUser();
         Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> new ReviewNotFoundByIdException(id));
