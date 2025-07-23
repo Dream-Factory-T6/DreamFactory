@@ -3,6 +3,7 @@ package com.DreamFactory.DF.auth;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -64,21 +65,43 @@ class AuthServiceHelperTest {
         assertEquals("user", claimsResult.getSubject());
     }
 
-    @Test
-    void handleRefreshTokenTest_return_valid() {
-        String refreshToken = authServiceHelper.generateRefreshToken("user");
-        ResponseEntity<Map<String, String>> response = authServiceHelper.handleRefreshToken(refreshToken);
+    @Nested
+    class handleRefreshTokenTest {
+        @Test
+        void handleRefreshTokenTest_return_valid() {
+            String refreshToken = authServiceHelper.generateRefreshToken("user");
+            ResponseEntity<Map<String, String>> response = authServiceHelper.handleRefreshToken(refreshToken);
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody().get("accessToken"));
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+            assertNotNull(response.getBody().get("accessToken"));
+        }
+
+        @Test
+        void handleRefreshTokenTest_return_invalid() {
+            ResponseEntity<Map<String, String>> response = authServiceHelper.handleRefreshToken("invalid-refresh-token");
+
+            assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+            assertEquals("Refresh invalid token", response.getBody().get("error"));
+
+        }
+
+        @Test
+        void when_handleRefreshTokenIsBlank_return_noRefreshTokenProvided() {
+            ResponseEntity<Map<String, String>> response = authServiceHelper.handleRefreshToken("");
+
+            assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+            assertEquals("No refresh token provided", response.getBody().get("error"));
+        }
+
+        @Test
+        void when_handleRefreshTokenIsNull_return_noRefreshTokenProvided() {
+            ResponseEntity<Map<String, String>> response = authServiceHelper.handleRefreshToken(null);
+
+            assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+            assertEquals("No refresh token provided", response.getBody().get("error"));
+        }
+
+
     }
 
-    @Test
-    void handleRefreshTokenTest_return_invalid() {
-        ResponseEntity<Map<String, String>> response = authServiceHelper.handleRefreshToken("invalid-refresh-token");
-
-        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
-        assertEquals("Refresh invalid token", response.getBody().get("error"));
-
-    }
 }
