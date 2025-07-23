@@ -24,7 +24,6 @@ public class UserController {
 
     private UserService userService;
 
-
     @GetMapping("/api/users")
     @Operation(summary = "Get all users.",
             responses = {
@@ -36,8 +35,6 @@ public class UserController {
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
-
-
 
     @GetMapping("/api/users/{id}")
     @Operation(summary = "Get user by Id.",

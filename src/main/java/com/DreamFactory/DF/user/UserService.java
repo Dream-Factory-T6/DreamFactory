@@ -1,8 +1,6 @@
 package com.DreamFactory.DF.user;
 
 import com.DreamFactory.DF.email.EmailService;
-import com.DreamFactory.DF.email.UserEmailTemplates;
-import com.DreamFactory.DF.exceptions.EmailSendException;
 import com.DreamFactory.DF.exceptions.EmptyListException;
 import com.DreamFactory.DF.user.dto.UserMapper;
 import com.DreamFactory.DF.user.dto.UserRequest;
@@ -12,7 +10,6 @@ import com.DreamFactory.DF.role.Role;
 import com.DreamFactory.DF.user.model.User;
 import com.DreamFactory.DF.user.utils.UserSecurityUtils;
 import com.DreamFactory.DF.user.utils.UserServiceHelper;
-import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -24,22 +21,18 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
 
-
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final UserServiceHelper userServiceHelper;
-
 
 
     @Transactional
@@ -74,7 +67,6 @@ public class UserService implements UserDetailsService {
         user.setRoles(Set.of(Role.USER));
 
         User savedUser = userRepository.save(user);
-
         userServiceHelper.sendEmailRegisterNewUser(user);
 
         return UserMapper.fromEntity(savedUser);
@@ -96,7 +88,6 @@ public class UserService implements UserDetailsService {
     }
 
     public List<UserResponse> getAllUsers() {
-
         if (userServiceHelper.getAllUserResponseList().isEmpty()){
             throw new EmptyListException();
         }
@@ -112,9 +103,7 @@ public class UserService implements UserDetailsService {
     @Transactional
     public UserResponse updateUser(Long id, UserRequestAdmin request) {
         User user = userServiceHelper.checkUserId(id);
-
         userServiceHelper.updateUserData(request, user);
-
         return UserMapper.fromEntity(user);
     }
 
