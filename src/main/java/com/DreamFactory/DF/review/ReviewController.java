@@ -31,7 +31,7 @@ public class ReviewController {
                     @ApiResponse(responseCode = "404", ref = "#/components/responses/UserNotFound"),
                     @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
             })
-    public ResponseEntity<List<ReviewResponse>> showReviewsByUsername() {
+    public ResponseEntity<List<ReviewResponse>> getReviewsByUsername() {
         List<ReviewResponse> reviews = reviewService.getAllReviewsByUsername();
         return ResponseEntity.ok(reviews);
     }
@@ -44,7 +44,7 @@ public class ReviewController {
                     @ApiResponse(responseCode = "404", ref = "#/components/responses/DestinationNotFound"),
                     @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
             })
-    public ResponseEntity<List<ReviewResponse>> showReviewsByDestinationId(@PathVariable Long id) {
+    public ResponseEntity<List<ReviewResponse>> getReviewsByDestinationId(@PathVariable Long id) {
         List<ReviewResponse> reviews = reviewService.getAllReviewsByDestinationId(id);
         return ResponseEntity.ok(reviews);
     }
@@ -59,7 +59,7 @@ public class ReviewController {
                     @ApiResponse(responseCode = "404", ref = "#/components/responses/UserNotFound"),
                     @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
             })
-    public ResponseEntity<ReviewResponse> storeReview(@Valid @RequestBody ReviewRequest request) {
+    public ResponseEntity<ReviewResponse> createReview(@Valid @RequestBody ReviewRequest request) {
         ReviewResponse newReview = reviewService.createReview(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(newReview);
     }
@@ -90,7 +90,7 @@ public class ReviewController {
                     @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
             })
     public ResponseEntity<ReviewResponse> deleteReview(@PathVariable Long id){
-        reviewService.delete(id);
+        reviewService.deleteReview(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

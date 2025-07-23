@@ -5,10 +5,12 @@ import com.DreamFactory.DF.destination.dto.DestinationFilterRequest;
 import com.DreamFactory.DF.destination.dto.DestinationMapper;
 import com.DreamFactory.DF.destination.dto.DestinationRequest;
 import com.DreamFactory.DF.destination.dto.DestinationResponse;
+import com.DreamFactory.DF.destination.dto.DestinationWithReviewsResponse;
 import com.DreamFactory.DF.destination.exceptions.DestinationNotFoundException;
 import com.DreamFactory.DF.destination.exceptions.UnauthorizedAccessException;
 import com.DreamFactory.DF.email.EmailService;
 import com.DreamFactory.DF.email.DestinationEmailTemplates;
+import com.DreamFactory.DF.user.UserService;
 import com.DreamFactory.DF.user.model.User;
 import com.DreamFactory.DF.exceptions.EmailSendException;
 import jakarta.mail.MessagingException;
@@ -29,6 +31,7 @@ public class DestinationService {
     private final DestinationRepository destinationRepository;
     private final EmailService emailService;
     private final CloudinaryService cloudinaryService;
+    private final UserService userService;
 
     @Transactional(readOnly = true)
     public Page<DestinationResponse> getAllDestinations(int page, int size) {
@@ -38,10 +41,10 @@ public class DestinationService {
     }
 
     @Transactional(readOnly = true)
-    public DestinationResponse getDestinationById(Long id) {
+    public DestinationWithReviewsResponse getDestinationById(Long id) {
         Destination destination = destinationRepository.findById(id)
                 .orElseThrow(() -> new DestinationNotFoundException(id));
-        return DestinationMapper.toResponse(destination);
+        return DestinationMapper.toWithReviewsResponse(destination);
     }
 
     @Transactional(readOnly = true)
@@ -72,14 +75,16 @@ public class DestinationService {
     }
 
     @Transactional(readOnly = true)
-    public Page<DestinationResponse> getUserDestinations(User user, int page, int size) {
+    public Page<DestinationResponse> getUserDestinations(int page, int size) {
+        User user = userService.getAuthenticatedUser();
         Pageable pageable = PageRequest.of(page, size);
         Page<Destination> destinations = destinationRepository.findByUser(user, pageable);
         return destinations.map(DestinationMapper::toResponse);
     }
 
     @Transactional(readOnly = true)
-    public Page<DestinationResponse> getUserDestinations(User user, int page, int size, String sort) {
+    public Page<DestinationResponse> getUserDestinations(int page, int size, String sort) {
+        User user = userService.getAuthenticatedUser();
         Pageable pageable;
         if ("asc".equalsIgnoreCase(sort)) {
             pageable = PageRequest.of(page, size, org.springframework.data.domain.Sort.by("createdAt").ascending());
@@ -92,13 +97,25 @@ public class DestinationService {
         return destinations.map(DestinationMapper::toResponse);
     }
 
-    public DestinationResponse createDestination(User user, DestinationRequest request) throws IOException {
-        Map uploadResult = cloudinaryService.uploadFile(request.image());
-        String imageUrl = (String) uploadResult.get("secure_url");
-        Destination destination = DestinationMapper.toEntity(request, imageUrl);
-        destination.setUser(user);
-        Destination savedDestination = destinationRepository.save(destination);
-        DestinationResponse response = DestinationMapper.toResponse(savedDestination);
+    public DestinationResponse createDestination(DestinationRequest request) throws IOException {
+        User user = userService.getAuthenticatedUser();
+        DestinationResponse response;
+        try {
+            Map uploadResult = cloudinaryService.uploadFile(request.image());
+            String imageUrl = (String) uploadResult.get("secure_url");
+            Destination destination = DestinationMapper.toEntity(request, imageUrl);
+            destination.setUser(user);
+            Destination savedDestination = destinationRepository.save(destination);
+             response = DestinationMapper.toResponse(savedDestination);
+        } catch (Exception e) {
+            String imageUrl = "http://localhost:8080/images/dream-logo.png";
+            System.out.println("Cloudinary failure, using default image");
+            Destination destination = DestinationMapper.toEntity(request, imageUrl);
+            destination.setUser(user);
+            Destination savedDestination = destinationRepository.save(destination);
+             response = DestinationMapper.toResponse(savedDestination);
+        }
+
 
         try {
             String subject = DestinationEmailTemplates.getDestinationCreatedSubject();
@@ -112,26 +129,29 @@ public class DestinationService {
         return response;
     }
 
-    public DestinationResponse updateDestination(Long id, User user, DestinationRequest request) {
+    public DestinationResponse updateDestination(Long id, DestinationRequest request) {
+        User user = userService.getAuthenticatedUser();
         Destination destination = destinationRepository.findById(id)
                 .orElseThrow(() -> new DestinationNotFoundException(id));
 
-        if (!isAuthorizedToModify(destination, user)) {
+        if (!isAuthorizedToModify(destination)) {
             throw new UnauthorizedAccessException(id);
         }
         destination.setTitle(request.title());
         destination.setLocation(request.location());
         destination.setDescription(request.description());
+        deleteImageCloudinary(destination.getImageUrl());
         postImageCloudinary(request, destination);
 
         return DestinationMapper.toResponse(destination);
 
     }
 
-    public void deleteDestination(Long id, User user) {
+    public void deleteDestination(Long id) {
+        User user = userService.getAuthenticatedUser();
         Destination destination = destinationRepository.findById(id)
                 .orElseThrow(() -> new DestinationNotFoundException(id));
-        if (!isAuthorizedToModify(destination, user)) {
+        if (!isAuthorizedToModify(destination)) {
             throw new UnauthorizedAccessException(id);
         }
 
@@ -148,7 +168,8 @@ public class DestinationService {
         destinationRepository.delete(destination);
     }
 
-    private boolean isAuthorizedToModify(Destination destination, User user) {
+    private boolean isAuthorizedToModify(Destination destination) {
+        User user = userService.getAuthenticatedUser();
         return destination.getUser().getId().equals(user.getId());
     }
 
@@ -158,7 +179,8 @@ public class DestinationService {
             String imageUrl = (String) uploadResult.get("secure_url");
             destination.setImageUrl(imageUrl);
         } catch (Exception e) {
-            throw new RuntimeException("Error uploading image to Cloudinary", e);
+            destination.setImageUrl("http://localhost:8080/images/dream-logo.png");
+            System.out.println("Fallo Cloudinary, usando imagen por defecto: " + destination.getImageUrl());
         }
     }
 
