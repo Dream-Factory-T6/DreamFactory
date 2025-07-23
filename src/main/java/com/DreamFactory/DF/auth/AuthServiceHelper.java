@@ -13,7 +13,7 @@ import java.util.Map;
 import static com.DreamFactory.DF.auth.TokenJwtConfig.secretKey;
 
 @Service
-public class AuthService {
+public class AuthServiceHelper {
     public String generateAccessToken(String username, Claims claims){
         String token = Jwts.builder()
                 .subject(username)

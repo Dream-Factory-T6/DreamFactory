@@ -1,6 +1,6 @@
 package com.DreamFactory.DF.auth.filter;
 
-import com.DreamFactory.DF.auth.AuthService;
+import com.DreamFactory.DF.auth.AuthServiceHelper;
 import com.DreamFactory.DF.user.model.User;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
@@ -20,7 +20,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,11 +28,11 @@ import static com.DreamFactory.DF.auth.TokenJwtConfig.*;
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private AuthenticationManager authenticationManager;
-    private AuthService authService;
+    private AuthServiceHelper authServiceHelper;
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, AuthService authService) {
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, AuthServiceHelper authServiceHelper) {
         this.authenticationManager = authenticationManager;
-        this.authService = authService;
+        this.authServiceHelper = authServiceHelper;
     }
 
 
@@ -71,9 +70,9 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .add("username", username)
                 .build();
 
-        String accessToken = authService.generateAccessToken(username, claims);
+        String accessToken = authServiceHelper.generateAccessToken(username, claims);
 
-        String refreshToken = authService.generateRefreshToken(username);
+        String refreshToken = authServiceHelper.generateRefreshToken(username);
 
 
         response.addHeader(headerAuthorization, prefixToken + accessToken);

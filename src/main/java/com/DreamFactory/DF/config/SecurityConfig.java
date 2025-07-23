@@ -1,6 +1,6 @@
 package com.DreamFactory.DF.config;
 
-import com.DreamFactory.DF.auth.AuthService;
+import com.DreamFactory.DF.auth.AuthServiceHelper;
 import com.DreamFactory.DF.auth.filter.JwtAuthenticationFilter;
 import com.DreamFactory.DF.auth.filter.JwtValidationFilter;
 
@@ -28,7 +28,7 @@ public class SecurityConfig {
     private AuthenticationConfiguration authenticationConfiguration;
 
     @Autowired
-    private AuthService authService;
+    private AuthServiceHelper authServiceHelper;
 
     @Bean
     AuthenticationManager authenticationManager() throws Exception {
@@ -81,8 +81,8 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
 
         )
-                .addFilter(new JwtAuthenticationFilter(authenticationManager(), authService))
-                .addFilter(new JwtValidationFilter(authenticationManager(), authService))
+                .addFilter(new JwtAuthenticationFilter(authenticationManager(), authServiceHelper))
+                .addFilter(new JwtValidationFilter(authenticationManager(), authServiceHelper))
                 .csrf(config -> config.disable())
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
