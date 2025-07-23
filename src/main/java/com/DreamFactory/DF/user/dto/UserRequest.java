@@ -11,4 +11,5 @@ public record UserRequest (
         String email,
         @NotBlank(message = "Password cannot be blank") @Size(min = 8, message = "Password should be at least 8 characters long!")
         String password) {
+
 }
