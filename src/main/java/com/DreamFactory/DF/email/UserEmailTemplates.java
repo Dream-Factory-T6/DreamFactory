@@ -62,7 +62,7 @@ public class UserEmailTemplates {
                         "            </ul>" +
                         "            <p>Ready to start creating your travel dreams?</p>" +
                         "            <p style=\"text-align: center;\">" +
-                        "                <a href=\"http://localhost:8080/swagger-ui/index.html#/\" class=\"button\">Log In Now!</a>" +
+                        "                <a href=\"http://localhost:3000/login/\" class=\"button\">Log In Now!</a>" +
                         "            </p>" +
                         "            <p>We can't wait to see what you discover and share! <span class=\"emoji\">✨</span></p>" +
                         "        </div>" +
