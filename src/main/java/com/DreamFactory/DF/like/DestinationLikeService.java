@@ -15,7 +15,6 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class DestinationLikeService {
-
     private final DestinationLikeRepository likeRepository;
     private final DestinationService destinationService;
     private final UserService userService;
@@ -37,7 +36,6 @@ public class DestinationLikeService {
                     .build();
             likeRepository.save(like);
         }
-
         boolean liked = likeRepository.existsByUserAndDestination(user, destination);
         long count = likeRepository.countByDestination(destination);
 
@@ -45,7 +43,7 @@ public class DestinationLikeService {
     }
 
     @Transactional()
-    public DestinationLikeResponse getLikeInfo(Long destinationId) {
+    public DestinationLikeResponse getLikeByDestinationId(Long destinationId) {
         User user = userService.getAuthenticatedUser();
         Destination destination = destinationService.getDestObjById(destinationId);
 

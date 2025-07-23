@@ -9,7 +9,6 @@ import java.util.Optional;
 
 @Repository
 public interface DestinationLikeRepository extends JpaRepository<DestinationLike, Long> {
-
     Optional<DestinationLike> findByUserAndDestination(User user, Destination destination);
 
     boolean existsByUserAndDestination(User user, Destination destination);
