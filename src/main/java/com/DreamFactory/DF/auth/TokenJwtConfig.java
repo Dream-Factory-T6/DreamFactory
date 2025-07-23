@@ -14,5 +14,4 @@ public class TokenJwtConfig {
 
     public static final SecretKey secretKey = Jwts.SIG.HS256.key().build();
 
-
 }

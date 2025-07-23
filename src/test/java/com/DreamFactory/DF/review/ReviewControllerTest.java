@@ -98,6 +98,6 @@ class ReviewControllerTest {
         mockMvc.perform(delete("/api/reviews/1"))
                 .andExpect(status().isNoContent());
 
-        Mockito.verify(reviewService).delete(1L);
+        Mockito.verify(reviewService).deleteReview(1L);
     }
 }

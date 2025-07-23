@@ -1,6 +1,8 @@
 package com.DreamFactory.DF.review.dtos;
 import com.DreamFactory.DF.review.Review;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ReviewMapper {
     public static Review toEntity(ReviewRequest request){
         return Review.builder()

@@ -7,6 +7,7 @@ import com.DreamFactory.DF.destination.exceptions.UnauthorizedAccessException;
 import com.DreamFactory.DF.email.EmailService;
 import com.DreamFactory.DF.exceptions.EmailSendException;
 import com.DreamFactory.DF.user.model.User;
+import com.DreamFactory.DF.user.UserService;
 import jakarta.mail.MessagingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -23,6 +24,7 @@ import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -37,6 +39,9 @@ class DestinationServiceTest {
 
     @Mock
     private CloudinaryService cloudinaryService;
+
+    @Mock
+    private UserService userService;
 
     @InjectMocks
     private DestinationService destinationService;
@@ -213,8 +218,9 @@ class DestinationServiceTest {
             Page<Destination> userDestinationsPage = new PageImpl<>(List.of(testDestination));
             when(destinationRepository.findByUser(eq(testUser), any(Pageable.class)))
                     .thenReturn(userDestinationsPage);
+            when(userService.getAuthenticatedUser()).thenReturn(testUser);
 
-            Page<DestinationResponse> result = destinationService.getUserDestinations(testUser, 0, 10);
+            Page<DestinationResponse> result = destinationService.getUserDestinations(0, 10, null);
 
             assertThat(result.getContent()).hasSize(1);
             verify(destinationRepository).findByUser(eq(testUser), any(Pageable.class));
@@ -225,8 +231,9 @@ class DestinationServiceTest {
             Page<Destination> userDestinationsPage = new PageImpl<>(List.of(testDestination));
             when(destinationRepository.findByUser(eq(testUser), any(Pageable.class)))
                     .thenReturn(userDestinationsPage);
+            when(userService.getAuthenticatedUser()).thenReturn(testUser);
 
-            Page<DestinationResponse> result = destinationService.getUserDestinations(testUser, 0, 10, "asc");
+            Page<DestinationResponse> result = destinationService.getUserDestinations(0, 10, "asc");
 
             assertThat(result.getContent()).hasSize(1);
             verify(destinationRepository).findByUser(eq(testUser), any(Pageable.class));
@@ -237,8 +244,9 @@ class DestinationServiceTest {
             Page<Destination> userDestinationsPage = new PageImpl<>(List.of(testDestination));
             when(destinationRepository.findByUser(eq(testUser), any(Pageable.class)))
                     .thenReturn(userDestinationsPage);
+            when(userService.getAuthenticatedUser()).thenReturn(testUser);
 
-            Page<DestinationResponse> result = destinationService.getUserDestinations(testUser, 0, 10, "desc");
+            Page<DestinationResponse> result = destinationService.getUserDestinations(0, 10, "desc");
 
             assertThat(result.getContent()).hasSize(1);
             verify(destinationRepository).findByUser(eq(testUser), any(Pageable.class));
@@ -259,12 +267,38 @@ class DestinationServiceTest {
             });
             doNothing().when(emailService).sendDestinationCreatedEmail(
                     anyString(), anyString(), anyString(), anyString());
+            when(userService.getAuthenticatedUser()).thenReturn(testUser);
 
-            DestinationResponse result = destinationService.createDestination(testUser, testDestinationRequest);
+            DestinationResponse result = destinationService.createDestination(testDestinationRequest);
 
             assertThat(result).isNotNull();
             assertThat(result.title()).isEqualTo("New Destination");
             assertThat(result.location()).isEqualTo("New Location");
+
+            verify(cloudinaryService).uploadFile(any());
+            verify(destinationRepository).save(any(Destination.class));
+            verify(emailService).sendDestinationCreatedEmail(
+                    eq(testUser.getEmail()), anyString(), anyString(), anyString());
+        }
+
+        @Test
+        void shouldCreateDestinationSuccessfullyCloudinaryFiled() throws IOException, MessagingException {
+            when(cloudinaryService.uploadFile(any())).thenThrow(new RuntimeException("Cloudinary error"));
+            when(destinationRepository.save(any(Destination.class))).thenAnswer(invocation -> {
+                Destination saved = invocation.getArgument(0);
+                saved.setId(1L);
+                return saved;
+            });
+            doNothing().when(emailService).sendDestinationCreatedEmail(
+                    anyString(), anyString(), anyString(), anyString());
+            when(userService.getAuthenticatedUser()).thenReturn(testUser);
+
+            DestinationResponse result = destinationService.createDestination(testDestinationRequest);
+
+            assertThat(result).isNotNull();
+            assertThat(result.title()).isEqualTo("New Destination");
+            assertThat(result.location()).isEqualTo("New Location");
+            assertEquals("http://localhost:8080/images/dream-logo.png", result.imageUrl());
 
             verify(cloudinaryService).uploadFile(any());
             verify(destinationRepository).save(any(Destination.class));
@@ -283,8 +317,9 @@ class DestinationServiceTest {
             });
             doThrow(new MessagingException("Email error")).when(emailService)
                     .sendDestinationCreatedEmail(anyString(), anyString(), anyString(), anyString());
+            when(userService.getAuthenticatedUser()).thenReturn(testUser);
 
-            assertThatThrownBy(() -> destinationService.createDestination(testUser, testDestinationRequest))
+            assertThatThrownBy(() -> destinationService.createDestination(testDestinationRequest))
                     .isInstanceOf(EmailSendException.class)
                     .hasMessageContaining("Failed to send confirmation email");
         }
@@ -298,8 +333,9 @@ class DestinationServiceTest {
             when(destinationRepository.findById(1L)).thenReturn(Optional.of(testDestination));
             Map<String, String> cloudinaryResult = Map.of("secure_url", "http://cloudinary.com/new-image.jpg");
             when(cloudinaryService.uploadFile(any())).thenReturn(cloudinaryResult);
+            when(userService.getAuthenticatedUser()).thenReturn(testUser);
 
-            DestinationResponse result = destinationService.updateDestination(1L, testUser, testDestinationRequest);
+            DestinationResponse result = destinationService.updateDestination(1L, testDestinationRequest);
 
             assertThat(result).isNotNull();
             assertThat(result.title()).isEqualTo("New Destination");
@@ -312,17 +348,18 @@ class DestinationServiceTest {
         @Test
         void shouldThrowExceptionWhenDestinationNotFound() {
             when(destinationRepository.findById(999L)).thenReturn(Optional.empty());
+            when(userService.getAuthenticatedUser()).thenReturn(testUser);
 
-            assertThatThrownBy(() -> destinationService.updateDestination(999L, testUser, testDestinationRequest))
+            assertThatThrownBy(() -> destinationService.updateDestination(999L, testDestinationRequest))
                     .isInstanceOf(DestinationNotFoundException.class);
         }
 
         @Test
         void shouldThrowUnauthorizedExceptionWhenUserNotAuthorized() {
-            User unauthorizedUser = User.builder().id(999L).build();
             when(destinationRepository.findById(1L)).thenReturn(Optional.of(testDestination));
+            when(userService.getAuthenticatedUser()).thenReturn(User.builder().id(999L).build());
 
-            assertThatThrownBy(() -> destinationService.updateDestination(1L, unauthorizedUser, testDestinationRequest))
+            assertThatThrownBy(() -> destinationService.updateDestination(1L, testDestinationRequest))
                     .isInstanceOf(UnauthorizedAccessException.class);
         }
     }
@@ -335,8 +372,9 @@ class DestinationServiceTest {
             testDestination.setImageUrl("http://res.cloudinary.com/demo/image/upload/v1234/myimage.jpg");
             when(destinationRepository.findById(1L)).thenReturn(Optional.of(testDestination));
             doNothing().when(cloudinaryService).deleteFile(anyString());
+            when(userService.getAuthenticatedUser()).thenReturn(testUser);
 
-            destinationService.deleteDestination(1L, testUser);
+            destinationService.deleteDestination(1L);
 
             verify(destinationRepository).findById(1L);
             verify(cloudinaryService).deleteFile("myimage");
@@ -346,17 +384,18 @@ class DestinationServiceTest {
         @Test
         void shouldThrowExceptionWhenDestinationNotFound() {
             when(destinationRepository.findById(999L)).thenReturn(Optional.empty());
+            when(userService.getAuthenticatedUser()).thenReturn(testUser);
 
-            assertThatThrownBy(() -> destinationService.deleteDestination(999L, testUser))
+            assertThatThrownBy(() -> destinationService.deleteDestination(999L))
                     .isInstanceOf(DestinationNotFoundException.class);
         }
 
         @Test
         void shouldThrowUnauthorizedExceptionWhenUserNotAuthorized() {
-            User unauthorizedUser = User.builder().id(999L).build();
             when(destinationRepository.findById(1L)).thenReturn(Optional.of(testDestination));
+            when(userService.getAuthenticatedUser()).thenReturn(User.builder().id(999L).build());
 
-            assertThatThrownBy(() -> destinationService.deleteDestination(1L, unauthorizedUser))
+            assertThatThrownBy(() -> destinationService.deleteDestination(1L))
                     .isInstanceOf(UnauthorizedAccessException.class);
         }
 
@@ -365,8 +404,9 @@ class DestinationServiceTest {
             testDestination.setImageUrl("http://res.cloudinary.com/demo/image/upload/myimage.jpg");
             when(destinationRepository.findById(1L)).thenReturn(Optional.of(testDestination));
             doNothing().when(cloudinaryService).deleteFile(anyString());
+            when(userService.getAuthenticatedUser()).thenReturn(testUser);
 
-            destinationService.deleteDestination(1L, testUser);
+            destinationService.deleteDestination(1L);
 
             verify(cloudinaryService).deleteFile("myimage");
         }
@@ -376,8 +416,9 @@ class DestinationServiceTest {
             testDestination.setImageUrl("http://res.cloudinary.com/demo/image/upload/v1234/myimage.png");
             when(destinationRepository.findById(1L)).thenReturn(Optional.of(testDestination));
             doNothing().when(cloudinaryService).deleteFile(anyString());
+            when(userService.getAuthenticatedUser()).thenReturn(testUser);
 
-            destinationService.deleteDestination(1L, testUser);
+            destinationService.deleteDestination(1L);
 
             verify(cloudinaryService).deleteFile("myimage");
         }
@@ -424,3 +465,4 @@ class DestinationServiceTest {
         }
     }
 }
+
