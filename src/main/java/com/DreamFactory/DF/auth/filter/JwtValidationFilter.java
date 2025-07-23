@@ -1,5 +1,6 @@
 package com.DreamFactory.DF.auth.filter;
 
+import com.DreamFactory.DF.auth.AuthService;
 import com.DreamFactory.DF.auth.SimpleGrantedAuthorityJsonCreator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
@@ -28,9 +29,13 @@ import static com.DreamFactory.DF.auth.TokenJwtConfig.*;
 
 public class JwtValidationFilter extends BasicAuthenticationFilter {
 
-    public JwtValidationFilter(AuthenticationManager authenticationManager) {
+    private final AuthService authService;
+
+    public JwtValidationFilter(AuthenticationManager authenticationManager, AuthService authService) {
         super(authenticationManager);
+        this.authService = authService;
     }
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -44,7 +49,8 @@ public class JwtValidationFilter extends BasicAuthenticationFilter {
 
         String token = header.replace(prefixToken, "");
         try {
-            Claims claims = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
+            Claims claims = authService.validateAccessToken(token);
+
             String username = claims.getSubject();
             Object authoritiesClaims = claims.get("authorities");
             Collection<? extends GrantedAuthority> authorities = Arrays.asList(new ObjectMapper()
