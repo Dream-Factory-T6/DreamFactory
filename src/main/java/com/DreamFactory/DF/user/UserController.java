@@ -1,6 +1,7 @@
 
 package com.DreamFactory.DF.user;
 
+import com.DreamFactory.DF.auth.AuthServiceHelper;
 import com.DreamFactory.DF.user.dto.UserRequest;
 import com.DreamFactory.DF.user.dto.UserRequestAdmin;
 import com.DreamFactory.DF.user.dto.UserResponse;
@@ -10,12 +11,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @AllArgsConstructor
@@ -23,6 +24,7 @@ import java.util.List;
 public class UserController {
 
     private UserService userService;
+    private AuthServiceHelper authServiceHelper;
 
     @GetMapping("/api/users")
     @Operation(summary = "Get all users.",
@@ -48,6 +50,18 @@ public class UserController {
     public ResponseEntity<UserResponse> getUserById(@Parameter @PathVariable Long id){
         return ResponseEntity.ok(userService.getUserById(id));
     }
+
+    @PostMapping("/auth/refresh")
+    @Operation(summary = "Refresh access token using refresh token",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Access token refreshed successfully"),
+                    @ApiResponse(responseCode = "400", description = "Missing token"),
+                    @ApiResponse(responseCode = "401", description = "Invalid refresh token")
+            })
+    public ResponseEntity<Map<String, String>> refreshToken(@RequestBody Map<String, String> body) {
+        return authServiceHelper.handleRefreshToken(body.get("refreshToken"));
+    }
+
 
     @PostMapping("/register")
     @Operation(summary = "Create a new user.",
