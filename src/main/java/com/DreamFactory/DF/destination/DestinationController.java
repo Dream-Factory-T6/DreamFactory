@@ -31,7 +31,6 @@ import java.io.IOException;
 @Tag(name = "Destination", description = "Operations related to destination")
 public class DestinationController {
         private final DestinationService destinationService;
-        private final UserRepository userRepository;
 
         @GetMapping
         @Operation(summary = "Get all destinations.", responses = {
@@ -99,10 +98,8 @@ public class DestinationController {
                         @Parameter(description = "Page number (starts from 1)", example = "1") @RequestParam(defaultValue = "1") int page,
                         @Parameter(description = "Page size", example = "4") @RequestParam(defaultValue = "4") int size,
                         @Parameter(description = "Sort by creation date: 'asc' or 'desc'", required = false, example = "asc") @RequestParam(required = false) String sort) {
-                User currentUser = getCurrentUser();
 
-                Page<DestinationResponse> destinations = destinationService.getUserDestinations(currentUser,
-                                convertToZeroBasedPage(page), size, sort);
+                Page<DestinationResponse> destinations = destinationService.getUserDestinations(convertToZeroBasedPage(page), size, sort);
                 return ResponseEntity.ok(destinations);
         }
 
@@ -118,8 +115,7 @@ public class DestinationController {
         })
         public ResponseEntity<DestinationResponse> createDestination(
                         @Valid @ModelAttribute DestinationRequest request) throws IOException {
-                User currentUser = getCurrentUser();
-                DestinationResponse createdDestination = destinationService.createDestination(currentUser, request);
+                DestinationResponse createdDestination = destinationService.createDestination(request);
                 return ResponseEntity.status(HttpStatus.CREATED).body(createdDestination);
         }
 
@@ -136,8 +132,7 @@ public class DestinationController {
         public ResponseEntity<DestinationResponse> updateDestination(
                         @PathVariable Long id,
                         @Valid @ModelAttribute DestinationRequest request) {
-                User currentUser = getCurrentUser();
-                DestinationResponse updatedDestination = destinationService.updateDestination(id, currentUser, request);
+                DestinationResponse updatedDestination = destinationService.updateDestination(id,request);
                 return ResponseEntity.ok(updatedDestination);
         }
 
@@ -152,19 +147,8 @@ public class DestinationController {
                         @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
         })
         public ResponseEntity<Void> deleteDestination(@PathVariable Long id) {
-                User currentUser = getCurrentUser();
-                destinationService.deleteDestination(id, currentUser);
+                destinationService.deleteDestination(id);
                 return ResponseEntity.noContent().build();
-        }
-
-        private User getCurrentUser() {
-                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-                if (authentication == null || !authentication.isAuthenticated()) {
-                        throw new AccessDeniedException("User not authenticated");
-                }
-                String username = authentication.getName();
-                return userRepository.findByUsername(username)
-                                .orElseThrow(() -> new AccessDeniedException("User not found"));
         }
 
         private int convertToZeroBasedPage(int page) {
