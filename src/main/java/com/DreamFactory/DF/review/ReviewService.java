@@ -1,19 +1,15 @@
 package com.DreamFactory.DF.review;
 
 import com.DreamFactory.DF.destination.Destination;
-import com.DreamFactory.DF.destination.DestinationRepository;
-import com.DreamFactory.DF.destination.exceptions.DestinationNotFoundException;
+import com.DreamFactory.DF.destination.DestinationService;
 import com.DreamFactory.DF.review.dtos.ReviewMapper;
 import com.DreamFactory.DF.review.dtos.ReviewRequest;
 import com.DreamFactory.DF.review.dtos.ReviewResponse;
 import com.DreamFactory.DF.review.exceptions.ReviewNotFoundByIdException;
-import com.DreamFactory.DF.user.UserRepository;
+import com.DreamFactory.DF.user.UserService;
 import com.DreamFactory.DF.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,12 +19,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReviewService {
     private final ReviewRepository reviewRepository;
-    private final UserRepository userRepository;
-    private final DestinationRepository destinationRepository;
+    private final UserService userService;
+    private final DestinationService destinationService;
 
     public List<ReviewResponse> getAllReviewsByUsername() {
-        String username = getAuthenticatedUser().getUsername();
-
+        String username = userService.getAuthenticatedUser().getUsername();
         List<Review> reviews = reviewRepository.findByUserUsername(username);
 
         return reviews.stream()
@@ -37,8 +32,7 @@ public class ReviewService {
     }
 
     public List<ReviewResponse> getAllReviewsByDestinationId(Long id) {
-        Destination destination = destinationRepository.findById(id)
-                .orElseThrow(() -> new DestinationNotFoundException(id));
+        Destination destination = destinationService.getDestObjById(id);
 
         List<Review> reviews = reviewRepository.findByDestinationId(id);
 
@@ -49,15 +43,12 @@ public class ReviewService {
 
     @Transactional
     public ReviewResponse createReview(ReviewRequest request) {
-        User user = getAuthenticatedUser();
-
-        Destination destination = destinationRepository.findById(request.destinationId())
-                .orElseThrow(() -> new DestinationNotFoundException(request.destinationId()));
+        User user = userService.getAuthenticatedUser();
+        Destination destination = destinationService.getDestObjById(request.destinationId());
 
         Review newReview = ReviewMapper.toEntity(request);
         newReview.setUser(user);
         newReview.setDestination(destination);
-
         reviewRepository.save(newReview);
 
         return ReviewMapper.toReviewResponse(newReview);
@@ -65,10 +56,8 @@ public class ReviewService {
 
     @Transactional
     public ReviewResponse updateReview(Long id, ReviewRequest request) {
-        User user = getAuthenticatedUser();
-
-        Destination destination = destinationRepository.findById(request.destinationId())
-                .orElseThrow(() -> new DestinationNotFoundException(request.destinationId()));
+        User user = userService.getAuthenticatedUser();
+        Destination destination = destinationService.getDestObjById(request.destinationId());
 
         Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> new ReviewNotFoundByIdException(id));
@@ -85,8 +74,7 @@ public class ReviewService {
     }
 
     public void delete(Long id) {
-        User user = getAuthenticatedUser();
-
+        User user = userService.getAuthenticatedUser();
         Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> new ReviewNotFoundByIdException(id));
 
@@ -94,18 +82,5 @@ public class ReviewService {
             throw new AccessDeniedException("You are not allowed to update this review.");
         }
         reviewRepository.deleteById(id);
-    }
-
-    public User getAuthenticatedUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new RuntimeException("No authenticated user found");
-        }
-
-        String username = authentication.getName();
-
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with username " + username));
     }
 }

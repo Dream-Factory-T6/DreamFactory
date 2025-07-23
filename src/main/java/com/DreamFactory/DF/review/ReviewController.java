@@ -41,8 +41,6 @@ public class ReviewController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "Reviews returned successfully"),
                     @ApiResponse(responseCode = "400", ref = "#/components/responses/BadRequest"),
-                    @ApiResponse(responseCode = "401", ref = "#/components/responses/Unauthorized"),
-                    @ApiResponse(responseCode = "403", ref = "#/components/responses/Forbidden"),
                     @ApiResponse(responseCode = "404", ref = "#/components/responses/DestinationNotFound"),
                     @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
             })
@@ -81,7 +79,7 @@ public class ReviewController {
         return ResponseEntity.ok(updatedReview);
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     @Operation(summary = "Delete review for destination.",
             responses = {
                     @ApiResponse(responseCode = "204", description = "Review deleted successfully"),

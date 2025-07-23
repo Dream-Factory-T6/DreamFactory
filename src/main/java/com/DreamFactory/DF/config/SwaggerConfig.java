@@ -1,5 +1,6 @@
 package com.DreamFactory.DF.config;
 
+import com.DreamFactory.DF.swagger.ErrorResponse;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import org.springframework.context.annotation.Bean;
@@ -22,7 +23,7 @@ public class SwaggerConfig {
 
         return new OpenAPI()
                 .info(new Info()
-                        .title("My API")
+                        .title("Dream Factory API")
                         .version("1.0.0"))
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(new Components()
@@ -32,6 +33,8 @@ public class SwaggerConfig {
                                         .type(SecurityScheme.Type.HTTP)
                                         .scheme("bearer")
                                         .bearerFormat("JWT"))
+
+                        .addSchemas("ErrorResponse", new Schema<>())
 
                         .addResponses("BadRequest", apiResponse(400, "Invalid input or malformed request"))
                         .addResponses("Unauthorized", apiResponse(401, "Authentication required"))

@@ -1,6 +1,9 @@
 package com.DreamFactory.DF.user.dto;
 
-import com.DreamFactory.DF.user.model.Role;
+import com.DreamFactory.DF.role.Role;
+import com.DreamFactory.DF.role.RoleDeserializer;
+import com.DreamFactory.DF.role.validations.ValidRole;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -16,7 +19,9 @@ public record UserRequestAdmin(
         @NotBlank(message = "Password cannot be blank") @Size(min = 8, message = "Password should be at least 8 characters long!")
         String password,
 
-        @NotNull(message = "The role must be ADMIN or USER. ")
+        @JsonDeserialize(using = RoleDeserializer.class)
+        @NotNull(message = "Role cannot be null")
+        @ValidRole
         Role role
 ) {
 }
