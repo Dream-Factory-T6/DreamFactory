@@ -61,12 +61,8 @@ public class UserController {
                     @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
             })
     public ResponseEntity<UserResponse> registerUser(@Valid @RequestBody UserRequest request) {
-        try {
             UserResponse registeredUser = userService.registerUser(request);
             return new ResponseEntity<>(registeredUser, HttpStatus.CREATED);
-        } catch (DataIntegrityViolationException e) {
-            return new ResponseEntity<>(null, HttpStatus.CONFLICT);
-        }
     }
 
     @PostMapping("/register/admin")
@@ -80,12 +76,8 @@ public class UserController {
                     @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
             })
     public ResponseEntity<UserResponse> registerUserAdmin(@Valid @RequestBody UserRequestAdmin request) {
-        try {
             UserResponse registeredUser = userService.registerUserByAdmin(request);
             return new ResponseEntity<>(registeredUser, HttpStatus.CREATED);
-        } catch (DataIntegrityViolationException e) {
-            return new ResponseEntity<>(null, HttpStatus.CONFLICT);
-        }
     }
 
     @PutMapping("/api/users/{id}")
