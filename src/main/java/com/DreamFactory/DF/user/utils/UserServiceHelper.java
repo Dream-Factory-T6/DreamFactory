@@ -76,14 +76,22 @@ public class UserServiceHelper {
     }
 
     public void updateUserData(UserRequestUpdateAdmin request, User user) {
-        user.setUsername(request.username());
-        user.setEmail(request.email());
+        String username = request.username() != null && !request.username().isEmpty()
+                ? request.username() :
+                user.getUsername();
 
-        if (request.password() != null || !request.password().isEmpty()) {
-            user.setPassword(this.getEncodePassword(request.password()));
-        } else{
-            user.setPassword(user.getPassword());
-        }
+        String email = request.email() != null && !request.email().isEmpty()
+                ? request.email() :
+                user.getEmail();
+
+        String password = request.password() != null & !request.password().isEmpty()
+                ? this.getEncodePassword(request.password()) :
+                user.getPassword();
+
+        user.setUsername(username);
+        user.setEmail(email);
+        user.setPassword(password);
+
 
         Set<Role> roles = new HashSet<>();
         roles.add(request.role());
