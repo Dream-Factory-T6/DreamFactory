@@ -1,5 +1,6 @@
 package com.DreamFactory.DF.user;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import com.DreamFactory.DF.email.EmailService;
 import com.DreamFactory.DF.exceptions.EmptyListException;
 import com.DreamFactory.DF.user.dto.UserMapper;
@@ -9,8 +10,7 @@ import com.DreamFactory.DF.user.dto.adminRole.UserRequestAdmin;
 import com.DreamFactory.DF.user.dto.UserResponse;
 import com.DreamFactory.DF.role.Role;
 import com.DreamFactory.DF.user.model.User;
-import com.DreamFactory.DF.user.utils.UserSecurityUtils;
-import com.DreamFactory.DF.user.utils.UserServiceHelper;
+import com.DreamFactory.DF.user.utils.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -18,7 +18,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,8 +30,6 @@ import java.util.Set;
 public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final EmailService emailService;
     private final UserServiceHelper userServiceHelper;
 
 
@@ -60,32 +57,42 @@ public class UserService implements UserDetailsService {
     }
 
     public UserResponse registerUser(UserRequest request) {
-        userServiceHelper.checkUsername(request.username());
-        userServiceHelper.checkEmail(request.email());
+        try {
+            userServiceHelper.checkUsername(request.username());
+            userServiceHelper.checkEmail(request.email());
 
-        User user = UserMapper.toEntity(request);
-        user.setPassword(userServiceHelper.getEncodePassword(request.password()));
-        user.setRoles(Set.of(Role.USER));
+            User user = UserMapper.toEntity(request);
+            user.setPassword(userServiceHelper.getEncodePassword(request.password()));
+            user.setRoles(Set.of(Role.USER));
 
-        User savedUser = userRepository.save(user);
-        userServiceHelper.sendEmailRegisterNewUser(user);
+            User savedUser = userRepository.save(user);
+            userServiceHelper.sendEmailRegisterNewUser(user);
 
-        return UserMapper.fromEntity(savedUser);
+            return UserMapper.fromEntity(savedUser);
+        } catch (DataIntegrityViolationException e) {
+            throw new DataIntegrityViolationException("Username or email already exists");
+        }
+
     }
 
 
     public UserResponse registerUserByAdmin(UserRequestAdmin request) {
-        userServiceHelper.checkUsername(request.username());
-        userServiceHelper.checkEmail(request.email());
+        try{
+            userServiceHelper.checkUsername(request.username());
+            userServiceHelper.checkEmail(request.email());
 
-        User user = UserMapper.toEntityAdmin(request);
-        user.setPassword(userServiceHelper.getEncodePassword(request.password()));
-        user.setRoles(Set.of(request.role()));
+            User user = UserMapper.toEntityAdmin(request);
+            user.setPassword(userServiceHelper.getEncodePassword(request.password()));
+            user.setRoles(Set.of(request.role()));
 
-        User savedUser = userRepository.save(user);
+            User savedUser = userRepository.save(user);
 
-        userServiceHelper.sendEmailRegisterNewUser(user);
-        return UserMapper.fromEntity(savedUser);
+            userServiceHelper.sendEmailRegisterNewUser(user);
+            return UserMapper.fromEntity(savedUser);
+        } catch (DataIntegrityViolationException e) {
+            throw new DataIntegrityViolationException("Username or email already exists");
+        }
+
     }
 
     public List<UserResponse> getAllUsers() {
@@ -105,6 +112,7 @@ public class UserService implements UserDetailsService {
     public UserResponse updateUser(Long id, UserRequestUpdateAdmin request) {
         User user = userServiceHelper.checkUserId(id);
         userServiceHelper.updateUserData(request, user);
+
         return UserMapper.fromEntity(user);
     }
 

@@ -6,7 +6,6 @@ import com.DreamFactory.DF.exceptions.EmailSendException;
 import com.DreamFactory.DF.role.Role;
 import com.DreamFactory.DF.user.UserRepository;
 import com.DreamFactory.DF.user.dto.UserMapper;
-import com.DreamFactory.DF.user.dto.adminRole.UserRequestAdmin;
 import com.DreamFactory.DF.user.dto.UserResponse;
 import com.DreamFactory.DF.user.dto.adminRole.UserRequestUpdateAdmin;
 import com.DreamFactory.DF.user.exceptions.EmailAlreadyExistException;
@@ -68,20 +67,6 @@ public class UserServiceHelper {
         return passwordEncoder.encode(password);
     }
 
-
-
-    public void sendEmailRegisterNewUser(User user) {
-        try {
-            String subject = UserEmailTemplates.getUserCreatedSubject();
-            String plainText = UserEmailTemplates.getUserWelcomeEmailPlainText(user);
-            String html = UserEmailTemplates.getUserWelcomeEmailHtml(user);
-
-            emailService.sendUserWelcomeEmail(user.getEmail(), subject, plainText, html);
-        } catch (MessagingException e){
-            throw new EmailSendException("Failed to send welcome email: " + e.getMessage(), e);
-        }
-    }
-
     public List<UserResponse> getAllUserResponseList() {
         List<UserResponse> userResponseList = userRepository.findAll()
                 .stream()
@@ -89,9 +74,6 @@ public class UserServiceHelper {
                 .collect(Collectors.toList());
         return userResponseList;
     }
-
-
-
 
     public void updateUserData(UserRequestUpdateAdmin request, User user) {
         user.setUsername(request.username());
@@ -106,6 +88,18 @@ public class UserServiceHelper {
         Set<Role> roles = new HashSet<>();
         roles.add(request.role());
         user.setRoles(roles);
+    }
+
+    public void sendEmailRegisterNewUser(User user) {
+        try {
+            String subject = UserEmailTemplates.getUserCreatedSubject();
+            String plainText = UserEmailTemplates.getUserWelcomeEmailPlainText(user);
+            String html = UserEmailTemplates.getUserWelcomeEmailHtml(user);
+
+            emailService.sendUserWelcomeEmail(user.getEmail(), subject, plainText, html);
+        } catch (MessagingException e){
+            throw new EmailSendException("Failed to send welcome email: " + e.getMessage(), e);
+        }
     }
 
 }
