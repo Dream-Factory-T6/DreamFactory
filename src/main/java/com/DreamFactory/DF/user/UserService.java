@@ -1,5 +1,6 @@
 package com.DreamFactory.DF.user;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import com.DreamFactory.DF.email.EmailService;
 import com.DreamFactory.DF.exceptions.EmptyListException;
 import com.DreamFactory.DF.user.dto.UserMapper;
@@ -56,7 +57,7 @@ public class UserService implements UserDetailsService {
     }
 
     public UserResponse registerUser(UserRequest request) {
-        return userServiceHelper.executeSafely(() -> {
+        try {
             userServiceHelper.checkUsername(request.username());
             userServiceHelper.checkEmail(request.email());
 
@@ -68,13 +69,15 @@ public class UserService implements UserDetailsService {
             userServiceHelper.sendEmailRegisterNewUser(user);
 
             return UserMapper.fromEntity(savedUser);
-        });
+        } catch (DataIntegrityViolationException e) {
+            throw new DataIntegrityViolationException("Username or email already exists");
+        }
 
     }
 
 
     public UserResponse registerUserByAdmin(UserRequestAdmin request) {
-        return userServiceHelper.executeSafely(() -> {
+        try{
             userServiceHelper.checkUsername(request.username());
             userServiceHelper.checkEmail(request.email());
 
@@ -86,7 +89,9 @@ public class UserService implements UserDetailsService {
 
             userServiceHelper.sendEmailRegisterNewUser(user);
             return UserMapper.fromEntity(savedUser);
-        });
+        } catch (DataIntegrityViolationException e) {
+            throw new DataIntegrityViolationException("Username or email already exists");
+        }
 
     }
 

@@ -3,7 +3,6 @@ package com.DreamFactory.DF.exceptions;
 import com.DreamFactory.DF.destination.exceptions.DestinationNotFoundException;
 import com.DreamFactory.DF.destination.exceptions.UnauthorizedAccessException;
 import com.DreamFactory.DF.review.exceptions.ReviewNotFoundByIdException;
-import com.DreamFactory.DF.user.exceptions.ConflictException;
 import com.DreamFactory.DF.user.exceptions.EmailAlreadyExistException;
 import com.DreamFactory.DF.user.exceptions.UserIdNotFoundException;
 import com.DreamFactory.DF.user.exceptions.UsernameAlreadyExistException;
@@ -13,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -68,11 +68,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>("Error: " + e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(ConflictException.class)
-    public ResponseEntity<String> handleConflict(ConflictException e) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-    }
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<String> handleValidationErrors(MethodArgumentNotValidException e) {
         String errorMessage = e.getBindingResult()
@@ -95,6 +90,11 @@ public class GlobalExceptionHandler {
         Map<String, String> error = new HashMap<>();
         error.put("error", ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<String> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
+        return new ResponseEntity<>("Error: " + e.getMessage(), HttpStatus.CONFLICT);
     }
 
 }

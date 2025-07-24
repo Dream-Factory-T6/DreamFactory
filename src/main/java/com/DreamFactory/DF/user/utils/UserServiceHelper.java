@@ -8,13 +8,11 @@ import com.DreamFactory.DF.user.UserRepository;
 import com.DreamFactory.DF.user.dto.UserMapper;
 import com.DreamFactory.DF.user.dto.UserResponse;
 import com.DreamFactory.DF.user.dto.adminRole.UserRequestUpdateAdmin;
-import com.DreamFactory.DF.user.exceptions.ConflictException;
 import com.DreamFactory.DF.user.exceptions.EmailAlreadyExistException;
 import com.DreamFactory.DF.user.exceptions.UserIdNotFoundException;
 import com.DreamFactory.DF.user.exceptions.UsernameAlreadyExistException;
 import com.DreamFactory.DF.user.model.User;
 import jakarta.mail.MessagingException;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -23,7 +21,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Component
@@ -104,22 +101,5 @@ public class UserServiceHelper {
             throw new EmailSendException("Failed to send welcome email: " + e.getMessage(), e);
         }
     }
-
-    public <T> T executeSafely(Supplier<T> action) {
-        try {
-            return action.get();
-        } catch (DataIntegrityViolationException e) {
-            throw new ConflictException();
-        } catch (RuntimeException e) {
-        throw e;
-        }
-
-}
-
-
-
-
-
-
 
 }

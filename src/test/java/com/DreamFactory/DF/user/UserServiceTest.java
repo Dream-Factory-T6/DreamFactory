@@ -138,6 +138,7 @@ public class UserServiceTest {
             userSaved.setPassword("password123");
             userSaved.setRoles(Set.of(Role.USER));
 
+
             when(userRepository.save(any(User.class))).thenReturn(userSaved);
 
             UserResponse userResponse = userService.registerUser(userRequest);
@@ -190,6 +191,9 @@ public class UserServiceTest {
         @Test
         void should_registerNewUser_throw_exceptionEmailSendingFails() throws IOException, MessagingException {
             UserRequest userRequest = new UserRequest("userTest", "usertest@test.com", "password123");
+
+            doNothing().when(userServiceHelper).checkUsername(userRequest.username());
+            doNothing().when(userServiceHelper).checkEmail(userRequest.email());
 
             doThrow(new EmailSendException("Failed to send welcome email: Email error"))
                     .when(userServiceHelper).sendEmailRegisterNewUser(any());
