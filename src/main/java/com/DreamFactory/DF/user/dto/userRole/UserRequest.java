@@ -1,4 +1,4 @@
-package com.DreamFactory.DF.user.dto;
+package com.DreamFactory.DF.user.dto.userRole;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
