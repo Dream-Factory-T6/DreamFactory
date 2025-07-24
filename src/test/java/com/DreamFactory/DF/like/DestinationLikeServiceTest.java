@@ -14,9 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.access.AccessDeniedException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -43,12 +41,7 @@ class DestinationLikeServiceTest {
 
     @BeforeEach
     public void setUp() {
-        likeService = Mockito.spy(new DestinationLikeService(likeRepository,
-                destinationService,
-                userService,
-                likeMapper));
-
-        testUser =new User();
+        testUser = new User();
         testUser.setUsername("testUser");
         testUser.setId(1L);
 
@@ -58,11 +51,11 @@ class DestinationLikeServiceTest {
         testDestination.setLocation("Test Location");
         testDestination.setDescription("Test Description");
 
-        likeResponse = new DestinationLikeResponse(100L, true, 1);
+        likeResponse = new DestinationLikeResponse(100L, true, 1L);
     }
 
     @Test
-    public void toggleLikeTest () {
+    public void toggleLikeTest() {
         Mockito.doReturn(testUser).when(userService).getAuthenticatedUser();
         Mockito.when(destinationService.getDestObjById(100L)).thenReturn(testDestination);
         Mockito.when(likeService.toggleLike(100L)).thenReturn(likeResponse);
@@ -79,10 +72,41 @@ class DestinationLikeServiceTest {
         Mockito.when(userService.getAuthenticatedUser())
                 .thenThrow(new RuntimeException("User not authenticated"));
 
-        Assertions.assertThrows(RuntimeException.class, () -> {
-            likeService.toggleLike(100L);
-        });
+        Assertions.assertThrows(RuntimeException.class, () -> likeService.toggleLike(100L));
 
         Mockito.verify(destinationService, Mockito.never()).getDestObjById(Mockito.anyLong());
+    }
+
+    @Test
+    public void getLikeByDestinationId_Success() {
+        Mockito.when(destinationService.getDestObjById(100L)).thenReturn(testDestination);
+        Mockito.when(userService.getAuthenticatedUser()).thenReturn(testUser);
+        Mockito.when(likeRepository.existsByUserAndDestination(testUser, testDestination)).thenReturn(true);
+        Mockito.when(likeRepository.countByDestination(testDestination)).thenReturn(1L);
+        Mockito.when(likeMapper.toResponse(testDestination, true, 1L)).thenReturn(likeResponse);
+
+        DestinationLikeResponse response = likeService.getLikeByDestinationId(100L);
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(likeResponse.destinationId(), response.destinationId());
+        Assertions.assertTrue(response.liked());
+    }
+
+    @Test
+    public void getLikeByDestinationId_UnauthorizedUser_ShouldReturnUnliked() {
+        Mockito.when(destinationService.getDestObjById(100L)).thenReturn(testDestination);
+        Mockito.when(userService.getAuthenticatedUser())
+                .thenThrow(new AccessDeniedException("Not authenticated"));
+        Mockito.when(likeRepository.countByDestination(testDestination)).thenReturn(1L);
+        DestinationLikeResponse likeResponse = Mockito.mock(DestinationLikeResponse.class);
+        Mockito.when(likeResponse.destinationId()).thenReturn(testDestination.getId());
+        Mockito.when(likeResponse.liked()).thenReturn(false);
+        Mockito.when(likeMapper.toResponse(testDestination, false, 1L)).thenReturn(likeResponse);
+
+        DestinationLikeResponse response = likeService.getLikeByDestinationId(100L);
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(likeResponse.destinationId(), response.destinationId());
+        Assertions.assertFalse(response.liked());
     }
 }
