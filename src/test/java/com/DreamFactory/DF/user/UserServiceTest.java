@@ -1,11 +1,11 @@
 package com.DreamFactory.DF.user;
 
-import com.DreamFactory.DF.email.EmailService;
 import com.DreamFactory.DF.exceptions.EmailSendException;
 import com.DreamFactory.DF.exceptions.EmptyListException;
 import com.DreamFactory.DF.user.dto.UserMapper;
-import com.DreamFactory.DF.user.dto.UserRequest;
-import com.DreamFactory.DF.user.dto.UserRequestAdmin;
+import com.DreamFactory.DF.user.dto.adminRole.UserRequestUpdateAdmin;
+import com.DreamFactory.DF.user.dto.userRole.UserRequest;
+import com.DreamFactory.DF.user.dto.adminRole.UserRequestAdmin;
 import com.DreamFactory.DF.user.dto.UserResponse;
 import com.DreamFactory.DF.role.Role;
 import com.DreamFactory.DF.user.exceptions.EmailAlreadyExistException;
@@ -371,14 +371,14 @@ public class UserServiceTest {
             userSaved2.setRoles(Set.of(Role.USER));
 
 
-            UserRequestAdmin userRequest = new UserRequestAdmin("userTest2", "usertest2@test.com", "password123", Role.USER);
+            UserRequestUpdateAdmin userRequest = new UserRequestUpdateAdmin("userTest2", "usertest2@test.com", "password123", Role.USER);
 
 
 
             when(userServiceHelper.checkUserId(1L)).thenReturn(userSaved1);
             lenient().when(passwordEncoder.encode("password123")).thenReturn("$2a$10$HsMF2wIVlZAelTWGNHD/r.lbHJemKWx0.HEfqHKHF91CR8R3fDjX2");
             doAnswer(invocation -> {
-                UserRequestAdmin req = invocation.getArgument(0);
+                UserRequestUpdateAdmin req = invocation.getArgument(0);
                 User user = invocation.getArgument(1);
 
                 user.setUsername(req.username());
@@ -397,7 +397,7 @@ public class UserServiceTest {
 
         @Test
         void should_updateUser_throws_exceptionId(){
-            UserRequestAdmin userRequest = new UserRequestAdmin("userTest", "usertest@test.com", "password123", Role.USER);
+            UserRequestUpdateAdmin userRequest = new UserRequestUpdateAdmin("userTest", "usertest@test.com", "password123", Role.USER);
 
             when(userServiceHelper.checkUserId(1L)).thenThrow(new UserIdNotFoundException(1L));
 

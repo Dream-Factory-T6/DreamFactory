@@ -1,4 +1,4 @@
-package com.DreamFactory.DF.user.dto;
+package com.DreamFactory.DF.user.dto.adminRole;
 
 import com.DreamFactory.DF.role.Role;
 import com.DreamFactory.DF.role.RoleDeserializer;
