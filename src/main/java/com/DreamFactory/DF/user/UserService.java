@@ -3,8 +3,9 @@ package com.DreamFactory.DF.user;
 import com.DreamFactory.DF.email.EmailService;
 import com.DreamFactory.DF.exceptions.EmptyListException;
 import com.DreamFactory.DF.user.dto.UserMapper;
-import com.DreamFactory.DF.user.dto.UserRequest;
-import com.DreamFactory.DF.user.dto.UserRequestAdmin;
+import com.DreamFactory.DF.user.dto.adminRole.UserRequestUpdateAdmin;
+import com.DreamFactory.DF.user.dto.userRole.UserRequest;
+import com.DreamFactory.DF.user.dto.adminRole.UserRequestAdmin;
 import com.DreamFactory.DF.user.dto.UserResponse;
 import com.DreamFactory.DF.role.Role;
 import com.DreamFactory.DF.user.model.User;
@@ -101,7 +102,7 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public UserResponse updateUser(Long id, UserRequestAdmin request) {
+    public UserResponse updateUser(Long id, UserRequestUpdateAdmin request) {
         User user = userServiceHelper.checkUserId(id);
         userServiceHelper.updateUserData(request, user);
         return UserMapper.fromEntity(user);
