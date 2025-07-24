@@ -42,10 +42,6 @@ class ReviewServiceTest {
 
     @BeforeEach
     public void setUp() {
-        reviewService = Mockito.spy(new ReviewService(reviewRepository,
-                userService,
-                destinationService));
-
         testUser = new User();
         testUser.setId(10L);
         testUser.setUsername("testUser");
