@@ -132,12 +132,13 @@ For example, in IntelliJ IDEA, right-click the main class and choose "Run 'DfApp
 
 [![temp-Imagewb-Ke-Yr.avif](https://i.postimg.cc/MpDJq4SX/temp-Imagewb-Ke-Yr.avif)](https://postimg.cc/QFHyqfVr)
 
+## EER Diagram
+
+[![temp-Image-UYIh0o.avif](https://i.postimg.cc/nLG4d4By/temp-Image-UYIh0o.avif)](https://postimg.cc/Y4jL0mXR)
+
 ## Class Diagram
 
 [View Class Diagram] ()
-
-## Flow chat Diagram
-[View Flow chat Diagram] ()
 
 ## Contributors
 Paula Calvo Garcia
