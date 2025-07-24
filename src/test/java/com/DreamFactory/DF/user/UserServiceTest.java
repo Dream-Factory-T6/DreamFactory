@@ -1,6 +1,5 @@
 package com.DreamFactory.DF.user;
 
-import com.DreamFactory.DF.email.EmailService;
 import com.DreamFactory.DF.exceptions.EmailSendException;
 import com.DreamFactory.DF.exceptions.EmptyListException;
 import com.DreamFactory.DF.user.dto.UserMapper;
@@ -244,8 +243,9 @@ public class UserServiceTest {
             doThrow(new UsernameAlreadyExistException(userRequest.username()))
                     .when(userServiceHelper).checkUsername(userRequest.username());
 
-            RuntimeException exception = assertThrows(RuntimeException.class, () -> userService.registerUserByAdmin(userRequest));
+            UsernameAlreadyExistException exception = assertThrows(UsernameAlreadyExistException.class, () -> userService.registerUserByAdmin(userRequest));
             assertEquals(new UsernameAlreadyExistException(userRequest.username()).getMessage(), exception.getMessage());
+            verify(userServiceHelper).checkUsername(userRequest.username());
 
         }
 

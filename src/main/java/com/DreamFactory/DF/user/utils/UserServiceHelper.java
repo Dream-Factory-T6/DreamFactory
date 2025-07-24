@@ -8,11 +8,13 @@ import com.DreamFactory.DF.user.UserRepository;
 import com.DreamFactory.DF.user.dto.UserMapper;
 import com.DreamFactory.DF.user.dto.UserRequestAdmin;
 import com.DreamFactory.DF.user.dto.UserResponse;
+import com.DreamFactory.DF.user.exceptions.ConflictException;
 import com.DreamFactory.DF.user.exceptions.EmailAlreadyExistException;
 import com.DreamFactory.DF.user.exceptions.UserIdNotFoundException;
 import com.DreamFactory.DF.user.exceptions.UsernameAlreadyExistException;
 import com.DreamFactory.DF.user.model.User;
 import jakarta.mail.MessagingException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -21,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Component
@@ -67,20 +70,6 @@ public class UserServiceHelper {
         return passwordEncoder.encode(password);
     }
 
-
-
-    public void sendEmailRegisterNewUser(User user) {
-        try {
-            String subject = UserEmailTemplates.getUserCreatedSubject();
-            String plainText = UserEmailTemplates.getUserWelcomeEmailPlainText(user);
-            String html = UserEmailTemplates.getUserWelcomeEmailHtml(user);
-
-            emailService.sendUserWelcomeEmail(user.getEmail(), subject, plainText, html);
-        } catch (MessagingException e){
-            throw new EmailSendException("Failed to send welcome email: " + e.getMessage(), e);
-        }
-    }
-
     public List<UserResponse> getAllUserResponseList() {
         List<UserResponse> userResponseList = userRepository.findAll()
                 .stream()
@@ -88,9 +77,6 @@ public class UserServiceHelper {
                 .collect(Collectors.toList());
         return userResponseList;
     }
-
-
-
 
     public void updateUserData(UserRequestAdmin request, User user) {
         user.setUsername(request.username());
@@ -106,5 +92,34 @@ public class UserServiceHelper {
         roles.add(request.role());
         user.setRoles(roles);
     }
+
+    public void sendEmailRegisterNewUser(User user) {
+        try {
+            String subject = UserEmailTemplates.getUserCreatedSubject();
+            String plainText = UserEmailTemplates.getUserWelcomeEmailPlainText(user);
+            String html = UserEmailTemplates.getUserWelcomeEmailHtml(user);
+
+            emailService.sendUserWelcomeEmail(user.getEmail(), subject, plainText, html);
+        } catch (MessagingException e){
+            throw new EmailSendException("Failed to send welcome email: " + e.getMessage(), e);
+        }
+    }
+
+    public <T> T executeSafely(Supplier<T> action) {
+        try {
+            return action.get();
+        } catch (DataIntegrityViolationException e) {
+            throw new ConflictException();
+        } catch (RuntimeException e) {
+        throw e;
+        }
+
+}
+
+
+
+
+
+
 
 }

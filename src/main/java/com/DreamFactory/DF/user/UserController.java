@@ -2,9 +2,7 @@
 package com.DreamFactory.DF.user;
 
 import com.DreamFactory.DF.auth.AuthServiceHelper;
-import com.DreamFactory.DF.user.dto.UserRequest;
-import com.DreamFactory.DF.user.dto.UserRequestAdmin;
-import com.DreamFactory.DF.user.dto.UserResponse;
+import com.DreamFactory.DF.user.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -76,12 +74,8 @@ public class UserController {
                     @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
             })
     public ResponseEntity<UserResponse> registerUser(@Valid @RequestBody UserRequest request) {
-        try {
             UserResponse registeredUser = userService.registerUser(request);
             return new ResponseEntity<>(registeredUser, HttpStatus.CREATED);
-        } catch (DataIntegrityViolationException e) {
-            return new ResponseEntity<>(null, HttpStatus.CONFLICT);
-        }
     }
 
     @PostMapping("/register/admin")
@@ -95,12 +89,8 @@ public class UserController {
                     @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
             })
     public ResponseEntity<UserResponse> registerUserAdmin(@Valid @RequestBody UserRequestAdmin request) {
-        try {
             UserResponse registeredUser = userService.registerUserByAdmin(request);
             return new ResponseEntity<>(registeredUser, HttpStatus.CREATED);
-        } catch (DataIntegrityViolationException e) {
-            return new ResponseEntity<>(null, HttpStatus.CONFLICT);
-        }
     }
 
     @PutMapping("/api/users/{id}")

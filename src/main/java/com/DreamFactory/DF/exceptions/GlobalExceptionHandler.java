@@ -3,6 +3,7 @@ package com.DreamFactory.DF.exceptions;
 import com.DreamFactory.DF.destination.exceptions.DestinationNotFoundException;
 import com.DreamFactory.DF.destination.exceptions.UnauthorizedAccessException;
 import com.DreamFactory.DF.review.exceptions.ReviewNotFoundByIdException;
+import com.DreamFactory.DF.user.exceptions.ConflictException;
 import com.DreamFactory.DF.user.exceptions.EmailAlreadyExistException;
 import com.DreamFactory.DF.user.exceptions.UserIdNotFoundException;
 import com.DreamFactory.DF.user.exceptions.UsernameAlreadyExistException;
@@ -65,6 +66,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UserIdNotFoundException.class)
     public ResponseEntity<String> handleUserIdNotFound(UserIdNotFoundException e) {
         return new ResponseEntity<>("Error: " + e.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<String> handleConflict(ConflictException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
