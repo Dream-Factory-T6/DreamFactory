@@ -1,9 +1,9 @@
 package com.DreamFactory.DF.user.dto;
 
+import com.DreamFactory.DF.user.dto.adminRole.UserRequestAdmin;
+import com.DreamFactory.DF.user.dto.userRole.UserRequest;
 import com.DreamFactory.DF.user.model.User;
 import org.springframework.stereotype.Component;
-
-import java.util.stream.Collectors;
 
 @Component
 public class UserMapper {

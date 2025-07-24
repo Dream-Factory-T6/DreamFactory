@@ -3,6 +3,8 @@ package com.DreamFactory.DF.user;
 
 import com.DreamFactory.DF.auth.AuthServiceHelper;
 import com.DreamFactory.DF.user.dto.*;
+import com.DreamFactory.DF.user.dto.userRole.*;
+import com.DreamFactory.DF.user.dto.adminRole.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -102,7 +104,7 @@ public class UserController {
                     @ApiResponse(responseCode = "403", ref = "#/components/responses/Forbidden"),
                     @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
             })
-    public ResponseEntity<UserResponse> updateUserRoleRole(@Parameter @PathVariable Long id, @Valid @RequestBody UserRequestAdmin request) {
+    public ResponseEntity<UserResponse> updateUserRoleRole(@Parameter @PathVariable Long id, @Valid @RequestBody UserRequestUpdateAdmin request) {
         return ResponseEntity.ok(userService.updateUser(id, request));
     }
 

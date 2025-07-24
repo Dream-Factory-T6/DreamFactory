@@ -6,8 +6,8 @@ import com.DreamFactory.DF.exceptions.EmailSendException;
 import com.DreamFactory.DF.role.Role;
 import com.DreamFactory.DF.user.UserRepository;
 import com.DreamFactory.DF.user.dto.UserMapper;
-import com.DreamFactory.DF.user.dto.UserRequestAdmin;
 import com.DreamFactory.DF.user.dto.UserResponse;
+import com.DreamFactory.DF.user.dto.adminRole.UserRequestUpdateAdmin;
 import com.DreamFactory.DF.user.exceptions.ConflictException;
 import com.DreamFactory.DF.user.exceptions.EmailAlreadyExistException;
 import com.DreamFactory.DF.user.exceptions.UserIdNotFoundException;
@@ -78,7 +78,7 @@ public class UserServiceHelper {
         return userResponseList;
     }
 
-    public void updateUserData(UserRequestAdmin request, User user) {
+    public void updateUserData(UserRequestUpdateAdmin request, User user) {
         user.setUsername(request.username());
         user.setEmail(request.email());
 
