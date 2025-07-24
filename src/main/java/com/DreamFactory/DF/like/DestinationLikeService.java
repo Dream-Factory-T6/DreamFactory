@@ -26,7 +26,6 @@ public class DestinationLikeService {
     public DestinationLikeResponse toggleLike(Long destinationId) {
         User user = userService.getAuthenticatedUser();
         Destination destination = destinationService.getDestObjById(destinationId);
-
         Optional<DestinationLike> optionalLike = likeRepository.findByUserAndDestination(user, destination);
 
         if (optionalLike.isPresent()) {
