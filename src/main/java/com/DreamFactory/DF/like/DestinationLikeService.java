@@ -8,6 +8,8 @@ import com.DreamFactory.DF.user.UserService;
 import com.DreamFactory.DF.user.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -42,12 +44,17 @@ public class DestinationLikeService {
         return mapper.toResponse(destination, liked, count);
     }
 
-    @Transactional()
+    @Transactional
     public DestinationLikeResponse getLikeByDestinationId(Long destinationId) {
-        User user = userService.getAuthenticatedUser();
         Destination destination = destinationService.getDestObjById(destinationId);
+        boolean liked;
 
-        boolean liked = likeRepository.existsByUserAndDestination(user, destination);
+        try {
+            User user = userService.getAuthenticatedUser();
+            liked = likeRepository.existsByUserAndDestination(user, destination);
+        } catch (AccessDeniedException | AuthenticationException e) {
+            liked = false;
+        }
         long count = likeRepository.countByDestination(destination);
 
         return mapper.toResponse(destination, liked, count);
