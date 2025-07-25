@@ -6,8 +6,8 @@ import com.DreamFactory.DF.exceptions.EmailSendException;
 import com.DreamFactory.DF.role.Role;
 import com.DreamFactory.DF.user.UserRepository;
 import com.DreamFactory.DF.user.dto.UserMapper;
-import com.DreamFactory.DF.user.dto.UserRequestAdmin;
 import com.DreamFactory.DF.user.dto.UserResponse;
+import com.DreamFactory.DF.user.dto.adminRole.UserRequestUpdateAdmin;
 import com.DreamFactory.DF.user.exceptions.EmailAlreadyExistException;
 import com.DreamFactory.DF.user.exceptions.UserIdNotFoundException;
 import com.DreamFactory.DF.user.exceptions.UsernameAlreadyExistException;
@@ -67,7 +67,36 @@ public class UserServiceHelper {
         return passwordEncoder.encode(password);
     }
 
+    public List<UserResponse> getAllUserResponseList() {
+        List<UserResponse> userResponseList = userRepository.findAll()
+                .stream()
+                .map(UserMapper::fromEntity)
+                .collect(Collectors.toList());
+        return userResponseList;
+    }
 
+    public void updateUserData(UserRequestUpdateAdmin request, User user) {
+        String username = request.username() != null && !request.username().isEmpty()
+                ? request.username() :
+                user.getUsername();
+
+        String email = request.email() != null && !request.email().isEmpty()
+                ? request.email() :
+                user.getEmail();
+
+        String password = request.password() != null & !request.password().isEmpty()
+                ? this.getEncodePassword(request.password()) :
+                user.getPassword();
+
+        user.setUsername(username);
+        user.setEmail(email);
+        user.setPassword(password);
+
+
+        Set<Role> roles = new HashSet<>();
+        roles.add(request.role());
+        user.setRoles(roles);
+    }
 
     public void sendEmailRegisterNewUser(User user) {
         try {
@@ -79,32 +108,6 @@ public class UserServiceHelper {
         } catch (MessagingException e){
             throw new EmailSendException("Failed to send welcome email: " + e.getMessage(), e);
         }
-    }
-
-    public List<UserResponse> getAllUserResponseList() {
-        List<UserResponse> userResponseList = userRepository.findAll()
-                .stream()
-                .map(UserMapper::fromEntity)
-                .collect(Collectors.toList());
-        return userResponseList;
-    }
-
-
-
-
-    public void updateUserData(UserRequestAdmin request, User user) {
-        user.setUsername(request.username());
-        user.setEmail(request.email());
-
-        if (request.password() != null || !request.password().isEmpty()) {
-            user.setPassword(this.getEncodePassword(request.password()));
-        } else{
-            user.setPassword(user.getPassword());
-        }
-
-        Set<Role> roles = new HashSet<>();
-        roles.add(request.role());
-        user.setRoles(roles);
     }
 
 }

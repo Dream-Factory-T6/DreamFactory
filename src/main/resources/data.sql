@@ -22,7 +22,7 @@ INSERT INTO user_roles (user_id, roles) VALUES
 INSERT INTO destinations (title, location, description, image_url, user_id, created_at, updated_at) VALUES
 -- John's destinations
 ('Paradise Beach', 'Bali, Indonesia', 'A stunning tropical paradise with crystal clear waters and white sandy beaches. Perfect for relaxation and water sports.', 'https://res.cloudinary.com/dreamfactory/image/upload/v1753096895/1e394614-dca5-41a7-b22c-c94bc9682f27_tn3gxc.jpg', 3, '2023-06-15 14:30:00', '2023-06-20 09:15:00'),
-('Mountain Retreat', 'Swiss Alps', 'Breathtaking mountain views with cozy chalets and world-class skiing opportunities. A winter wonderland for adventure seekers.', 'https://res.cloudinary.com/dreamfactory/image/upload/v1753096974/fu8_pi2vp1.jpg', 3, '2023-08-22 11:45:00', '2023-09-05 16:20:00'),
+('Mountain Retreat', 'Swiss Alps', 'Breathtaking mountain views with cozy chalets and world-class skiing opportunities. A winter wonderland for adventure seekers.', 'https://res.cloudinary.com/dreamfactory/image/upload/v1753437020/shutterstock_279572969-800x600_ucyhui.jpg', 3, '2023-08-22 11:45:00', '2023-09-05 16:20:00'),
 ('Desert Oasis', 'Sahara Desert, Morocco', 'Experience the magic of the desert with camel treks, traditional Berber camps, and stunning starry nights.', 'https://res.cloudinary.com/dreamfactory/image/upload/v1753097042/%D0%A1%D0%B0%D1%85%D0%B0%D1%80%D0%B0-7_2_paukz8.jpg', 3, '2023-10-08 08:20:00', '2023-10-12 13:45:00'),
 
 -- Jane's destinations

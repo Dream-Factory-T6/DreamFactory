@@ -1,17 +1,18 @@
 package com.DreamFactory.DF.user;
 
-import com.DreamFactory.DF.email.EmailService;
 import com.DreamFactory.DF.exceptions.EmailSendException;
 import com.DreamFactory.DF.exceptions.EmptyListException;
 import com.DreamFactory.DF.user.dto.UserMapper;
-import com.DreamFactory.DF.user.dto.UserRequest;
-import com.DreamFactory.DF.user.dto.UserRequestAdmin;
+import com.DreamFactory.DF.user.dto.adminRole.UserRequestUpdateAdmin;
+import com.DreamFactory.DF.user.dto.userRole.UserRequest;
+import com.DreamFactory.DF.user.dto.adminRole.UserRequestAdmin;
 import com.DreamFactory.DF.user.dto.UserResponse;
 import com.DreamFactory.DF.role.Role;
 import com.DreamFactory.DF.user.exceptions.EmailAlreadyExistException;
 import com.DreamFactory.DF.user.exceptions.UserIdNotFoundException;
 import com.DreamFactory.DF.user.exceptions.UsernameAlreadyExistException;
 import com.DreamFactory.DF.user.model.User;
+import com.DreamFactory.DF.user.utils.UserServiceHelper;
 import jakarta.mail.MessagingException;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -35,7 +36,6 @@ import java.util.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -45,7 +45,7 @@ public class UserServiceTest {
     private UserService userService;
 
     @Mock
-    private EmailService emailService;
+    private UserServiceHelper userServiceHelper;
 
     @Mock
     private UserRepository userRepository;
@@ -66,7 +66,7 @@ public class UserServiceTest {
             userSaved.setPassword("password123");
             userSaved.setRoles(Set.of(Role.USER));
 
-            when(userRepository.findByUsername("userTest")).thenReturn(Optional.of(userSaved));
+            when(userServiceHelper.getUserLogin("userTest")).thenReturn(Optional.of(userSaved));
 
             List<GrantedAuthority> authorities = List.of(
                     new SimpleGrantedAuthority("ROLE_USER")
@@ -90,18 +90,18 @@ public class UserServiceTest {
         @Test
         void should_loginExistingUser_throw_exception(){
 
-            when(userRepository.findByUsername("userTest")).thenReturn(Optional.empty());
+            when(userServiceHelper.getUserLogin("userTest"))
+                    .thenThrow(new UsernameNotFoundException("userTest does not exist."));
 
             assertThrows(UsernameNotFoundException.class, () -> userService.loadUserByUsername("userTest") );
         }
 
         @Test
-        void should_registerNewUser_fromRequest() throws MessagingException {
+        void should_registerNewUser_fromRequest() {
             UserRequest userRequest = new UserRequest("userTest", "usertest@test.com", "password123");
 
-            when(userRepository.findByUsername("userTest")).thenReturn(Optional.empty());
-            when(userRepository.findByEmail("usertest@test.com")).thenReturn(Optional.empty());
-            when(passwordEncoder.encode("password123")).thenReturn("$2a$10$HsMF2wIVlZAelTWGNHD/r.lbHJemKWx0.HEfqHKHF91CR8R3fDjX2");
+            doNothing().when(userServiceHelper).checkUsername(userRequest.username());
+            doNothing().when(userServiceHelper).checkEmail(userRequest.email());
 
             User userSaved = new User();
             userSaved.setId(1L);
@@ -111,8 +111,6 @@ public class UserServiceTest {
             userSaved.setRoles(Set.of(Role.USER));
 
             when(userRepository.save(any(User.class))).thenReturn(userSaved);
-            doNothing().when(emailService).sendUserWelcomeEmail(
-                    anyString(), anyString(), anyString(), anyString());
 
             UserResponse userResponse = userService.registerUser(userRequest);
 
@@ -130,9 +128,8 @@ public class UserServiceTest {
         void should_registerNewUser_fromRequest(){
             UserRequest userRequest = new UserRequest("userTest", "usertest@test.com", "password123");
 
-            when(userRepository.findByUsername("userTest")).thenReturn(Optional.empty());
-            when(userRepository.findByEmail("usertest@test.com")).thenReturn(Optional.empty());
-            when(passwordEncoder.encode("password123")).thenReturn("$2a$10$HsMF2wIVlZAelTWGNHD/r.lbHJemKWx0.HEfqHKHF91CR8R3fDjX2");
+            doNothing().when(userServiceHelper).checkUsername(userRequest.username());
+            doNothing().when(userServiceHelper).checkEmail(userRequest.email());
 
             User userSaved = new User();
             userSaved.setId(1L);
@@ -140,6 +137,7 @@ public class UserServiceTest {
             userSaved.setEmail("usertest@test.com");
             userSaved.setPassword("password123");
             userSaved.setRoles(Set.of(Role.USER));
+
 
             when(userRepository.save(any(User.class))).thenReturn(userSaved);
 
@@ -162,7 +160,8 @@ public class UserServiceTest {
 
             UserRequest userRequest = new UserRequest("userTest", "usertest@test.com", "password123");
 
-            when(userRepository.findByUsername("userTest")).thenReturn(Optional.of(userSaved));
+            doThrow(new UsernameAlreadyExistException(userRequest.username()))
+                    .when(userServiceHelper).checkUsername(userRequest.username());
 
             RuntimeException exception = assertThrows(RuntimeException.class, () -> userService.registerUser(userRequest));
             assertEquals(new UsernameAlreadyExistException(userRequest.username()).getMessage(), exception.getMessage());
@@ -181,7 +180,8 @@ public class UserServiceTest {
 
             UserRequest userRequest = new UserRequest("userTest", "usertest@test.com", "password123");
 
-            when(userRepository.findByEmail("usertest@test.com")).thenReturn(Optional.of(userSaved));
+            doThrow(new EmailAlreadyExistException(userRequest.email()))
+                    .when(userServiceHelper).checkEmail(userRequest.email());
 
             RuntimeException exception = assertThrows(RuntimeException.class, () -> userService.registerUser(userRequest));
             assertEquals(new EmailAlreadyExistException(userRequest.email()).getMessage(), exception.getMessage());
@@ -192,8 +192,11 @@ public class UserServiceTest {
         void should_registerNewUser_throw_exceptionEmailSendingFails() throws IOException, MessagingException {
             UserRequest userRequest = new UserRequest("userTest", "usertest@test.com", "password123");
 
-            doThrow(new MessagingException("Email error")).when(emailService)
-                    .sendUserWelcomeEmail(anyString(), anyString(), anyString(), anyString());
+            doNothing().when(userServiceHelper).checkUsername(userRequest.username());
+            doNothing().when(userServiceHelper).checkEmail(userRequest.email());
+
+            doThrow(new EmailSendException("Failed to send welcome email: Email error"))
+                    .when(userServiceHelper).sendEmailRegisterNewUser(any());
 
             assertThatThrownBy(() -> userService.registerUser(userRequest))
                     .isInstanceOf(EmailSendException.class)
@@ -211,9 +214,8 @@ public class UserServiceTest {
         void should_registerNewUserByAdmin_fromRequest() throws MessagingException {
             UserRequestAdmin userRequest = new UserRequestAdmin("userTest", "usertest@test.com", "password123", Role.ADMIN);
 
-            when(userRepository.findByUsername("userTest")).thenReturn(Optional.empty());
-            when(userRepository.findByEmail("usertest@test.com")).thenReturn(Optional.empty());
-            when(passwordEncoder.encode("password123")).thenReturn("$2a$10$HsMF2wIVlZAelTWGNHD/r.lbHJemKWx0.HEfqHKHF91CR8R3fDjX2");
+            doNothing().when(userServiceHelper).checkUsername(userRequest.username());
+            doNothing().when(userServiceHelper).checkEmail(userRequest.email());
 
             User userSaved = new User();
             userSaved.setId(1L);
@@ -223,8 +225,6 @@ public class UserServiceTest {
             userSaved.setRoles(Set.of(Role.ADMIN));
 
             when(userRepository.save(any(User.class))).thenReturn(userSaved);
-            doNothing().when(emailService).sendUserWelcomeEmail(
-                    anyString(), anyString(), anyString(), anyString());
 
             UserResponse userResponse = userService.registerUserByAdmin(userRequest);
 
@@ -245,10 +245,12 @@ public class UserServiceTest {
 
             UserRequestAdmin userRequest = new UserRequestAdmin("userTest", "usertest@test.com", "password123", Role.USER);
 
-            when(userRepository.findByUsername("userTest")).thenReturn(Optional.of(userSaved));
+            doThrow(new UsernameAlreadyExistException(userRequest.username()))
+                    .when(userServiceHelper).checkUsername(userRequest.username());
 
-            RuntimeException exception = assertThrows(RuntimeException.class, () -> userService.registerUserByAdmin(userRequest));
+            UsernameAlreadyExistException exception = assertThrows(UsernameAlreadyExistException.class, () -> userService.registerUserByAdmin(userRequest));
             assertEquals(new UsernameAlreadyExistException(userRequest.username()).getMessage(), exception.getMessage());
+            verify(userServiceHelper).checkUsername(userRequest.username());
 
         }
 
@@ -264,7 +266,8 @@ public class UserServiceTest {
 
             UserRequestAdmin userRequest = new UserRequestAdmin("userTest", "usertest@test.com", "password123", Role.ADMIN);
 
-            when(userRepository.findByEmail("usertest@test.com")).thenReturn(Optional.of(userSaved));
+            doThrow(new EmailAlreadyExistException(userRequest.email()))
+                    .when(userServiceHelper).checkEmail(userRequest.email());
 
             RuntimeException exception = assertThrows(RuntimeException.class, () -> userService.registerUserByAdmin(userRequest));
             assertEquals(new EmailAlreadyExistException(userRequest.email()).getMessage(), exception.getMessage());
@@ -274,9 +277,8 @@ public class UserServiceTest {
         @Test
         void should_registerNewUser_throw_exceptionEmailSendingFails() throws IOException, MessagingException {
             UserRequestAdmin userRequest = new UserRequestAdmin("userTest", "usertest@test.com", "password123", Role.ADMIN);
-
-            doThrow(new MessagingException("Email error")).when(emailService)
-                    .sendUserWelcomeEmail(anyString(), anyString(), anyString(), anyString());
+            doThrow(new EmailSendException("Failed to send welcome email: Email error"))
+                    .when(userServiceHelper).sendEmailRegisterNewUser(any());
 
             assertThatThrownBy(() -> userService.registerUserByAdmin(userRequest))
                     .isInstanceOf(EmailSendException.class)
@@ -303,9 +305,9 @@ public class UserServiceTest {
             userSaved2.setPassword("password123");
             userSaved2.setRoles(Set.of(Role.USER));
 
-            when(userRepository.findAll()).thenReturn(List.of(userSaved1,userSaved2));
-
             List<UserResponse> expectedList = List.of(UserMapper.fromEntity(userSaved1), UserMapper.fromEntity(userSaved2));
+
+            when(userServiceHelper.getAllUserResponseList()).thenReturn(expectedList);
 
             List<UserResponse> responseList = userService.getAllUsers();
 
@@ -314,7 +316,8 @@ public class UserServiceTest {
 
         @Test
         void should_getAllUsers_throws_emptyListException() {
-            when(userRepository.findAll()).thenReturn(List.of());
+            doThrow(new EmptyListException()).
+                    when(userServiceHelper).getAllUserResponseList();
 
             RuntimeException exception = assertThrows(RuntimeException.class, () -> userService.getAllUsers());
             assertEquals(new EmptyListException().getMessage(), exception.getMessage());
@@ -334,7 +337,7 @@ public class UserServiceTest {
             userSaved.setPassword("password123");
             userSaved.setRoles(Set.of(Role.USER));
 
-            when(userRepository.findById(2L)).thenReturn(Optional.of(userSaved));
+            when(userServiceHelper.checkUserId(2L)).thenReturn(userSaved);
 
             UserResponse expectedUser = UserMapper.fromEntity(userSaved);
 
@@ -345,7 +348,7 @@ public class UserServiceTest {
 
         @Test
         void should_getUserById_throw_exception() {
-            when(userRepository.findById(2L)).thenReturn(Optional.empty());
+            when(userServiceHelper.checkUserId(2L)).thenThrow(new UserIdNotFoundException(2L));
 
             RuntimeException exception = assertThrows(RuntimeException.class, () -> userService.getUserById(2L));
             assertEquals(new UserIdNotFoundException(2L).getMessage(), exception.getMessage());
@@ -372,16 +375,26 @@ public class UserServiceTest {
             userSaved2.setPassword("password123");
             userSaved2.setRoles(Set.of(Role.USER));
 
+
+            UserRequestUpdateAdmin userRequest = new UserRequestUpdateAdmin("userTest2", "usertest2@test.com", "password123", Role.USER);
+
+
+
+            when(userServiceHelper.checkUserId(1L)).thenReturn(userSaved1);
+            lenient().when(passwordEncoder.encode("password123")).thenReturn("$2a$10$HsMF2wIVlZAelTWGNHD/r.lbHJemKWx0.HEfqHKHF91CR8R3fDjX2");
+            doAnswer(invocation -> {
+                UserRequestUpdateAdmin req = invocation.getArgument(0);
+                User user = invocation.getArgument(1);
+
+                user.setUsername(req.username());
+                user.setEmail(req.email());
+                user.setPassword("$2a$10$HsMF2wIVlZAelTWGNHD/r.lbHJemKWx0.HEfqHKHF91CR8R3fDjX2");
+                user.setRoles(Set.of(req.role()));
+
+                return null;
+            }).when(userServiceHelper).updateUserData(any(), any());
+
             UserResponse userResponseExpected = UserMapper.fromEntity(userSaved2);
-
-            UserRequestAdmin userRequest = new UserRequestAdmin("userTest2", "usertest2@test.com", "password123", Role.USER);
-
-
-
-            when(userRepository.findById(1L)).thenReturn(Optional.of(userSaved1));
-            when(passwordEncoder.encode("password123")).thenReturn("$2a$10$HsMF2wIVlZAelTWGNHD/r.lbHJemKWx0.HEfqHKHF91CR8R3fDjX2");
-
-
             UserResponse userResponse = userService.updateUser(1L, userRequest);
 
             assertEquals(userResponseExpected, userResponse);
@@ -389,9 +402,9 @@ public class UserServiceTest {
 
         @Test
         void should_updateUser_throws_exceptionId(){
-            UserRequestAdmin userRequest = new UserRequestAdmin("userTest", "usertest@test.com", "password123", Role.USER);
+            UserRequestUpdateAdmin userRequest = new UserRequestUpdateAdmin("userTest", "usertest@test.com", "password123", Role.USER);
 
-            when(userRepository.findById(1L)).thenReturn(Optional.empty());
+            when(userServiceHelper.checkUserId(1L)).thenThrow(new UserIdNotFoundException(1L));
 
             RuntimeException exception = assertThrows(RuntimeException.class, () -> userService.updateUser(1L, userRequest) );
 
@@ -404,7 +417,8 @@ public class UserServiceTest {
 
         @Test
         void  should_deleteUser_fromId(){
-            when(userRepository.existsById(1L)).thenReturn(true);
+            User user = new User();
+            when(userServiceHelper.checkUserId(1L)).thenReturn(user);
 
             userService.deleteUser(1L);
 
@@ -413,9 +427,9 @@ public class UserServiceTest {
 
         @Test
         void  should_deleteUser_throw_exceptionId(){
-            when(userRepository.existsById(1L)).thenReturn(false);
+            when(userServiceHelper.checkUserId(1L)).thenThrow(new UserIdNotFoundException(1L));
 
-            RuntimeException exception = assertThrows(RuntimeException.class, () -> userService.deleteUser(1L));
+            RuntimeException exception = assertThrows(UserIdNotFoundException.class, () -> userService.deleteUser(1L));
             assertEquals(new UserIdNotFoundException(1L).getMessage(), exception.getMessage());
         }
     }
