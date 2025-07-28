@@ -5,16 +5,20 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import static com.DreamFactory.DF.auth.TokenJwtConfig.secretKey;
 
 @Service
 public class AuthServiceHelper {
-    public String generateAccessToken(String username, Claims claims){
+    public String generateAccessToken(String username, Claims claims) {
         String token = Jwts.builder()
                 .subject(username)
                 .claims(claims)
@@ -67,6 +71,20 @@ public class AuthServiceHelper {
             return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
         } catch (JwtException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Refresh invalid token"));
+        }
+    }
+
+    public Authentication getAuthentication(String token) {
+        try {
+            Claims claims = validateAccessToken(token);
+            String username = claims.getSubject();
+            String role = claims.get("role", String.class);
+
+            List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
+
+            return new UsernamePasswordAuthenticationToken(username, null, authorities);
+        } catch (JwtException e) {
+            throw new RuntimeException("Invalid token", e);
         }
     }
 
