@@ -41,5 +41,5 @@ jobs:
 
       # 5. Run tests
       - name: Run Tests
-        run: mvn test -Spring.profiles.active=test -e -X
+        run: mvn test -Dspring.profiles.active=test -e -X
 
