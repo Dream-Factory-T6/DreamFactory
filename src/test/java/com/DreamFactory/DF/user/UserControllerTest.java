@@ -5,6 +5,8 @@ import com.DreamFactory.DF.role.Role;
 import com.DreamFactory.DF.user.dto.userRole.UserRequest;
 import com.DreamFactory.DF.user.dto.adminRole.UserRequestAdmin;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.mail.internet.MimeMessage;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -39,6 +43,12 @@ public class UserControllerTest {
 
     @Mock
     private JavaMailSender javaMailSender;
+
+    @BeforeEach
+    void setUp() {
+        // Optionally stub the send method to do nothing
+        doNothing().when(javaMailSender).send(any(MimeMessage.class));
+    }
 
 
     @Test
