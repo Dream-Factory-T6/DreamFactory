@@ -13,7 +13,8 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    env:
+      SERVER_PORT: 8080
     steps:
       # 1. Check the repository
       - name: Check out code
