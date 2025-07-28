@@ -2,8 +2,11 @@ package com.DreamFactory.DF.like.dtos;
 
 import com.DreamFactory.DF.destination.Destination;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.context.ActiveProfiles;
+
 import static org.junit.jupiter.api.Assertions.*;
 
+@ActiveProfiles("test")
 class DestinationLikeMapperTest {
     private final DestinationLikeMapper mapper = new DestinationLikeMapper();
 

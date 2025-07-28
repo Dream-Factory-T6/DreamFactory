@@ -3,11 +3,13 @@ package com.DreamFactory.DF.chat;
 import com.DreamFactory.DF.user.model.User;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@ActiveProfiles("test")
 class MessageTest {
 
     private Message message;
