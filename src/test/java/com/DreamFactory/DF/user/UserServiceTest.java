@@ -21,6 +21,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -205,7 +206,20 @@ public class UserServiceTest {
                     .hasMessageContaining("Failed to send welcome email:");
         }
 
+        @Test
+        void should_RegisterNewUser_throw_dataIntegrityViolationException() throws Exception {
+            UserRequest userRequest = new UserRequest("userTest", "usertest@test.com", "password123");
 
+            doNothing().when(userServiceHelper).checkUsername(userRequest.username());
+            doNothing().when(userServiceHelper).checkEmail(userRequest.email());
+
+            when(userRepository.save(any(User.class)))
+                    .thenThrow(new DataIntegrityViolationException("Username or email already exists"));
+
+            DataIntegrityViolationException exception = assertThrows(DataIntegrityViolationException.class, () -> userService.registerUser(userRequest));
+            assertEquals("Username or email already exists", exception.getMessage());
+
+        }
 
     }
 
@@ -277,7 +291,7 @@ public class UserServiceTest {
         }
 
         @Test
-        void should_registerNewUser_throw_exceptionEmailSendingFails() throws IOException, MessagingException {
+        void should_registerNewUserByAdmin_throw_exceptionEmailSendingFails() throws IOException, MessagingException {
             UserRequestAdmin userRequest = new UserRequestAdmin("userTest", "usertest@test.com", "password123", Role.ADMIN);
             doThrow(new EmailSendException("Failed to send welcome email: Email error"))
                     .when(userServiceHelper).sendEmailRegisterNewUser(any());
@@ -285,6 +299,21 @@ public class UserServiceTest {
             assertThatThrownBy(() -> userService.registerUserByAdmin(userRequest))
                     .isInstanceOf(EmailSendException.class)
                     .hasMessageContaining("Failed to send welcome email:");
+        }
+
+        @Test
+        void should_RegisterNewUserByAdmin_throw_dataIntegrityViolationException() throws Exception {
+            UserRequestAdmin userRequest = new UserRequestAdmin("userTest", "usertest@test.com", "password123", Role.USER);
+
+            doNothing().when(userServiceHelper).checkUsername(userRequest.username());
+            doNothing().when(userServiceHelper).checkEmail(userRequest.email());
+
+            when(userRepository.save(any(User.class)))
+                    .thenThrow(new DataIntegrityViolationException("Username or email already exists"));
+
+            DataIntegrityViolationException exception = assertThrows(DataIntegrityViolationException.class, () -> userService.registerUserByAdmin(userRequest));
+            assertEquals("Username or email already exists", exception.getMessage());
+
         }
     }
 
