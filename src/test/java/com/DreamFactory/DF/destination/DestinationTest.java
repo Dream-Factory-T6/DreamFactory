@@ -6,9 +6,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.DreamFactory.DF.user.model.User;
 import com.DreamFactory.DF.review.Review;
+import org.springframework.test.context.ActiveProfiles;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
+@ActiveProfiles("test")
 class DestinationTest {
 
     @Test

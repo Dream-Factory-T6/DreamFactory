@@ -1,0 +1,49 @@
+name: CI - Spring Boot
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      SERVER_PORT: 8080
+      CLOUDINARY_CLOUD_NAME: test
+      CLOUDINARY_API_KEY: test
+      CLOUDINARY_API_SECRET: test
+    steps:
+      # 1. Check the repository
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      # 2. Configure Java 21
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      # 3. Configuring cache for Maven
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-m2
+
+      # 4. Build the project
+      - name: Build with Maven
+        run: mvn clean compile
+
+      # 5. Run tests
+      - name: Run Tests
+        run: mvn test -Dspring.profiles.active=test -e -X
+

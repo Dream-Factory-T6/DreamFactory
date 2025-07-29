@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Collections;
 import java.util.List;
@@ -23,6 +24,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 
+@ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 class ReviewServiceTest {
     @Mock
@@ -42,10 +44,6 @@ class ReviewServiceTest {
 
     @BeforeEach
     public void setUp() {
-        reviewService = Mockito.spy(new ReviewService(reviewRepository,
-                userService,
-                destinationService));
-
         testUser = new User();
         testUser.setId(10L);
         testUser.setUsername("testUser");

@@ -1,26 +1,34 @@
 package com.DreamFactory.DF.user;
 
 
+import com.DreamFactory.DF.email.EmailService;
 import com.DreamFactory.DF.role.Role;
-import com.DreamFactory.DF.user.dto.UserRequest;
-import com.DreamFactory.DF.user.dto.UserRequestAdmin;
+import com.DreamFactory.DF.user.dto.userRole.UserRequest;
+import com.DreamFactory.DF.user.dto.adminRole.UserRequestAdmin;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.mail.MessagingException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestPropertySource(locations = "classpath:application-test.properties")
@@ -33,6 +41,13 @@ public class UserControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @MockBean
+    private EmailService emailService;
+
+    @BeforeEach
+    void setUp() throws MessagingException {
+        doNothing().when(emailService).sendUserWelcomeEmail(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
+    }
 
     @Test
     @Transactional
