@@ -215,8 +215,8 @@ class UserServiceHelperTest {
 
             UserRequestUpdateAdmin request = new UserRequestUpdateAdmin(
                     "",
-                    null,
                     "",
+                    null,
                     Role.ADMIN
             );
 
@@ -229,7 +229,7 @@ class UserServiceHelperTest {
         }
 
         @Test
-        void should_encode_password_only_when_provided() {
+        void should_encode_password_only_when_providedPassword() {
             User user = new User();
             user.setPassword("oldPassword");
 
@@ -245,6 +245,29 @@ class UserServiceHelperTest {
             userServiceHelper.updateUserData(request, user);
 
             assertEquals("newEncoded", user.getPassword());
+        }
+
+        @Test
+        void when_updateUserDataEmptyFields_return_void() {
+            User user = new User();
+            user.setUsername("existingUsername");
+            user.setEmail("existing@example.com");
+            user.setPassword("existingPassword");
+            user.setRoles(Set.of(Role.USER));
+
+            UserRequestUpdateAdmin request = new UserRequestUpdateAdmin(
+                    "",
+                    "",
+                    "",
+                    Role.USER
+            );
+
+            userServiceHelper.updateUserData(request, user);
+
+            assertEquals("existingUsername", user.getUsername());
+            assertEquals("existing@example.com", user.getEmail());
+            assertEquals("existingPassword", user.getPassword());
+            assertTrue(user.getRoles().contains(Role.USER));
         }
     }
 
