@@ -498,6 +498,19 @@ public class UserServiceTest {
             RuntimeException exception = assertThrows(RuntimeException.class, () -> userService.getAuthenticatedUser());
             assertEquals("No authenticated user found", exception.getMessage());
         }
+
+        @Test
+        void getAuthenticatedUser_notAuthenticated() {
+            SecurityContext context = SecurityContextHolder.createEmptyContext();
+            Authentication authentication = Mockito.mock(Authentication.class);
+            Mockito.when(authentication.isAuthenticated()).thenReturn(false);
+
+            context.setAuthentication(authentication);
+            SecurityContextHolder.setContext(context);
+
+            RuntimeException exception = assertThrows(RuntimeException.class, () -> userService.getAuthenticatedUser());
+            assertEquals("No authenticated user found", exception.getMessage());
+        }
     }
 
 
