@@ -22,6 +22,24 @@ public class DestinationMapper {
         return destination;
     }
 
+    public static void updateEntityFromRequest(Destination destination, DestinationUpdateRequest request) {
+        if (request == null) {
+            return;
+        }
+
+        if (request.title() != null && !request.title().trim().isEmpty()) {
+            destination.setTitle(request.title().trim());
+        }
+
+        if (request.location() != null && !request.location().trim().isEmpty()) {
+            destination.setLocation(request.location().trim());
+        }
+
+        if (request.description() != null && !request.description().trim().isEmpty()) {
+            destination.setDescription(request.description().trim());
+        }
+    }
+
     public static DestinationResponse toResponse(Destination destination) {
         if (destination == null)
             return null;
@@ -35,8 +53,7 @@ public class DestinationMapper {
                 destination.getUser() != null ? destination.getUser().getUsername() : null,
                 rating,
                 destination.getCreatedAt(),
-                destination.getUpdatedAt()
-                );
+                destination.getUpdatedAt());
     }
 
     public static DestinationWithReviewsResponse toWithReviewsResponse(Destination destination) {
