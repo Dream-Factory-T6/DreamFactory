@@ -436,24 +436,40 @@ public class UserServiceTest {
         }
     }
 
-    @Test
-    void getAuthenticatedUser_Success() {
-        User testUser = new User();
-        testUser.setId(10L);
-        testUser.setUsername("testUser");
-        SecurityContext context = SecurityContextHolder.createEmptyContext();
-        Authentication authentication = Mockito.mock(Authentication.class);
-        Mockito.when(authentication.isAuthenticated()).thenReturn(true);
-        Mockito.when(authentication.getName()).thenReturn("testUser");
+    @Nested
+    class getAuthenticatedUser {
 
-        context.setAuthentication(authentication);
-        SecurityContextHolder.setContext(context);
+        @Test
+        void getAuthenticatedUser_success() {
+            User testUser = new User();
+            testUser.setId(10L);
+            testUser.setUsername("testUser");
+            SecurityContext context = SecurityContextHolder.createEmptyContext();
+            Authentication authentication = Mockito.mock(Authentication.class);
+            Mockito.when(authentication.isAuthenticated()).thenReturn(true);
+            Mockito.when(authentication.getName()).thenReturn("testUser");
 
-        Mockito.when(userRepository.findByUsername("testUser")).thenReturn(Optional.of(testUser));
+            context.setAuthentication(authentication);
+            SecurityContextHolder.setContext(context);
 
-        User user = userService.getAuthenticatedUser();
+            Mockito.when(userRepository.findByUsername("testUser")).thenReturn(Optional.of(testUser));
 
-        assertNotNull(user);
-        assertEquals("testUser", user.getUsername());
+            User user = userService.getAuthenticatedUser();
+
+            assertNotNull(user);
+            assertEquals("testUser", user.getUsername());
+        }
+
+        @Test
+        void getAuthenticatedUser_failure() {
+            SecurityContext context = SecurityContextHolder.createEmptyContext();
+            context.setAuthentication(null);
+            SecurityContextHolder.setContext(context);
+
+            RuntimeException exception = assertThrows(RuntimeException.class, () -> userService.getAuthenticatedUser());
+            assertEquals("No authenticated user found", exception.getMessage());
+        }
     }
+
+
 }
