@@ -1,26 +1,32 @@
 package com.DreamFactory.DF.user;
 
 
+import com.DreamFactory.DF.auth.AuthServiceHelper;
 import com.DreamFactory.DF.email.EmailService;
 import com.DreamFactory.DF.role.Role;
 import com.DreamFactory.DF.user.dto.userRole.UserRequest;
 import com.DreamFactory.DF.user.dto.adminRole.UserRequestAdmin;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.mail.MessagingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Map;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.doNothing;
@@ -44,9 +50,17 @@ public class UserControllerTest {
     @MockBean
     private EmailService emailService;
 
+    @MockBean
+    private AuthServiceHelper authServiceHelper;
+
     @BeforeEach
     void setUp() throws MessagingException {
-        doNothing().when(emailService).sendUserWelcomeEmail(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
+        doNothing().when(emailService).sendUserWelcomeEmail(
+                Mockito.anyString(),
+                Mockito.anyString(),
+                Mockito.anyString(),
+                Mockito.anyString()
+        );
     }
 
     @Test
@@ -86,6 +100,22 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.username").value("mike_wilson"))
                 .andExpect(jsonPath("$.email").value("mike@example.com"));
 
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(roles = {"ADMIN", "USER"})
+    void should_refreshToken() throws Exception {
+        Mockito.when(authServiceHelper.handleRefreshToken("validToken"))
+                .thenReturn(ResponseEntity.ok(Map.of("accessToken", "newAccessToken123")));
+
+        Map<String, String> requestBody = Map.of("refreshToken", "validToken");
+
+        mockMvc.perform(post("/auth/refresh")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(requestBody)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken").value("newAccessToken123"));
     }
 
     @Test
