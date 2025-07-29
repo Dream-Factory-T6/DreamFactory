@@ -3,6 +3,7 @@ package com.DreamFactory.DF.destination;
 import com.DreamFactory.DF.destination.dto.DestinationFilterRequest;
 import com.DreamFactory.DF.destination.dto.DestinationRequest;
 import com.DreamFactory.DF.destination.dto.DestinationResponse;
+import com.DreamFactory.DF.destination.dto.DestinationUpdateRequest;
 import com.DreamFactory.DF.destination.dto.DestinationWithReviewsResponse;
 import com.DreamFactory.DF.user.model.User;
 import com.DreamFactory.DF.user.UserRepository;
@@ -99,7 +100,8 @@ public class DestinationController {
                         @Parameter(description = "Page size", example = "4") @RequestParam(defaultValue = "4") int size,
                         @Parameter(description = "Sort by creation date: 'asc' or 'desc'", required = false, example = "asc") @RequestParam(required = false) String sort) {
 
-                Page<DestinationResponse> destinations = destinationService.getUserDestinations(convertToZeroBasedPage(page), size, sort);
+                Page<DestinationResponse> destinations = destinationService
+                                .getUserDestinations(convertToZeroBasedPage(page), size, sort);
                 return ResponseEntity.ok(destinations);
         }
 
@@ -131,8 +133,8 @@ public class DestinationController {
         })
         public ResponseEntity<DestinationResponse> updateDestination(
                         @PathVariable Long id,
-                        @Valid @ModelAttribute DestinationRequest request) {
-                DestinationResponse updatedDestination = destinationService.updateDestination(id,request);
+                        @Valid @ModelAttribute DestinationUpdateRequest request) {
+                DestinationResponse updatedDestination = destinationService.updateDestination(id, request);
                 return ResponseEntity.ok(updatedDestination);
         }
 
