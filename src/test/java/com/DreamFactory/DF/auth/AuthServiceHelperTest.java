@@ -19,7 +19,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 class AuthServiceHelperTest {
-
     @InjectMocks
     private AuthServiceHelper authServiceHelper;
 
@@ -102,8 +101,5 @@ class AuthServiceHelperTest {
             assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
             assertEquals("No refresh token provided", response.getBody().get("error"));
         }
-
-
     }
-
 }

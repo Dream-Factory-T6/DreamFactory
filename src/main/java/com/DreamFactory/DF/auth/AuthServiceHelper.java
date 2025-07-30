@@ -27,7 +27,6 @@ public class AuthServiceHelper {
                 .expiration(new Date(System.currentTimeMillis() + 3600000))
                 .compact();
         return token;
-
     }
 
     public String generateRefreshToken(String username) {
@@ -60,7 +59,6 @@ public class AuthServiceHelper {
         if (refreshToken == null || refreshToken.isBlank()) {
             return ResponseEntity.badRequest().body(Map.of("error", "No refresh token provided"));
         }
-
         try {
             Claims claims = validateRefreshToken(refreshToken);
 
@@ -87,5 +85,4 @@ public class AuthServiceHelper {
             throw new RuntimeException("Invalid token", e);
         }
     }
-
 }

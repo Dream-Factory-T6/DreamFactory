@@ -9,7 +9,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
 class RoleValidatorTest {
-
     private RoleValidator roleValidator;
 
     @BeforeEach
@@ -36,5 +35,4 @@ class RoleValidatorTest {
     void testInvalidRole_USRE() {
         assertThrows(IllegalArgumentException.class, () -> Role.valueOf("USRE"));
     }
-
 }

@@ -23,7 +23,6 @@ import java.util.List;
 
 @Configuration
 public class SecurityConfig {
-
     @Autowired
     private AuthenticationConfiguration authenticationConfiguration;
 

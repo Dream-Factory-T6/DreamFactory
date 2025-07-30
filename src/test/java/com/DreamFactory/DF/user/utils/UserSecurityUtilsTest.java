@@ -3,15 +3,11 @@ package com.DreamFactory.DF.user.utils;
 import com.DreamFactory.DF.role.Role;
 import com.DreamFactory.DF.user.model.User;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -52,9 +48,5 @@ class UserSecurityUtilsTest {
         assertTrue(authorities.contains("ROLE_USER"));
         assertTrue(authorities.contains("ROLE_ADMIN"));
         assertEquals(2, authorities.size());
-
-
-
-
     }
 }

@@ -10,7 +10,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
 class RoleDeserializerTest {
-
     private ObjectMapper objectMapper;
 
     static class TestDto {

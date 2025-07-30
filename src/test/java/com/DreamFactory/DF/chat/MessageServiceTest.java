@@ -24,7 +24,6 @@ import static org.mockito.Mockito.*;
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 class MessageServiceTest {
-
     @Mock
     private MessageRepository messageRepository;
 

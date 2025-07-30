@@ -12,7 +12,6 @@ import java.util.List;
 @RequestMapping("/api/chat")
 @RequiredArgsConstructor
 public class ChatRestController {
-
     private final MessageService messageService;
 
     @GetMapping("/room/{roomId}/messages")

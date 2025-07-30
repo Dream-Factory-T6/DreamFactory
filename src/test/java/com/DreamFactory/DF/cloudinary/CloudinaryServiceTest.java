@@ -6,7 +6,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
@@ -20,11 +19,9 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 
-
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 public class CloudinaryServiceTest {
-
     private CloudinaryService cloudinaryService;
     private Cloudinary cloudinary;
     private Uploader uploader;
@@ -58,7 +55,6 @@ public class CloudinaryServiceTest {
             Map result = cloudinaryService.uploadFile(image);
 
             assertEquals("https://cloudinary.com/image.jpg", result.get("secure_url"));
-
         }
     }
 

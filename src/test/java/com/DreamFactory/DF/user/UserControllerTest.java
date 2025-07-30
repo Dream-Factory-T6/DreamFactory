@@ -6,12 +6,10 @@ import com.DreamFactory.DF.email.EmailService;
 import com.DreamFactory.DF.role.Role;
 import com.DreamFactory.DF.user.dto.userRole.UserRequest;
 import com.DreamFactory.DF.user.dto.adminRole.UserRequestAdmin;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.mail.MessagingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -40,7 +38,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestPropertySource(locations = "classpath:application-test.properties")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class UserControllerTest {
-
     @Autowired
     private MockMvc mockMvc;
 
@@ -85,7 +82,6 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.[5].email").value("sarah@example.com"))
                 .andExpect(jsonPath("$.[6].username").value("david_brown"))
                 .andExpect(jsonPath("$.[6].email").value("david@example.com"));
-
     }
 
     @Test
@@ -99,7 +95,6 @@ public class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value("mike_wilson"))
                 .andExpect(jsonPath("$.email").value("mike@example.com"));
-
     }
 
     @Test
@@ -151,7 +146,6 @@ public class UserControllerTest {
     @Transactional
     @WithMockUser(roles = {"ADMIN"})
     void should_updateUser_fromRequest() throws Exception{
-
         Long userId = 1L;
         UserRequestAdmin userRequest = new UserRequestAdmin("updateTest", "updatetest@test.com", "password123", Role.USER);
 
@@ -172,5 +166,4 @@ public class UserControllerTest {
         mockMvc.perform(delete("/api/users/{id}", userId))
                 .andExpect(status().isNoContent());
     }
-
 }

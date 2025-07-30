@@ -1,6 +1,5 @@
 package com.DreamFactory.DF.config;
 
-import com.DreamFactory.DF.swagger.ErrorResponse;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import org.springframework.context.annotation.Bean;

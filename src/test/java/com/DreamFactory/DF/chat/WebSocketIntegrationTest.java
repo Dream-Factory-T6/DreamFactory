@@ -29,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @AutoConfigureWebMvc
 @ActiveProfiles("test")
 class WebSocketIntegrationTest {
-
     @LocalServerPort
     private int port;
 

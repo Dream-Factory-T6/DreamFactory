@@ -41,7 +41,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(TestSecurityConfig.class)
 @TestPropertySource(locations = "classpath:application-test.properties")
 class DestinationControllerTest {
-
         @Autowired
         private MockMvc mockMvc;
 

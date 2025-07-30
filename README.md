@@ -148,6 +148,9 @@ For example, in IntelliJ IDEA, right-click the main class and choose "Run 'DfApp
 
 [View Chat Flow Diagram] (https://drive.google.com/file/d/1gubwlFknBbAsJFYRwweYPRmHYhvvxCTh/view?usp=sharing)
 
+## Class Diagram
+
+[View Class Diagram] (https://drive.google.com/file/d/1dYpZbCClx8i2GoP7Kr0J7mMQF9wQhHJj/view?usp=sharing)
 ## Contributors
 Paula Calvo Garcia
     <a href="https://github.com/PCalvoGarcia">

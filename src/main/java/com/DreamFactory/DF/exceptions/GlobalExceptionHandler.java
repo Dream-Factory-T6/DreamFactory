@@ -96,5 +96,4 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
         return new ResponseEntity<>("Error: " + e.getMessage(), HttpStatus.CONFLICT);
     }
-
 }

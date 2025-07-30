@@ -5,21 +5,15 @@ import com.DreamFactory.DF.destination.dto.DestinationRequest;
 import com.DreamFactory.DF.destination.dto.DestinationResponse;
 import com.DreamFactory.DF.destination.dto.DestinationUpdateRequest;
 import com.DreamFactory.DF.destination.dto.DestinationWithReviewsResponse;
-import com.DreamFactory.DF.user.model.User;
-import com.DreamFactory.DF.user.UserRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.RequestBody;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -152,7 +146,6 @@ public class DestinationController {
                 destinationService.deleteDestination(id);
                 return ResponseEntity.noContent().build();
         }
-
         private int convertToZeroBasedPage(int page) {
                 return page - 1;
         }

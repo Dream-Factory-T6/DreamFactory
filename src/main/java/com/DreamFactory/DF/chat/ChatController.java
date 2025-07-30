@@ -15,7 +15,6 @@ import java.security.Principal;
 @RequiredArgsConstructor
 @Slf4j
 public class ChatController {
-
     private final MessageService messageService;
 
     @MessageMapping("/chat.sendMessage")

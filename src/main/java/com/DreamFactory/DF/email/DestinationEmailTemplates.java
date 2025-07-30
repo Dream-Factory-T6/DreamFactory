@@ -4,7 +4,6 @@ import com.DreamFactory.DF.destination.dto.DestinationResponse;
 import com.DreamFactory.DF.user.model.User;
 
 public class DestinationEmailTemplates {
-
     public static String getDestinationCreatedSubject() {
         return "🎉 Your Destination Has Been Created Successfully!";
     }

@@ -7,4 +7,5 @@ public record DestinationLikeResponse(
         Long destinationId,
         boolean liked,
         long likeCount
-) {}
+) {
+}

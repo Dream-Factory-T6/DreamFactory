@@ -11,7 +11,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
 class MessageTest {
-
     private Message message;
     private User user;
 

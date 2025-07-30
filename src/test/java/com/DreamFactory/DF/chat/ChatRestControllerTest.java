@@ -20,7 +20,6 @@ import static org.mockito.Mockito.when;
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 class ChatRestControllerTest {
-
     @Mock
     private MessageService messageService;
 

@@ -16,7 +16,6 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class EmailServiceTest {
-
     @Mock
     private JavaMailSender mailSender;
 
@@ -154,5 +153,4 @@ class EmailServiceTest {
             verify(mailSender, never()).send(any(MimeMessage.class));
         }
     }
-
 }

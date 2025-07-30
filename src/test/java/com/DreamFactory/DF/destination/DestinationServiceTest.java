@@ -32,7 +32,6 @@ import static org.mockito.Mockito.*;
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 class DestinationServiceTest {
-
     @Mock
     private DestinationRepository destinationRepository;
 

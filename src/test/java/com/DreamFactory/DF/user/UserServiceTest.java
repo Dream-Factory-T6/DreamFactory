@@ -43,7 +43,6 @@ import static org.mockito.Mockito.*;
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
-
     @InjectMocks
     private UserService userService;
 
@@ -119,9 +118,7 @@ public class UserServiceTest {
 
             assertEquals("userTest", userResponse.username());
             assertEquals("usertest@test.com", userResponse.email());
-
         }
-
     }
 
     @Nested
@@ -168,7 +165,6 @@ public class UserServiceTest {
 
             RuntimeException exception = assertThrows(RuntimeException.class, () -> userService.registerUser(userRequest));
             assertEquals(new UsernameAlreadyExistException(userRequest.username()).getMessage(), exception.getMessage());
-
         }
 
         @Test
@@ -188,7 +184,6 @@ public class UserServiceTest {
 
             RuntimeException exception = assertThrows(RuntimeException.class, () -> userService.registerUser(userRequest));
             assertEquals(new EmailAlreadyExistException(userRequest.email()).getMessage(), exception.getMessage());
-
         }
 
         @Test
@@ -218,9 +213,7 @@ public class UserServiceTest {
 
             DataIntegrityViolationException exception = assertThrows(DataIntegrityViolationException.class, () -> userService.registerUser(userRequest));
             assertEquals("Username or email already exists", exception.getMessage());
-
         }
-
     }
 
     @Nested
@@ -246,12 +239,10 @@ public class UserServiceTest {
 
             assertEquals("userTest", userResponse.username());
             assertEquals("usertest@test.com", userResponse.email());
-
         }
 
         @Test
         void should_registerNewUserByAdmin_throw_exceptionUsername(){
-
             User userSaved = new User();
             userSaved.setId(1L);
             userSaved.setUsername("userTest");
@@ -267,12 +258,10 @@ public class UserServiceTest {
             UsernameAlreadyExistException exception = assertThrows(UsernameAlreadyExistException.class, () -> userService.registerUserByAdmin(userRequest));
             assertEquals(new UsernameAlreadyExistException(userRequest.username()).getMessage(), exception.getMessage());
             verify(userServiceHelper).checkUsername(userRequest.username());
-
         }
 
         @Test
         void should_registerNewUserByAdmin_throw_exceptionEmail(){
-
             User userSaved = new User();
             userSaved.setId(1L);
             userSaved.setUsername("userTest");
@@ -287,7 +276,6 @@ public class UserServiceTest {
 
             RuntimeException exception = assertThrows(RuntimeException.class, () -> userService.registerUserByAdmin(userRequest));
             assertEquals(new EmailAlreadyExistException(userRequest.email()).getMessage(), exception.getMessage());
-
         }
 
         @Test
@@ -313,7 +301,6 @@ public class UserServiceTest {
 
             DataIntegrityViolationException exception = assertThrows(DataIntegrityViolationException.class, () -> userService.registerUserByAdmin(userRequest));
             assertEquals("Username or email already exists", exception.getMessage());
-
         }
     }
 
@@ -360,7 +347,6 @@ public class UserServiceTest {
 
         @Test
         void should_getUserById() {
-
             User userSaved = new User();
             userSaved.setId(2L);
             userSaved.setUsername("userTest");
@@ -383,7 +369,6 @@ public class UserServiceTest {
 
             RuntimeException exception = assertThrows(RuntimeException.class, () -> userService.getUserById(2L));
             assertEquals(new UserIdNotFoundException(2L).getMessage(), exception.getMessage());
-
         }
     }
 
@@ -406,10 +391,7 @@ public class UserServiceTest {
             userSaved2.setPassword("password123");
             userSaved2.setRoles(Set.of(Role.USER));
 
-
             UserRequestUpdateAdmin userRequest = new UserRequestUpdateAdmin("userTest2", "usertest2@test.com", "password123", Role.USER);
-
-
 
             when(userServiceHelper.checkUserId(1L)).thenReturn(userSaved1);
             lenient().when(passwordEncoder.encode("password123")).thenReturn("$2a$10$HsMF2wIVlZAelTWGNHD/r.lbHJemKWx0.HEfqHKHF91CR8R3fDjX2");
@@ -512,6 +494,4 @@ public class UserServiceTest {
             assertEquals("No authenticated user found", exception.getMessage());
         }
     }
-
-
 }

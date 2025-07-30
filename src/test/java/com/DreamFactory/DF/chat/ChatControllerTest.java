@@ -19,7 +19,6 @@ import static org.mockito.Mockito.*;
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 class ChatControllerTest {
-
     @Mock
     private MessageService messageService;
 

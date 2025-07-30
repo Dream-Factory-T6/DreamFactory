@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @Slf4j
 public class WebSocketAuthInterceptor implements ChannelInterceptor {
-
     private final AuthServiceHelper authServiceHelper;
 
     @Override
@@ -42,7 +41,6 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
                 return null;
             }
         }
-
         return message;
     }
 }

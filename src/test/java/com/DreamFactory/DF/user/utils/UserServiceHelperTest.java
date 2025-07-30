@@ -33,10 +33,8 @@ import static org.mockito.Mockito.*;
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 class UserServiceHelperTest {
-
     @InjectMocks
     private UserServiceHelper userServiceHelper;
-
 
     @Mock
     private  UserRepository userRepository;
@@ -138,7 +136,6 @@ class UserServiceHelperTest {
             when(userRepository.findByUsername("test")).thenReturn(Optional.empty());
 
             assertThrows(UsernameNotFoundException.class, () -> userServiceHelper.getUserLogin("test"));
-
         }
     }
 
@@ -313,5 +310,4 @@ class UserServiceHelperTest {
             assertTrue(exception.getMessage().contains("Failed to send welcome email"));
         }
     }
-
 }

@@ -27,7 +27,6 @@ import java.util.Map;
 import static com.DreamFactory.DF.auth.TokenJwtConfig.*;
 
 public class JwtValidationFilter extends BasicAuthenticationFilter {
-
     private final AuthServiceHelper authServiceHelper;
 
     public JwtValidationFilter(AuthenticationManager authenticationManager, AuthServiceHelper authServiceHelper) {
@@ -35,10 +34,8 @@ public class JwtValidationFilter extends BasicAuthenticationFilter {
         this.authServiceHelper = authServiceHelper;
     }
 
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-
         String header = request.getHeader(headerAuthorization);
 
         if (header == null || !header.startsWith(prefixToken)){
@@ -69,6 +66,5 @@ public class JwtValidationFilter extends BasicAuthenticationFilter {
             response.setStatus(HttpStatus.SC_UNAUTHORIZED);
             response.setContentType(contentType);
         }
-
     }
 }
