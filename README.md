@@ -138,7 +138,7 @@ For example, in IntelliJ IDEA, right-click the main class and choose "Run 'DfApp
 
 ## Running Tests
 
-[![temp-Imagewb-Ke-Yr.avif](https://i.postimg.cc/MpDJq4SX/temp-Imagewb-Ke-Yr.avif)](https://postimg.cc/QFHyqfVr)
+[![temp-Imagen0jdwy.avif](https://i.postimg.cc/HsZtgLhY/temp-Imagen0jdwy.avif)](https://postimg.cc/MvBB0zwN)
 
 ## EER Diagram
 
