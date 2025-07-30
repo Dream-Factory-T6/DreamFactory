@@ -5,16 +5,20 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import static com.DreamFactory.DF.auth.TokenJwtConfig.secretKey;
 
 @Service
 public class AuthServiceHelper {
-    public String generateAccessToken(String username, Claims claims){
+    public String generateAccessToken(String username, Claims claims) {
         String token = Jwts.builder()
                 .subject(username)
                 .claims(claims)
@@ -23,7 +27,6 @@ public class AuthServiceHelper {
                 .expiration(new Date(System.currentTimeMillis() + 3600000))
                 .compact();
         return token;
-
     }
 
     public String generateRefreshToken(String username) {
@@ -56,7 +59,6 @@ public class AuthServiceHelper {
         if (refreshToken == null || refreshToken.isBlank()) {
             return ResponseEntity.badRequest().body(Map.of("error", "No refresh token provided"));
         }
-
         try {
             Claims claims = validateRefreshToken(refreshToken);
 
@@ -70,4 +72,17 @@ public class AuthServiceHelper {
         }
     }
 
+    public Authentication getAuthentication(String token) {
+        try {
+            Claims claims = validateAccessToken(token);
+            String username = claims.getSubject();
+            String role = claims.get("role", String.class);
+
+            List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
+
+            return new UsernamePasswordAuthenticationToken(username, null, authorities);
+        } catch (JwtException e) {
+            throw new RuntimeException("Invalid token", e);
+        }
+    }
 }

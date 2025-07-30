@@ -3,6 +3,7 @@ package com.DreamFactory.DF.destination;
 import com.DreamFactory.DF.destination.dto.DestinationFilterRequest;
 import com.DreamFactory.DF.destination.dto.DestinationRequest;
 import com.DreamFactory.DF.destination.dto.DestinationResponse;
+import com.DreamFactory.DF.destination.dto.DestinationUpdateRequest;
 import com.DreamFactory.DF.destination.dto.DestinationWithReviewsResponse;
 import com.DreamFactory.DF.destination.exceptions.DestinationNotFoundException;
 import com.DreamFactory.DF.user.UserRepository;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -34,11 +36,11 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@ActiveProfiles("test")
 @WebMvcTest(DestinationController.class)
 @Import(TestSecurityConfig.class)
 @TestPropertySource(locations = "classpath:application-test.properties")
 class DestinationControllerTest {
-
         @Autowired
         private MockMvc mockMvc;
 
@@ -58,35 +60,35 @@ class DestinationControllerTest {
         @BeforeEach
         void setUp() {
                 testUser = User.builder()
-                        .id(1L)
-                        .username("testuser")
-                        .email("test@example.com")
-                        .password("password")
-                        .roles(Set.of(Role.USER))
-                        .build();
+                                .id(1L)
+                                .username("testuser")
+                                .email("test@example.com")
+                                .password("password")
+                                .roles(Set.of(Role.USER))
+                                .build();
 
                 testDestinationWithReviewsResponse = new DestinationWithReviewsResponse(
-                        1L,
-                        "Test Destination",
-                        "Test Location",
-                        "Test Description",
-                        "https://example.com/image.jpg",
-                        "testuser",
-                        List.of(),
-                        4.7,
-                        LocalDateTime.now(),
-                        LocalDateTime.now());
+                                1L,
+                                "Test Destination",
+                                "Test Location",
+                                "Test Description",
+                                "https://example.com/image.jpg",
+                                "testuser",
+                                List.of(),
+                                4.7,
+                                LocalDateTime.now(),
+                                LocalDateTime.now());
 
                 testDestinationResponse = new DestinationResponse(
-                        1L,
-                        "Test Destination",
-                        "Test Location",
-                        "Test Description",
-                        "https://example.com/image.jpg",
-                        "testuser",
-                        4.7,
-                        LocalDateTime.now(),
-                        LocalDateTime.now());
+                                1L,
+                                "Test Destination",
+                                "Test Location",
+                                "Test Description",
+                                "https://example.com/image.jpg",
+                                "testuser",
+                                4.7,
+                                LocalDateTime.now(),
+                                LocalDateTime.now());
         }
 
         @Nested
@@ -94,22 +96,22 @@ class DestinationControllerTest {
                 @Test
                 void shouldReturnPaginatedDestinations() throws Exception {
                         Page<DestinationResponse> destinationPage = new PageImpl<>(
-                                List.of(testDestinationResponse),
-                                PageRequest.of(0, 4),
-                                1);
+                                        List.of(testDestinationResponse),
+                                        PageRequest.of(0, 4),
+                                        1);
                         when(destinationService.getAllDestinations(0, 4)).thenReturn(destinationPage);
 
                         mockMvc.perform(get("/api/destinations")
                                         .param("page", "1")
                                         .param("size", "4"))
-                                .andExpect(status().isOk())
-                                .andExpect(jsonPath("$.content").isArray())
-                                .andExpect(jsonPath("$.content[0].id").value(1))
-                                .andExpect(jsonPath("$.content[0].title").value("Test Destination"))
-                                .andExpect(jsonPath("$.content[0].location").value("Test Location"))
-                                .andExpect(jsonPath("$.content[0].rating").value(4.7))
-                                .andExpect(jsonPath("$.totalElements").value(1))
-                                .andExpect(jsonPath("$.totalPages").value(1));
+                                        .andExpect(status().isOk())
+                                        .andExpect(jsonPath("$.content").isArray())
+                                        .andExpect(jsonPath("$.content[0].id").value(1))
+                                        .andExpect(jsonPath("$.content[0].title").value("Test Destination"))
+                                        .andExpect(jsonPath("$.content[0].location").value("Test Location"))
+                                        .andExpect(jsonPath("$.content[0].rating").value(4.7))
+                                        .andExpect(jsonPath("$.totalElements").value(1))
+                                        .andExpect(jsonPath("$.totalPages").value(1));
 
                         verify(destinationService).getAllDestinations(0, 4);
                 }
@@ -122,11 +124,11 @@ class DestinationControllerTest {
                         when(destinationService.getDestinationById(1L)).thenReturn(testDestinationWithReviewsResponse);
 
                         mockMvc.perform(get("/api/destinations/1"))
-                                .andExpect(status().isOk())
-                                .andExpect(jsonPath("$.id").value(1))
-                                .andExpect(jsonPath("$.title").value("Test Destination"))
-                                .andExpect(jsonPath("$.location").value("Test Location"))
-                                .andExpect(jsonPath("$.rating").value(4.7));
+                                        .andExpect(status().isOk())
+                                        .andExpect(jsonPath("$.id").value(1))
+                                        .andExpect(jsonPath("$.title").value("Test Destination"))
+                                        .andExpect(jsonPath("$.location").value("Test Location"))
+                                        .andExpect(jsonPath("$.rating").value(4.7));
 
                         verify(destinationService).getDestinationById(1L);
                 }
@@ -134,10 +136,10 @@ class DestinationControllerTest {
                 @Test
                 void shouldReturn404WhenDestinationNotFound() throws Exception {
                         when(destinationService.getDestinationById(999L))
-                                .thenThrow(new DestinationNotFoundException(999L));
+                                        .thenThrow(new DestinationNotFoundException(999L));
 
                         mockMvc.perform(get("/api/destinations/999"))
-                                .andExpect(status().isNotFound());
+                                        .andExpect(status().isNotFound());
 
                         verify(destinationService).getDestinationById(999L);
                 }
@@ -145,7 +147,7 @@ class DestinationControllerTest {
                 @Test
                 void shouldHandleInvalidIdFormat() throws Exception {
                         mockMvc.perform(get("/api/destinations/invalid"))
-                                .andExpect(status().isBadRequest());
+                                        .andExpect(status().isBadRequest());
                 }
         }
 
@@ -154,23 +156,23 @@ class DestinationControllerTest {
                 @Test
                 void shouldFilterByLocationOnly() throws Exception {
                         Page<DestinationResponse> destinationPage = new PageImpl<>(
-                                List.of(testDestinationResponse),
-                                PageRequest.of(0, 4),
-                                1);
+                                        List.of(testDestinationResponse),
+                                        PageRequest.of(0, 4),
+                                        1);
                         when(destinationService.getDestinationsWithFilters(any(DestinationFilterRequest.class), eq(0),
-                                eq(4)))
-                                .thenReturn(destinationPage);
+                                        eq(4)))
+                                        .thenReturn(destinationPage);
 
                         mockMvc.perform(get("/api/destinations/filter")
                                         .param("location", "Paris")
                                         .param("page", "1")
                                         .param("size", "4"))
-                                .andExpect(status().isOk())
-                                .andExpect(jsonPath("$.content").isArray());
+                                        .andExpect(status().isOk())
+                                        .andExpect(jsonPath("$.content").isArray());
 
                         verify(destinationService).getDestinationsWithFilters(
-                                argThat(filter -> "Paris".equals(filter.location()) && filter.title() == null),
-                                eq(0), eq(4));
+                                        argThat(filter -> "Paris".equals(filter.location()) && filter.title() == null),
+                                        eq(0), eq(4));
                 }
         }
 
@@ -180,18 +182,18 @@ class DestinationControllerTest {
                 @WithMockUser(username = "testuser")
                 void shouldReturnUserDestinationsWhenAuthenticated() throws Exception {
                         Page<DestinationResponse> destinationPage = new PageImpl<>(
-                                List.of(testDestinationResponse),
-                                PageRequest.of(0, 4),
-                                1);
+                                        List.of(testDestinationResponse),
+                                        PageRequest.of(0, 4),
+                                        1);
                         when(destinationService.getUserDestinations(eq(0), eq(4), eq(null)))
-                                .thenReturn(destinationPage);
+                                        .thenReturn(destinationPage);
 
                         mockMvc.perform(get("/api/destinations/my-destinations")
                                         .param("page", "1")
                                         .param("size", "4"))
-                                .andExpect(status().isOk())
-                                .andExpect(jsonPath("$.content").isArray())
-                                .andExpect(jsonPath("$.content[0].id").value(1));
+                                        .andExpect(status().isOk())
+                                        .andExpect(jsonPath("$.content").isArray())
+                                        .andExpect(jsonPath("$.content[0].id").value(1));
 
                         verify(destinationService).getUserDestinations(eq(0), eq(4), eq(null));
                 }
@@ -199,25 +201,25 @@ class DestinationControllerTest {
                 @Test
                 void shouldReturn403WhenNotAuthenticated() throws Exception {
                         doThrow(new com.DreamFactory.DF.destination.exceptions.UnauthorizedAccessException(
-                                "Not authenticated")).when(destinationService)
-                                .getUserDestinations(eq(0), eq(4), eq(null));
+                                        "Not authenticated")).when(destinationService)
+                                        .getUserDestinations(eq(0), eq(4), eq(null));
                         mockMvc.perform(get("/api/destinations/my-destinations")
                                         .param("page", "1")
                                         .param("size", "4"))
-                                .andExpect(status().isForbidden());
+                                        .andExpect(status().isForbidden());
                 }
 
                 @Test
                 @WithMockUser(username = "testuser")
                 void shouldHandleUserNotFound() throws Exception {
                         doThrow(new com.DreamFactory.DF.destination.exceptions.UnauthorizedAccessException(
-                                "User not found")).when(destinationService)
-                                .getUserDestinations(eq(0), eq(4), eq(null));
+                                        "User not found")).when(destinationService)
+                                        .getUserDestinations(eq(0), eq(4), eq(null));
 
                         mockMvc.perform(get("/api/destinations/my-destinations")
                                         .param("page", "1")
                                         .param("size", "4"))
-                                .andExpect(status().isForbidden());
+                                        .andExpect(status().isForbidden());
                 }
         }
 
@@ -227,10 +229,10 @@ class DestinationControllerTest {
                 @WithMockUser(username = "testuser")
                 void shouldCreateDestinationSuccessfully() throws Exception {
                         when(destinationService.createDestination(any(DestinationRequest.class)))
-                                .thenReturn(testDestinationResponse);
+                                        .thenReturn(testDestinationResponse);
 
                         MockMultipartFile image = new MockMultipartFile(
-                                "image", "test.jpg", "image/jpeg", "test image content".getBytes());
+                                        "image", "test.jpg", "image/jpeg", "test image content".getBytes());
 
                         mockMvc.perform(multipart("/api/destinations")
                                         .file(image)
@@ -238,10 +240,10 @@ class DestinationControllerTest {
                                         .param("location", "Test Location")
                                         .param("description", "Test Description")
                                         .with(csrf()))
-                                .andExpect(status().isCreated())
-                                .andExpect(jsonPath("$.id").value(1))
-                                .andExpect(jsonPath("$.title").value("Test Destination"))
-                                .andExpect(jsonPath("$.location").value("Test Location"));
+                                        .andExpect(status().isCreated())
+                                        .andExpect(jsonPath("$.id").value(1))
+                                        .andExpect(jsonPath("$.title").value("Test Destination"))
+                                        .andExpect(jsonPath("$.location").value("Test Location"));
 
                         verify(destinationService).createDestination(any(DestinationRequest.class));
                 }
@@ -250,11 +252,11 @@ class DestinationControllerTest {
                 @WithMockUser(username = "testuser")
                 void shouldHandleUserNotFoundDuringCreation() throws Exception {
                         doThrow(new com.DreamFactory.DF.destination.exceptions.UnauthorizedAccessException(
-                                "User not found")).when(destinationService)
-                                .createDestination(any(DestinationRequest.class));
+                                        "User not found")).when(destinationService)
+                                        .createDestination(any(DestinationRequest.class));
 
                         MockMultipartFile image = new MockMultipartFile(
-                                "image", "test.jpg", "image/jpeg", "test image content".getBytes());
+                                        "image", "test.jpg", "image/jpeg", "test image content".getBytes());
 
                         mockMvc.perform(multipart("/api/destinations")
                                         .file(image)
@@ -262,16 +264,16 @@ class DestinationControllerTest {
                                         .param("location", "Test Location")
                                         .param("description", "Test Description")
                                         .with(csrf()))
-                                .andExpect(status().isForbidden());
+                                        .andExpect(status().isForbidden());
                 }
 
                 @Test
                 void shouldReturn403WhenNotAuthenticatedForCreation() throws Exception {
                         doThrow(new com.DreamFactory.DF.destination.exceptions.UnauthorizedAccessException(
-                                "Not authenticated")).when(destinationService)
-                                .createDestination(any(DestinationRequest.class));
+                                        "Not authenticated")).when(destinationService)
+                                        .createDestination(any(DestinationRequest.class));
                         MockMultipartFile image = new MockMultipartFile(
-                                "image", "test.jpg", "image/jpeg", "test image content".getBytes());
+                                        "image", "test.jpg", "image/jpeg", "test image content".getBytes());
 
                         mockMvc.perform(multipart("/api/destinations")
                                         .file(image)
@@ -279,23 +281,23 @@ class DestinationControllerTest {
                                         .param("location", "Test Location")
                                         .param("description", "Test Description")
                                         .with(csrf()))
-                                .andExpect(status().isForbidden());
+                                        .andExpect(status().isForbidden());
                 }
 
                 @Test
                 @WithMockUser(username = "testuser")
                 void shouldHandleMissingRequiredFields() throws Exception {
                         MockMultipartFile image = new MockMultipartFile(
-                                "image", "test.jpg", "image/jpeg", "test image content".getBytes());
+                                        "image", "test.jpg", "image/jpeg", "test image content".getBytes());
 
                         mockMvc.perform(multipart("/api/destinations")
                                         .file(image)
                                         .param("location", "Test Location")
                                         .param("description", "Test Description")
                                         .with(csrf()))
-                                .andExpect(status().isBadRequest())
-                                .andExpect(content().string(
-                                        org.hamcrest.Matchers.containsString("Title is required")));
+                                        .andExpect(status().isBadRequest())
+                                        .andExpect(content().string(
+                                                        org.hamcrest.Matchers.containsString("Title is required")));
                 }
         }
 
@@ -304,11 +306,11 @@ class DestinationControllerTest {
                 @Test
                 @WithMockUser(username = "testuser")
                 void shouldUpdateDestinationSuccessfully() throws Exception {
-                        when(destinationService.updateDestination(eq(1L), any(DestinationRequest.class)))
-                                .thenReturn(testDestinationResponse);
+                        when(destinationService.updateDestination(eq(1L), any(DestinationUpdateRequest.class)))
+                                        .thenReturn(testDestinationResponse);
 
                         MockMultipartFile image = new MockMultipartFile(
-                                "image", "test.jpg", "image/jpeg", "test image content".getBytes());
+                                        "image", "test.jpg", "image/jpeg", "test image content".getBytes());
 
                         mockMvc.perform(multipart("/api/destinations/1")
                                         .file(image)
@@ -320,21 +322,21 @@ class DestinationControllerTest {
                                                 return request;
                                         })
                                         .with(csrf()))
-                                .andExpect(status().isOk())
-                                .andExpect(jsonPath("$.id").value(1))
-                                .andExpect(jsonPath("$.title").value("Test Destination"));
+                                        .andExpect(status().isOk())
+                                        .andExpect(jsonPath("$.id").value(1))
+                                        .andExpect(jsonPath("$.title").value("Test Destination"));
 
-                        verify(destinationService).updateDestination(eq(1L), any(DestinationRequest.class));
+                        verify(destinationService).updateDestination(eq(1L), any(DestinationUpdateRequest.class));
                 }
 
                 @Test
                 @WithMockUser(username = "testuser")
                 void shouldHandleDestinationNotFoundDuringUpdate() throws Exception {
-                        when(destinationService.updateDestination(eq(999L), any(DestinationRequest.class)))
-                                .thenThrow(new DestinationNotFoundException(999L));
+                        when(destinationService.updateDestination(eq(999L), any(DestinationUpdateRequest.class)))
+                                        .thenThrow(new DestinationNotFoundException(999L));
 
                         MockMultipartFile image = new MockMultipartFile(
-                                "image", "test.jpg", "image/jpeg", "test image content".getBytes());
+                                        "image", "test.jpg", "image/jpeg", "test image content".getBytes());
 
                         mockMvc.perform(multipart("/api/destinations/999")
                                         .file(image)
@@ -346,20 +348,20 @@ class DestinationControllerTest {
                                                 return request;
                                         })
                                         .with(csrf()))
-                                .andExpect(status().isNotFound());
+                                        .andExpect(status().isNotFound());
 
-                        verify(destinationService).updateDestination(eq(999L), any(DestinationRequest.class));
+                        verify(destinationService).updateDestination(eq(999L), any(DestinationUpdateRequest.class));
                 }
 
                 @Test
                 @WithMockUser(username = "testuser")
                 void shouldHandleUserNotFoundDuringUpdate() throws Exception {
                         doThrow(new com.DreamFactory.DF.destination.exceptions.UnauthorizedAccessException(
-                                "User not found")).when(destinationService)
-                                .updateDestination(eq(1L), any(DestinationRequest.class));
+                                        "User not found")).when(destinationService)
+                                        .updateDestination(eq(1L), any(DestinationUpdateRequest.class));
 
                         MockMultipartFile image = new MockMultipartFile(
-                                "image", "test.jpg", "image/jpeg", "test image content".getBytes());
+                                        "image", "test.jpg", "image/jpeg", "test image content".getBytes());
 
                         mockMvc.perform(multipart("/api/destinations/1")
                                         .file(image)
@@ -371,16 +373,16 @@ class DestinationControllerTest {
                                                 return request;
                                         })
                                         .with(csrf()))
-                                .andExpect(status().isForbidden());
+                                        .andExpect(status().isForbidden());
                 }
 
                 @Test
                 void shouldReturn403WhenNotAuthenticatedForUpdate() throws Exception {
                         doThrow(new com.DreamFactory.DF.destination.exceptions.UnauthorizedAccessException(
-                                "Not authenticated")).when(destinationService)
-                                .updateDestination(eq(1L), any(DestinationRequest.class));
+                                        "Not authenticated")).when(destinationService)
+                                        .updateDestination(eq(1L), any(DestinationUpdateRequest.class));
                         MockMultipartFile image = new MockMultipartFile(
-                                "image", "test.jpg", "image/jpeg", "test image content".getBytes());
+                                        "image", "test.jpg", "image/jpeg", "test image content".getBytes());
 
                         mockMvc.perform(multipart("/api/destinations/1")
                                         .file(image)
@@ -392,7 +394,7 @@ class DestinationControllerTest {
                                                 return request;
                                         })
                                         .with(csrf()))
-                                .andExpect(status().isForbidden());
+                                        .andExpect(status().isForbidden());
                 }
         }
 
@@ -405,7 +407,7 @@ class DestinationControllerTest {
 
                         mockMvc.perform(delete("/api/destinations/1")
                                         .with(csrf()))
-                                .andExpect(status().isNoContent());
+                                        .andExpect(status().isNoContent());
 
                         verify(destinationService).deleteDestination(1L);
                 }
@@ -414,11 +416,11 @@ class DestinationControllerTest {
                 @WithMockUser(username = "testuser")
                 void shouldReturn404WhenDestinationNotFoundForDeletion() throws Exception {
                         doThrow(new DestinationNotFoundException(999L))
-                                .when(destinationService).deleteDestination(999L);
+                                        .when(destinationService).deleteDestination(999L);
 
                         mockMvc.perform(delete("/api/destinations/999")
                                         .with(csrf()))
-                                .andExpect(status().isNotFound());
+                                        .andExpect(status().isNotFound());
 
                         verify(destinationService).deleteDestination(999L);
                 }
@@ -427,20 +429,20 @@ class DestinationControllerTest {
                 @WithMockUser(username = "testuser")
                 void shouldHandleUserNotFoundDuringDeletion() throws Exception {
                         doThrow(new com.DreamFactory.DF.destination.exceptions.UnauthorizedAccessException(
-                                "User not found")).when(destinationService).deleteDestination(1L);
+                                        "User not found")).when(destinationService).deleteDestination(1L);
 
                         mockMvc.perform(delete("/api/destinations/1")
                                         .with(csrf()))
-                                .andExpect(status().isForbidden());
+                                        .andExpect(status().isForbidden());
                 }
 
                 @Test
                 void shouldReturn403WhenNotAuthenticatedForDeletion() throws Exception {
                         doThrow(new com.DreamFactory.DF.destination.exceptions.UnauthorizedAccessException(
-                                "Not authenticated")).when(destinationService).deleteDestination(1L);
+                                        "Not authenticated")).when(destinationService).deleteDestination(1L);
                         mockMvc.perform(delete("/api/destinations/1")
                                         .with(csrf()))
-                                .andExpect(status().isForbidden());
+                                        .andExpect(status().isForbidden());
                 }
 
                 @Test
@@ -448,8 +450,7 @@ class DestinationControllerTest {
                 void shouldHandleInvalidIdFormatForDeletion() throws Exception {
                         mockMvc.perform(delete("/api/destinations/invalid")
                                         .with(csrf()))
-                                .andExpect(status().isBadRequest());
+                                        .andExpect(status().isBadRequest());
                 }
         }
 }
-

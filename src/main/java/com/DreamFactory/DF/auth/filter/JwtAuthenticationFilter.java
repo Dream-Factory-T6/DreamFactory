@@ -26,7 +26,6 @@ import java.util.Map;
 import static com.DreamFactory.DF.auth.TokenJwtConfig.*;
 
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-
     private AuthenticationManager authenticationManager;
     private AuthServiceHelper authServiceHelper;
 
@@ -35,10 +34,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         this.authServiceHelper = authServiceHelper;
     }
 
-
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-
         String username = null;
         String password = null;
         try {
@@ -52,7 +49,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
 
         return this.authenticationManager.authenticate(authenticationToken);
@@ -74,7 +70,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         String refreshToken = authServiceHelper.generateRefreshToken(username);
 
-
         response.addHeader(headerAuthorization, prefixToken + accessToken);
 
         Map<String, String> body = new HashMap<>();
@@ -86,7 +81,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         response.getWriter().write(new ObjectMapper().writeValueAsString(body));
         response.setContentType(contentType);
         response.setStatus(200);
-
     }
 
     @Override
@@ -99,6 +93,4 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         response.setContentType(contentType);
         response.setStatus(401);
     }
-
-
 }

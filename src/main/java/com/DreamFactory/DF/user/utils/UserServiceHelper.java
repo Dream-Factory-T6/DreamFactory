@@ -84,7 +84,7 @@ public class UserServiceHelper {
                 ? request.email() :
                 user.getEmail();
 
-        String password = request.password() != null & !request.password().isEmpty()
+        String password = request.password() != null && !request.password().isEmpty()
                 ? this.getEncodePassword(request.password()) :
                 user.getPassword();
 

@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -28,9 +29,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+@ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 class DestinationServiceTest {
-
     @Mock
     private DestinationRepository destinationRepository;
 
@@ -49,6 +50,7 @@ class DestinationServiceTest {
     private User testUser;
     private Destination testDestination;
     private DestinationRequest testDestinationRequest;
+    private DestinationUpdateRequest testDestinationUpdateRequest;
 
     @BeforeEach
     void setUp() {
@@ -72,6 +74,12 @@ class DestinationServiceTest {
                 .build();
 
         testDestinationRequest = new DestinationRequest(
+                "New Destination",
+                "New Location",
+                "New Description",
+                new MultipartFileMock());
+
+        testDestinationUpdateRequest = new DestinationUpdateRequest(
                 "New Destination",
                 "New Location",
                 "New Description",
@@ -335,7 +343,7 @@ class DestinationServiceTest {
             when(cloudinaryService.uploadFile(any())).thenReturn(cloudinaryResult);
             when(userService.getAuthenticatedUser()).thenReturn(testUser);
 
-            DestinationResponse result = destinationService.updateDestination(1L, testDestinationRequest);
+            DestinationResponse result = destinationService.updateDestination(1L, testDestinationUpdateRequest);
 
             assertThat(result).isNotNull();
             assertThat(result.title()).isEqualTo("New Destination");
@@ -346,11 +354,58 @@ class DestinationServiceTest {
         }
 
         @Test
+        void shouldUpdateDestinationWithPartialFields() throws IOException {
+            when(destinationRepository.findById(1L)).thenReturn(Optional.of(testDestination));
+            when(userService.getAuthenticatedUser()).thenReturn(testUser);
+
+            DestinationUpdateRequest partialRequest = new DestinationUpdateRequest(
+                    "Updated Title Only",
+                    null,
+                    null,
+                    null);
+
+            DestinationResponse result = destinationService.updateDestination(1L, partialRequest);
+
+            assertThat(result).isNotNull();
+            assertThat(result.title()).isEqualTo("Updated Title Only");
+            assertThat(result.location()).isEqualTo("Test Location");
+            assertThat(result.description()).isEqualTo("Test Description");
+
+            verify(destinationRepository).findById(1L);
+            verify(cloudinaryService, never()).uploadFile(any());
+        }
+
+        @Test
+        void shouldUpdateDestinationWithImageOnly() throws IOException {
+            when(destinationRepository.findById(1L)).thenReturn(Optional.of(testDestination));
+            Map<String, String> cloudinaryResult = Map.of("secure_url", "http://cloudinary.com/new-image.jpg");
+            when(cloudinaryService.uploadFile(any())).thenReturn(cloudinaryResult);
+            when(userService.getAuthenticatedUser()).thenReturn(testUser);
+
+            DestinationUpdateRequest imageOnlyRequest = new DestinationUpdateRequest(
+                    null,
+                    null,
+                    null,
+                    new MultipartFileMock());
+
+            DestinationResponse result = destinationService.updateDestination(1L, imageOnlyRequest);
+
+            assertThat(result).isNotNull();
+            assertThat(result.title()).isEqualTo("Test Destination");
+            assertThat(result.location()).isEqualTo("Test Location");
+            assertThat(result.description()).isEqualTo("Test Description");
+            assertThat(result.imageUrl()).isEqualTo("http://cloudinary.com/new-image.jpg");
+
+            verify(destinationRepository).findById(1L);
+            verify(cloudinaryService).uploadFile(any());
+        }
+
+        @Test
         void shouldThrowExceptionWhenDestinationNotFound() {
             when(destinationRepository.findById(999L)).thenReturn(Optional.empty());
             when(userService.getAuthenticatedUser()).thenReturn(testUser);
 
-            assertThatThrownBy(() -> destinationService.updateDestination(999L, testDestinationRequest))
+            assertThatThrownBy(() -> destinationService.updateDestination(999L, testDestinationUpdateRequest))
                     .isInstanceOf(DestinationNotFoundException.class);
         }
 
@@ -359,7 +414,7 @@ class DestinationServiceTest {
             when(destinationRepository.findById(1L)).thenReturn(Optional.of(testDestination));
             when(userService.getAuthenticatedUser()).thenReturn(User.builder().id(999L).build());
 
-            assertThatThrownBy(() -> destinationService.updateDestination(1L, testDestinationRequest))
+            assertThatThrownBy(() -> destinationService.updateDestination(1L, testDestinationUpdateRequest))
                     .isInstanceOf(UnauthorizedAccessException.class);
         }
     }
@@ -465,4 +520,3 @@ class DestinationServiceTest {
         }
     }
 }
-

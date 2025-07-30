@@ -21,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,12 +30,11 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 class UserServiceHelperTest {
-
     @InjectMocks
     private UserServiceHelper userServiceHelper;
-
 
     @Mock
     private  UserRepository userRepository;
@@ -136,7 +136,6 @@ class UserServiceHelperTest {
             when(userRepository.findByUsername("test")).thenReturn(Optional.empty());
 
             assertThrows(UsernameNotFoundException.class, () -> userServiceHelper.getUserLogin("test"));
-
         }
     }
 
@@ -213,8 +212,8 @@ class UserServiceHelperTest {
 
             UserRequestUpdateAdmin request = new UserRequestUpdateAdmin(
                     "",
-                    null,
                     "",
+                    null,
                     Role.ADMIN
             );
 
@@ -227,7 +226,7 @@ class UserServiceHelperTest {
         }
 
         @Test
-        void should_encode_password_only_when_provided() {
+        void should_encode_password_only_when_providedPassword() {
             User user = new User();
             user.setPassword("oldPassword");
 
@@ -243,6 +242,29 @@ class UserServiceHelperTest {
             userServiceHelper.updateUserData(request, user);
 
             assertEquals("newEncoded", user.getPassword());
+        }
+
+        @Test
+        void when_updateUserDataEmptyFields_return_void() {
+            User user = new User();
+            user.setUsername("existingUsername");
+            user.setEmail("existing@example.com");
+            user.setPassword("existingPassword");
+            user.setRoles(Set.of(Role.USER));
+
+            UserRequestUpdateAdmin request = new UserRequestUpdateAdmin(
+                    "",
+                    "",
+                    "",
+                    Role.USER
+            );
+
+            userServiceHelper.updateUserData(request, user);
+
+            assertEquals("existingUsername", user.getUsername());
+            assertEquals("existing@example.com", user.getEmail());
+            assertEquals("existingPassword", user.getPassword());
+            assertTrue(user.getRoles().contains(Role.USER));
         }
     }
 
@@ -288,5 +310,4 @@ class UserServiceHelperTest {
             assertTrue(exception.getMessage().contains("Failed to send welcome email"));
         }
     }
-
 }

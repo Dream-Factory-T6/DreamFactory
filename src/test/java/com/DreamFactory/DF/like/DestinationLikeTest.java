@@ -4,9 +4,12 @@ import com.DreamFactory.DF.destination.Destination;
 import com.DreamFactory.DF.user.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.context.ActiveProfiles;
+
 import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.*;
 
+@ActiveProfiles("test")
 class DestinationLikeTest {
     private User user;
     private Destination destination;

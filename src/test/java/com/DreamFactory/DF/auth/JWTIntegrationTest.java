@@ -1,33 +1,29 @@
 package com.DreamFactory.DF.auth;
 
 import com.jayway.jsonpath.JsonPath;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
-@TestPropertySource(locations = "classpath:application-test.properties")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class JWTIntegrationTest {
-
     @Autowired
     private MockMvc mockMvc;
 
-
         @Test
         void when_authOkPostReview_return_created() throws Exception{
-
             String login =  """
                 {
                     "username": "user", 
@@ -60,7 +56,6 @@ public class JWTIntegrationTest {
                     .andExpect(status().isCreated());
 
         }
-
 
         @Test
         void when_authFailedPostUser_return_forbidden() throws Exception {
@@ -97,13 +92,10 @@ public class JWTIntegrationTest {
                                             + token))
                     .andExpect(status().isForbidden())
                     .andReturn();
-
         }
-
 
         @Test
         void when_loginFailed_return_created() throws Exception{
-
             String login =  """
                 {
                     "username": "user", 
@@ -116,14 +108,10 @@ public class JWTIntegrationTest {
                             .content(login))
                     .andExpect(status().isUnauthorized())
                     .andReturn();
-
-
         }
-
 
         @Test
         void when_authTokenIsBad_return_unauthorized() throws Exception {
-
             String newUser = """
                     {
                       "username": "user2",
@@ -142,12 +130,10 @@ public class JWTIntegrationTest {
                                     , invalidJwt))
                     .andExpect(status().isUnauthorized())
                     .andReturn();
-
         }
 
         @Test
         void when_authTokenWithoutPrefix_return_unauthorized() throws Exception {
-
             String newUser = """
                 {
                     "username": "user2",
@@ -164,7 +150,6 @@ public class JWTIntegrationTest {
                             .content(newUser)
                             .header(TokenJwtConfig.headerAuthorization, badToken))
                     .andExpect(status().isForbidden());
-
         }
 
         @Test
@@ -200,5 +185,4 @@ public class JWTIntegrationTest {
                     .content(wrongJson))
                     .andExpect(status().isUnauthorized());
         }
-
 }
