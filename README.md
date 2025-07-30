@@ -1,7 +1,7 @@
-# Happy Travel — Backend API
+# Dream Factory — Backend API
 
-Happy Travel is a RESTful API developed to manage users’ travel dreams. Each user can share their desired destinations, leave reviews, like other destinations, and interact with a secure and modern backend system.
-This backend project is built using Java, Spring Boot, and Spring Security. It implements authentication with JWT + Refresh Token, supports Cloudinary for image storage, and includes integrated email notifications.
+Dream Factory is a RESTful API developed to manage users’ travel dreams. Each user can share their desired destinations, leave reviews, like other destinations, comunicate in live chat and interact with a secure and modern backend system.
+This backend project is built using Java, Spring Boot, and Spring Security. It implements authentication with JWT + Refresh Token, supports Cloudinary for image storage, and includes integrated email notifications, Web Socket for live chat.
 The system features reviews, likes/unlikes, and global exception handling to ensure a reliable and user-friendly API experience.
 
 ## Key Features
@@ -128,6 +128,14 @@ For example, in IntelliJ IDEA, right-click the main class and choose "Run 'DfApp
 - `POST /api/destinations/{id}/likes/toggle` — For Like/UnLike.
 - `GET /api/destinations/{id}/likes` — Get all Likes by Destination ID.
 
+### Live Chat
+
+ - `GET /api/chat/room/{roomId}/messages` — Get the latest messages from the room
+ - `GET /api/chat/rooms`— Get a list of available rooms
+ - `/chat.sendMessage` — Send message
+ - `/chat.addUser` — Add user to room
+ - `/chat.leaveRoom` — Leave the room
+
 ## Running Tests
 
 [![temp-Imagewb-Ke-Yr.avif](https://i.postimg.cc/MpDJq4SX/temp-Imagewb-Ke-Yr.avif)](https://postimg.cc/QFHyqfVr)
@@ -136,9 +144,9 @@ For example, in IntelliJ IDEA, right-click the main class and choose "Run 'DfApp
 
 [![temp-Image-UYIh0o.avif](https://i.postimg.cc/nLG4d4By/temp-Image-UYIh0o.avif)](https://postimg.cc/Y4jL0mXR)
 
-## Class Diagram
+## Chat Flow Diagram
 
-[View Class Diagram] ()
+[View Chat Flow Diagram] (https://drive.google.com/file/d/1gubwlFknBbAsJFYRwweYPRmHYhvvxCTh/view?usp=sharing)
 
 ## Contributors
 Paula Calvo Garcia
